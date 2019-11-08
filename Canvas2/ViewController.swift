@@ -9,10 +9,15 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
+    let canvas: Canvas = Canvas()
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        self.view.backgroundColor = .green
+        
+        canvas.testCanvas(name: "Adeola Uthman!!!")
     }
 
 
