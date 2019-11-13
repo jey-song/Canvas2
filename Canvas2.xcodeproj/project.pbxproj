@@ -13,6 +13,11 @@
 		5A4C9C662374E88E0019ED83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5A4C9C652374E88E0019ED83 /* Assets.xcassets */; };
 		5A4C9C692374E88E0019ED83 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5A4C9C672374E88E0019ED83 /* LaunchScreen.storyboard */; };
 		5A4C9C722374E9EA0019ED83 /* Canvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4C9C712374E9EA0019ED83 /* Canvas.swift */; };
+		5A6CA279237B030C0036DF3B /* UIColor+RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */; };
+		5A6CA27B237B05930036DF3B /* Canvas+Touch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */; };
+		5A6CA27D237B06410036DF3B /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA27C237B06410036DF3B /* Shaders.metal */; };
+		5A6CA281237B35A20036DF3B /* UITouch+Metal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */; };
+		5AFE47832379F72100738938 /* Curve.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AFE47822379F72100738938 /* Curve.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +29,11 @@
 		5A4C9C682374E88E0019ED83 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5A4C9C6A2374E88E0019ED83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5A4C9C712374E9EA0019ED83 /* Canvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Canvas.swift; sourceTree = "<group>"; };
+		5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+RGB.swift"; sourceTree = "<group>"; };
+		5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Canvas+Touch.swift"; sourceTree = "<group>"; };
+		5A6CA27C237B06410036DF3B /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITouch+Metal.swift"; sourceTree = "<group>"; };
+		5AFE47822379F72100738938 /* Curve.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Curve.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +81,11 @@
 			isa = PBXGroup;
 			children = (
 				5A4C9C712374E9EA0019ED83 /* Canvas.swift */,
+				5AFE47822379F72100738938 /* Curve.swift */,
+				5A6CA27C237B06410036DF3B /* Shaders.metal */,
+				5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */,
+				5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */,
+				5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -145,8 +160,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5A6CA27D237B06410036DF3B /* Shaders.metal in Sources */,
+				5AFE47832379F72100738938 /* Curve.swift in Sources */,
+				5A6CA279237B030C0036DF3B /* UIColor+RGB.swift in Sources */,
 				5A4C9C612374E88C0019ED83 /* ViewController.swift in Sources */,
+				5A6CA281237B35A20036DF3B /* UITouch+Metal.swift in Sources */,
 				5A4C9C5D2374E88C0019ED83 /* AppDelegate.swift in Sources */,
+				5A6CA27B237B05930036DF3B /* Canvas+Touch.swift in Sources */,
 				5A4C9C5F2374E88C0019ED83 /* SceneDelegate.swift in Sources */,
 				5A4C9C722374E9EA0019ED83 /* Canvas.swift in Sources */,
 			);
