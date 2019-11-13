@@ -13,80 +13,54 @@ import MetalKit
 public extension Canvas {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        super.touchesBegan(touches, with: event)
         guard let touch = touches.first else { return }
         
         // Get the position of the current touch and add it to the curve.
         // That curve will only exist and be editable while the touch is
         // active.
         let position = touch.metalLocation(in: self)
-        if self.nextCurve == nil { self.nextCurve = Curve() }
-        print("Touches began! \(position)")
         
-        self.nextCurve!.color = self.currentColor
-        self.nextCurve!.add(x: position.x, y: position.y)
+        var line = Line()
+        line.color = currentColor
+        line.add(point: position)
+        nextCurve.append(line)
         
-        // Get the vertex data for that point and set up the buffer.
-        guard let next = self.nextCurve else { return }
-        let dataLength = next.numPoints * MemoryLayout.size(ofValue: next.points[0])
-        
-        guard let dev = self.device else { return }
-        let options = MTLResourceOptions(arrayLiteral: [])
-        guard let buffer = dev.makeBuffer(bytes: next.points, length: dataLength, options: options) else { return }
-        
-        // Set the point buffer and append the curve to this canvas.
-        nextCurve!.setBuffer(buffer: buffer)
-        self.curves.append(nextCurve!)
-        self.commands = dev.makeCommandQueue()
+        // Add a curve, which will sit at the last index in the array and
+        // will be referenced as long as the touch is down.
+        curves.append(Curve())
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        super.touchesMoved(touches, with: event)
         guard let touch = touches.first else { return }
         
+        // We need a reference to the last line and curve in the arrays.
+        // These are generated upon a touch (touchesBegan function) so
+        // you can be sure they will exist by the time you reach here.
+        guard var lastLine = nextCurve.last else { return }
+        guard var lastCurve = curves.last else { return }
+        
         // Get the position of the current touch and add it to the curve.
-        // That curve will only exist and be editable while the touch is
-        // active.
+        // Add on the new point onto the line, then make sure the curve
+        // is updated to have that updated line segment.
         let position = touch.metalLocation(in: self)
-        print("Touches moved! \(position)")
+        lastLine.add(point: position)
         
-        // You don't need to color again, just make sure there is a curve
-        // to draw with. Add the touch location.
-        if self.nextCurve == nil {
-            self.nextCurve = Curve()
-            self.nextCurve?.color = self.currentColor
-        }
-        self.nextCurve!.add(x: position.x, y: position.y)
+        // Make sure the entire curve that you are drawing knows about
+        // the last line you just drew. Then update the last curve.
+        nextCurve.append(lastLine)
+        lastCurve.add(line: lastLine)
+        curves[curves.count - 1] = lastCurve
+        commands = dev.makeCommandQueue()
         
-        // Get the vertex data for that point and set up the buffer.
-        guard let next = self.nextCurve else { return }
-        let dataLength = next.numPoints * MemoryLayout.size(ofValue: next.points[0])
-        
-        guard let dev = self.device else { return }
-        let options = MTLResourceOptions(arrayLiteral: [])
-        guard let buffer = dev.makeBuffer(bytes: next.points, length: dataLength, options: options) else { return }
-        
-        // Set the point buffer and append the curve to this canvas.
-        nextCurve!.setBuffer(buffer: buffer)
-        self.curves.append(nextCurve!)
-        self.commands = dev.makeCommandQueue()
-        
+        // Update the canvas.
         draw()
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        super.touchesEnded(touches, with: event)
-//        guard let touch = touches.first else { return }
-//        let position = touch.metalLocation(in: self)
         
-        // When you are done drawing the line, add it as a curve to
-        // the canvas and clear it so you can make a new curve.
-        self.curves.append(self.nextCurve!)
-        
-        draw()
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        super.touchesCancelled(touches, with: event)
+        
     }
 }

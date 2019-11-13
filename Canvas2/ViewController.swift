@@ -10,6 +10,8 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    let colors: [UIColor] = [.black, .green, .red, .blue]
+    
     var canvas: Canvas = Canvas()
     
 
@@ -17,6 +19,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .darkGray
         
+        // Setup the canvas view.
         canvas.frame = CGRect(
             x: 0,
             y: 0,
@@ -24,8 +27,29 @@ class ViewController: UIViewController {
             height: self.view.frame.height - 200
         )
         self.view.addSubview(canvas)
+        
+        // Set a timer every 10 seconds to change the color.
+        let timer = Timer.scheduledTimer(
+            timeInterval: 10,
+            target: self,
+            selector: #selector(changeColor),
+            userInfo: nil,
+            repeats: true
+        )
+        timer.fire()
     }
 
 
+    
+    
+    /** Changes the d*/
+    @objc func changeColor() {
+        let rand = Int(arc4random_uniform(UInt32(colors.count)))
+        if canvas.currentColor == colors[rand] {
+            return changeColor()
+        }
+        canvas.currentColor = colors[rand]
+        print("Changed color to \(colors[rand])")
+    }
 }
 

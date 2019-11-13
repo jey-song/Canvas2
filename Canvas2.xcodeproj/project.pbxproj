@@ -13,6 +13,7 @@
 		5A4C9C662374E88E0019ED83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5A4C9C652374E88E0019ED83 /* Assets.xcassets */; };
 		5A4C9C692374E88E0019ED83 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5A4C9C672374E88E0019ED83 /* LaunchScreen.storyboard */; };
 		5A4C9C722374E9EA0019ED83 /* Canvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4C9C712374E9EA0019ED83 /* Canvas.swift */; };
+		5A574DE6237CBAF0004E1BE6 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A574DE5237CBAEF004E1BE6 /* Line.swift */; };
 		5A6CA279237B030C0036DF3B /* UIColor+RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */; };
 		5A6CA27B237B05930036DF3B /* Canvas+Touch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */; };
 		5A6CA27D237B06410036DF3B /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA27C237B06410036DF3B /* Shaders.metal */; };
@@ -29,6 +30,7 @@
 		5A4C9C682374E88E0019ED83 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5A4C9C6A2374E88E0019ED83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5A4C9C712374E9EA0019ED83 /* Canvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Canvas.swift; sourceTree = "<group>"; };
+		5A574DE5237CBAEF004E1BE6 /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+RGB.swift"; sourceTree = "<group>"; };
 		5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Canvas+Touch.swift"; sourceTree = "<group>"; };
 		5A6CA27C237B06410036DF3B /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
@@ -80,14 +82,23 @@
 		5A4C9C702374E9DA0019ED83 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				5A574DE4237CBADF004E1BE6 /* Shapes */,
 				5A4C9C712374E9EA0019ED83 /* Canvas.swift */,
-				5AFE47822379F72100738938 /* Curve.swift */,
 				5A6CA27C237B06410036DF3B /* Shaders.metal */,
 				5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */,
 				5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */,
 				5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */,
 			);
 			path = src;
+			sourceTree = "<group>";
+		};
+		5A574DE4237CBADF004E1BE6 /* Shapes */ = {
+			isa = PBXGroup;
+			children = (
+				5A574DE5237CBAEF004E1BE6 /* Line.swift */,
+				5AFE47822379F72100738938 /* Curve.swift */,
+			);
+			path = Shapes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -169,6 +180,7 @@
 				5A6CA27B237B05930036DF3B /* Canvas+Touch.swift in Sources */,
 				5A4C9C5F2374E88C0019ED83 /* SceneDelegate.swift in Sources */,
 				5A4C9C722374E9EA0019ED83 /* Canvas.swift in Sources */,
+				5A574DE6237CBAF0004E1BE6 /* Line.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

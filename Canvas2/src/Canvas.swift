@@ -10,6 +10,9 @@ import Foundation
 import Metal
 import MetalKit
 
+/** The global Metal device. */
+var dev: MTLDevice!
+
 /** A Metal-accelerated canvas for drawing and painting. */
 public class Canvas: MTKView {
     
@@ -18,24 +21,25 @@ public class Canvas: MTKView {
     internal var commands: MTLCommandQueue!
     
     internal var curves: [Curve]
-    internal var nextCurve: Curve?
+    internal var nextCurve: [Line]
     
     internal var currentColor: UIColor
     
     
     public init() {
-        let d = MTLCreateSystemDefaultDevice()
+        dev = MTLCreateSystemDefaultDevice()
         self.curves = []
+        self.nextCurve = []
         self.currentColor = .black
-        self.commands = d!.makeCommandQueue()
-        super.init(frame: CGRect.zero, device: d)
+        self.commands = dev!.makeCommandQueue()
+        super.init(frame: CGRect.zero, device: dev)
         
         // Configure the metal view.
         self.colorPixelFormat = MTLPixelFormat.bgra8Unorm
         self.framebufferOnly = true
         
         // Configure the pipeline.
-        guard let device = d else { return }
+        guard let device = dev else { return }
         guard let lib = device.makeDefaultLibrary() else { return }
         guard let vertProg = lib.makeFunction(name: "colored_vertex") else { return }
         guard let fragProg = lib.makeFunction(name: "colored_fragment") else { return }
