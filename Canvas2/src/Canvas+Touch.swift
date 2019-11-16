@@ -21,7 +21,7 @@ public extension Canvas {
         let position = touch.metalLocation(in: self)
         
         var line = Line()
-        line.color = currentColor
+        line.color = currentBrush.color
         line.add(point: position)
         nextCurve.append(line)
         

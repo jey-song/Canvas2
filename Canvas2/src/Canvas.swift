@@ -23,14 +23,14 @@ public class Canvas: MTKView {
     internal var curves: [Curve]
     internal var nextCurve: [Line]
     
-    internal var currentColor: UIColor
+    internal var currentBrush: Brush
     
     
     public init() {
         dev = MTLCreateSystemDefaultDevice()
         self.curves = []
         self.nextCurve = []
-        self.currentColor = .black
+        self.currentBrush = Brush(size: 5, opacity: 1, color: .black)
         self.commands = dev!.makeCommandQueue()
         super.init(frame: CGRect.zero, device: dev)
         

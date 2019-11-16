@@ -17,9 +17,6 @@ public struct Curve {
     var lines: [Line]
     
     // MARK: - Computed
-    var numLines: Int {
-        return self.lines.count
-    }
     
     
     

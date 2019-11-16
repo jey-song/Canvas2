@@ -16,17 +16,22 @@ public struct Line {
     // MARK: - Internals
     internal var points: [Float]
     internal var color: UIColor
+    internal var size: Float
     
     
     
     init() {
         self.points = []
         self.color = .black
+        self.size = 5
     }
     
     /** Adds a new point onto the line. */
     public mutating func add(point p: SIMD4<Float>) {
+        // Add the location information.
         points.append(contentsOf: [p.x, p.y, p.z, p.w])
+        
+        // Add the color information.
         let rgba = self.color.rgba
         let toFloats = [rgba.red, rgba.green, rgba.blue, rgba.alpha].map({ a -> Float in
             return Float(a)

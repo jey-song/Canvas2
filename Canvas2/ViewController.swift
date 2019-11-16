@@ -42,13 +42,13 @@ class ViewController: UIViewController {
 
     
     
-    /** Changes the d*/
+    /** Changes the color of the brush. */
     @objc func changeColor() {
         let rand = Int(arc4random_uniform(UInt32(colors.count)))
-        if canvas.currentColor == colors[rand] {
+        if canvas.currentBrush.color == colors[rand] {
             return changeColor()
         }
-        canvas.currentColor = colors[rand]
+        canvas.currentBrush.color = colors[rand]
         print("Changed color to \(colors[rand])")
     }
 }

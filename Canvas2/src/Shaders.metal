@@ -25,20 +25,25 @@ struct VertexOut {
 
 
 // Most basic vertex.
-vertex float4 basic_vertex(const device packed_float4* vertex_array [[ buffer(0) ]], unsigned int vid [[ vertex_id ]]) {
-    return float4(vertex_array[vid]);
-}
-
-// Most basic fragment.
-fragment half4 basic_fragment() {
-    return half4(0.0); // <-- Black
-}
+//vertex float4 basic_vertex(const device packed_float4* vertex_array [[ buffer(0) ]], unsigned int vid [[ vertex_id ]]) {
+//    return float4(vertex_array[vid]);
+//}
+//
+//// Most basic fragment.
+//fragment half4 basic_fragment() {
+//    return half4(0.0); // <-- Black
+//}
 
 // Colored Vertex Shader.
 vertex VertexOut colored_vertex(const device VertexIn* vertex_array [[ buffer(0) ]], unsigned int vid [[ vertex_id ]]) {
+    
+    // Get a reference to the vertex that is coming in.
     VertexIn vertexIn = vertex_array[vid];
     
+    // Construct a vertex that will be returned after doing some transformations.
     VertexOut vertexOut;
+    
+    // Make the necessary transformations.
     vertexOut.position = float4(vertexIn.position);
     vertexOut.color = vertexIn.color;
     
@@ -47,10 +52,5 @@ vertex VertexOut colored_vertex(const device VertexIn* vertex_array [[ buffer(0)
 
 // Colored Fragment Shader.
 fragment half4 colored_fragment(VertexOut interpolated [[stage_in]]) {
-    return half4(
-                 interpolated.color[0],
-                 interpolated.color[1],
-                 interpolated.color[2],
-                 interpolated.color[3]
-                 );
+    return half4(interpolated.color[0], interpolated.color[1], interpolated.color[2], interpolated.color[3]);
 }
