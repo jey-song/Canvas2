@@ -14,12 +14,16 @@ struct VertexIn {
     // The <x,y> position of the vertex.
     packed_float4 position;
     
+    // The point size of the vertex.
+    float point_size;
+    
     // The color of the pixel.
     packed_float4 color;
 };
 
 struct VertexOut {
     float4 position [[position]];
+    float point_size [[point_size]];
     float4 color;
 };
 
@@ -45,6 +49,7 @@ vertex VertexOut colored_vertex(const device VertexIn* vertex_array [[ buffer(0)
     
     // Make the necessary transformations.
     vertexOut.position = float4(vertexIn.position);
+    vertexOut.point_size = vertexIn.point_size;
     vertexOut.color = vertexIn.color;
     
     return vertexOut;

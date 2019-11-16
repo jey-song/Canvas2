@@ -31,6 +31,9 @@ public struct Line {
         // Add the location information.
         points.append(contentsOf: [p.x, p.y, p.z, p.w])
         
+        // Add the brush size information.
+        points.append(self.size)
+        
         // Add the color information.
         let rgba = self.color.rgba
         let toFloats = [rgba.red, rgba.green, rgba.blue, rgba.alpha].map({ a -> Float in
@@ -55,6 +58,6 @@ public struct Line {
     
         // Use the encoder to draw line strips between the points.
         enc.setVertexBuffer(buffer, offset: 0, index: 0)
-        enc.drawPrimitives(type: .lineStrip, vertexStart: 0, vertexCount: points.count)
+        enc.drawPrimitives(type: .point, vertexStart: 0, vertexCount: points.count)
     }
 }
