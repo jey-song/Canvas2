@@ -84,13 +84,11 @@
 		5A4C9C702374E9DA0019ED83 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				5A59BFB0237FB56E00D40E11 /* Tools */,
-				5A574DE4237CBADF004E1BE6 /* Shapes */,
 				5A4C9C712374E9EA0019ED83 /* Canvas.swift */,
 				5A6CA27C237B06410036DF3B /* Shaders.metal */,
-				5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */,
-				5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */,
-				5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */,
+				5A59BFB0237FB56E00D40E11 /* Tools */,
+				5A574DE4237CBADF004E1BE6 /* Shapes */,
+				5A7DB28023CE32920023F311 /* Extensions */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -110,6 +108,16 @@
 				5A59BFB1237FB58000D40E11 /* Brush.swift */,
 			);
 			path = Tools;
+			sourceTree = "<group>";
+		};
+		5A7DB28023CE32920023F311 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */,
+				5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */,
+				5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

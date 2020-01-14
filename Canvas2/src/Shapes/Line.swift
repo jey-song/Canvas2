@@ -14,16 +14,16 @@ import MetalKit
 public struct Line {
     
     // MARK: - Internals
+    
     internal var points: [Float]
-    internal var color: UIColor
-    internal var size: Float
+    
+    internal var canvas: Canvas
     
     
     
-    init() {
+    init(canvas: Canvas) {
         self.points = []
-        self.color = .black
-        self.size = 5
+        self.canvas = canvas
     }
     
     /** Adds a new point onto the line. */
@@ -32,10 +32,10 @@ public struct Line {
         points.append(contentsOf: [p.x, p.y, p.z, p.w])
         
         // Add the brush size information.
-        points.append(self.size)
+        points.append(self.canvas.currentBrush.size)
         
         // Add the color information.
-        let rgba = self.color.rgba
+        let rgba = self.canvas.currentBrush.color.rgba
         let toFloats = [rgba.red, rgba.green, rgba.blue, rgba.alpha].map({ a -> Float in
             return Float(a)
         })

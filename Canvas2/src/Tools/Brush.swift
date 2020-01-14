@@ -16,20 +16,20 @@ public struct Brush {
     
     // MARK: - Internals
     internal var size: Float
-    internal var opacity: Float
+    
     internal var color: UIColor
     
     
     
     // MARK: - Constructors
-    init(size s: Float, opacity o: Float, color c: UIColor) {
+    
+    init(size s: Float, color c: UIColor) {
         self.size = s
-        self.opacity = o
         self.color = c
     }
     
     init() {
-        self.init(size: 5, opacity: 1, color: .black)
+        self.init(size: 10, color: .black)
     }
     
     

@@ -30,7 +30,7 @@ public class Canvas: MTKView {
         dev = MTLCreateSystemDefaultDevice()
         self.curves = []
         self.nextCurve = []
-        self.currentBrush = Brush(size: 5, opacity: 1, color: .black)
+        self.currentBrush = Brush(size: 10, color: .black)
         self.commands = dev!.makeCommandQueue()
         super.init(frame: CGRect.zero, device: dev)
         
@@ -76,6 +76,13 @@ public class Canvas: MTKView {
             guard let buffer = self.commands.makeCommandBuffer() else { return }
             guard let encoder = buffer.makeRenderCommandEncoder(descriptor: descriptor) else { return }
             encoder.setRenderPipelineState(self.pipeline)
+            
+            // Make sure to draw the temporary curve while drawing.
+            if nextCurve.count > 0 {
+                var whileDrawing: Curve = Curve()
+                whileDrawing.add(lines: nextCurve)
+                whileDrawing.render(encoder: encoder)
+            }
             
             // Draw tiny little lines between each set of points in the curves array.
             // The Curve struct should handle this on its own, so basically just draw

@@ -26,10 +26,10 @@ public struct Curve {
     }
     
     /** Adds a new point onto the curve. */
-    mutating func add(line: Line) {
+    mutating func add(lines: [Line]) {
         // TODO: When drawing curves (even just simple ones) you should really
         // be drawing a rectangle so that you can account for line width.
-        self.lines.append(line)
+        self.lines.append(contentsOf: lines)
     }
     
     /** A helper function that takes an MTLRenderEncoder as a paramater and uses it to draw the curve on the screen. */
