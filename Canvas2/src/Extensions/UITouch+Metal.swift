@@ -14,17 +14,21 @@ import MetalKit
 public extension UITouch {
     
     /** Returns the location of this touch in a view that is based on the Metal coordinate system. */
-    func metalLocation(in view: UIView) -> SIMD4<Float> {
+    func metalLocation(in view: UIView) -> CGPoint {
         let loc = self.preciseLocation(in: view)
         
         let viewportWidthHalf = view.frame.width / 2
         let viewportHeightHalf = view.frame.height / 2
         
-        let norm = SIMD4(
-            x: Float(loc.x / viewportWidthHalf) - 1,
-            y: 1 - Float(loc.y / viewportHeightHalf),
-            z: 0,
-            w: 1
+//        let norm = SIMD4(
+//            x: Float(loc.x / viewportWidthHalf) - 1,
+//            y: 1 - Float(loc.y / viewportHeightHalf),
+//            z: 0,
+//            w: 1
+//        )
+        let norm: CGPoint = CGPoint(
+            x: CGFloat(loc.x / viewportWidthHalf) - 1,
+            y: 1 - CGFloat(loc.y / viewportHeightHalf)
         )
         return norm
     }

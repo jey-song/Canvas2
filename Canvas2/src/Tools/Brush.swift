@@ -21,7 +21,7 @@ public struct Brush {
     
     
     
-    // MARK: - Constructors
+    // MARK: Initialization
     
     init(size s: Float, color c: UIColor) {
         self.size = s
@@ -33,4 +33,10 @@ public struct Brush {
     }
     
     
+    // MARK: Functions
+    
+    func copy() -> Brush {
+        let b: Brush = Brush(size: self.size, color: self.color)
+        return b
+    }
 }

@@ -20,7 +20,7 @@ public extension Canvas {
         // active.
         let position = touch.metalLocation(in: self)
         
-        var line = Line(canvas: self)
+        var line = Line(brush: currentBrush.copy())
         line.add(point: position)
         nextCurve.append(line)
     }
