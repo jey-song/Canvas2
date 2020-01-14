@@ -58,6 +58,6 @@ public struct Line {
     
         // Use the encoder to draw line strips between the points.
         enc.setVertexBuffer(buffer, offset: 0, index: 0)
-        enc.drawPrimitives(type: .point, vertexStart: 0, vertexCount: points.count)
+        enc.drawPrimitives(type: .point, vertexStart: points.count, vertexCount: points.count)
     }
 }
