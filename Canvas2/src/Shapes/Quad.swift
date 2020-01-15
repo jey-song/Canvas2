@@ -11,18 +11,22 @@ import Metal
 import MetalKit
 import UIKit
 
-
+/** A four-sided shape that gets rendered on the screen as two adjacent triangles. */
 struct Quad {
     
     // MARK: Variables
-    
+
+    var brush: Brush
+
     var vertices: [Vertex]
     
     var start: CGPoint
     
     var end: CGPoint
     
-    var brush: Brush
+    var c: CGPoint
+    
+    var d: CGPoint
     
     
     
@@ -32,6 +36,8 @@ struct Quad {
         self.vertices = []
         self.start = CGPoint()
         self.end = CGPoint()
+        self.c = CGPoint()
+        self.d = CGPoint()
         self.brush = brush
 //        self.vertices = [
 //            Vertex(position: CGPoint(x: -0.5, y: -0.5), color: .black),
@@ -45,6 +51,8 @@ struct Quad {
         self.vertices = []
         self.start = start
         self.end = CGPoint()
+        self.c = CGPoint()
+        self.d = CGPoint()
         self.brush = brush
 //        self.vertices = [
 //            Vertex(position: start, color: .blue),
@@ -55,12 +63,11 @@ struct Quad {
     }
     
     
-    
     // MARK: Functions
     
     /** Sets the ending position of this quad and promptly computes the rectangular shape
      needed to display it on screen. It really just computes two triangles at the end of the day. */
-    mutating func end(at: CGPoint) {
+    mutating func end(at: CGPoint, prevA: CGPoint? = nil, prevB: CGPoint? = nil) {
         self.end = at
         
         // Compute the quad vertices ABCD.
@@ -68,10 +75,18 @@ struct Quad {
         let color = self.brush.color
 
         let perpendicular = self.start.perpendicular(other: self.end).normalize()
-        let A = self.start + (perpendicular * CGSize(width: size, height: size))
-        let B = self.start - (perpendicular * CGSize(width: size, height: size))
-        let C = self.end + (perpendicular * CGSize(width: size, height: size))
-        let D = self.end - (perpendicular * CGSize(width: size, height: size))
+        var A = self.start + (perpendicular * size)
+        var B = self.start - (perpendicular * size)
+        let C = self.end + (perpendicular * size)
+        let D = self.end - (perpendicular * size)
+        
+        // Use the previous quad's points
+        if let pA = prevA, let pB = prevB {
+            A = pA
+            B = pB
+        }
+        self.c = C
+        self.d = D
 
         // Place the quad points into the vertices array to form two triangles.
         self.vertices = [
@@ -97,6 +112,6 @@ struct Quad {
         
         let vertCount = buffer.length / MemoryLayout<Vertex>.stride
         encoder.setVertexBuffer(buffer, offset: 0, index: 0)
-        encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: vertCount)
+        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertCount)
     }
 }

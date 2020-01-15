@@ -16,11 +16,16 @@ public struct Brush {
     
     // MARK: Variables
     
-    internal var size: CGFloat
+    internal var size: CGFloat {
+        didSet {
+            self.size = computeMetalSize(from: self.size)
+        }
+    }
     
     internal var color: UIColor
     
     
+    /** The default brush that the canvas uses. */
     static let Default: Brush = {
         return Brush(size: 10, color: .black)
     }()
@@ -30,7 +35,7 @@ public struct Brush {
     // MARK: Initialization
     
     init(size s: CGFloat, color c: UIColor) {
-        self.size = s / (s + 20) // <-- 20 just seemed like a nice number while testing.
+        self.size = computeMetalSize(from: s)
         self.color = c
     }
     

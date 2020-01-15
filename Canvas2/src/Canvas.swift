@@ -25,6 +25,11 @@ public class Canvas: MTKView {
     
     internal var quads: [Quad]
     internal var nextQuad: Quad?
+    internal var lastQuad: Quad?
+    
+    // TODO: Must be implemented later.
+    internal var forceEnabled: Bool
+    internal var stylusOnly: Bool
     
     
     
@@ -32,6 +37,8 @@ public class Canvas: MTKView {
     
     public init() {
         dev = MTLCreateSystemDefaultDevice()
+        self.forceEnabled = true
+        self.stylusOnly = false
         self.currentBrush = Brush(size: 10, color: .black)
         self.commands = dev!.makeCommandQueue()
         self.quads = []
