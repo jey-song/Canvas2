@@ -20,12 +20,6 @@ public extension UITouch {
         let viewportWidthHalf = view.frame.width / 2
         let viewportHeightHalf = view.frame.height / 2
         
-//        let norm = SIMD4(
-//            x: Float(loc.x / viewportWidthHalf) - 1,
-//            y: 1 - Float(loc.y / viewportHeightHalf),
-//            z: 0,
-//            w: 1
-//        )
         let norm: CGPoint = CGPoint(
             x: CGFloat(loc.x / viewportWidthHalf) - 1,
             y: 1 - CGFloat(loc.y / viewportHeightHalf)

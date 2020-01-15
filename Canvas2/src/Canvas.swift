@@ -16,20 +16,19 @@ var dev: MTLDevice!
 /** A Metal-accelerated canvas for drawing and painting. */
 public class Canvas: MTKView {
     
-    // INTERNAL
+    // MARK: Variables
+    
     internal var pipeline: MTLRenderPipelineState!
     internal var commands: MTLCommandQueue!
-    
-    internal var curves: [Curve]
-    internal var nextCurve: [Line]
     
     internal var currentBrush: Brush
     
     
+    
+    // MARK: Initialization
+    
     public init() {
         dev = MTLCreateSystemDefaultDevice()
-        self.curves = []
-        self.nextCurve = []
         self.currentBrush = Brush(size: 10, color: .black)
         self.commands = dev!.makeCommandQueue()
         super.init(frame: CGRect.zero, device: dev)
@@ -41,8 +40,8 @@ public class Canvas: MTKView {
         // Configure the pipeline.
         guard let device = dev else { return }
         guard let lib = device.makeDefaultLibrary() else { return }
-        guard let vertProg = lib.makeFunction(name: "colored_vertex") else { return }
-        guard let fragProg = lib.makeFunction(name: "colored_fragment") else { return }
+        guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
+        guard let fragProg = lib.makeFunction(name: "main_fragment") else { return }
         
         let descriptor = MTLRenderPipelineDescriptor()
         descriptor.vertexFunction = vertProg
@@ -57,7 +56,9 @@ public class Canvas: MTKView {
     }
     
     
-   
+    let quad: Quad = Quad()
+    let quad2: Quad = Quad(start: CGPoint(x: 0, y: 0.5))
+    var quads: [Quad] = []
     
     /** Updates the drawable on the canvas's underlying MTKView. */
     public override func draw() {
@@ -67,7 +68,7 @@ public class Canvas: MTKView {
             
             // Create a descriptor for the pipeline.
             let descriptor = MTLRenderPassDescriptor()
-            descriptor.colorAttachments[0].texture = drawable.texture // TODO: This is where you can change the texture.
+            descriptor.colorAttachments[0].texture = drawable.texture
             descriptor.colorAttachments[0].loadAction = MTLLoadAction.clear
             descriptor.colorAttachments[0].clearColor = MTLClearColor(red: 1, green: 1, blue: 1, alpha: 1)
             
@@ -77,18 +78,11 @@ public class Canvas: MTKView {
             guard let encoder = buffer.makeRenderCommandEncoder(descriptor: descriptor) else { return }
             encoder.setRenderPipelineState(self.pipeline)
             
-            // Make sure to draw the temporary curve while drawing.
-            if nextCurve.count > 0 {
-                var whileDrawing: Curve = Curve()
-                whileDrawing.add(lines: nextCurve)
-                whileDrawing.render(encoder: encoder)
-            }
-            
-            // Draw tiny little lines between each set of points in the curves array.
-            // The Curve struct should handle this on its own, so basically just draw
-            // each curve.
-            for curve in self.curves {
-                curve.render(encoder: encoder)
+            // Draw the curves on the screen.
+            quad.render(encoder: encoder)
+            quad2.render(encoder: encoder)
+            for q in quads {
+                q.render(encoder: encoder)
             }
             
             // End the encoding and present the new drawable after its been updated.

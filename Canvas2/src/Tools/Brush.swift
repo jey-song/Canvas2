@@ -14,8 +14,9 @@ import MetalKit
 /** A customizable brush that draws simple curves on the canvas. */
 public struct Brush {
     
-    // MARK: - Internals
-    internal var size: Float
+    // MARK: Variables
+    
+    internal var size: CGFloat
     
     internal var color: UIColor
     
@@ -23,7 +24,7 @@ public struct Brush {
     
     // MARK: Initialization
     
-    init(size s: Float, color c: UIColor) {
+    init(size s: CGFloat, color c: UIColor) {
         self.size = s
         self.color = c
     }
