@@ -11,6 +11,7 @@ import Metal
 import MetalKit
 import UIKit
 
+
 struct Quad {
     
     // MARK: Variables
@@ -22,8 +23,6 @@ struct Quad {
     var end: CGPoint
     
     var brush: Brush
-    
-    
     
     
     
@@ -64,26 +63,27 @@ struct Quad {
     mutating func end(at: CGPoint) {
         self.end = at
         
-        // Compute the quad vertices and place them in the array.
-        let size = self.brush.size
+        // Compute the quad vertices ABCD.
+        let size = self.brush.size / 2
         let color = self.brush.color
-        let bottomLeft = CGPoint(x: self.start.x - size, y: self.start.y + size)
-        let topLeft = CGPoint(x: self.end.x - size, y: self.end.y + size)
-        
-        // TODO: FIgure out how to flip the computed quad when the start point
-        // has a higher x-value than the end point.
-        
-        // Set the vertices to form two triangles.
+
+        let perpendicular = self.start.perpendicular(other: self.end).normalize()
+        let A = self.start + (perpendicular * CGSize(width: size, height: size))
+        let B = self.start - (perpendicular * CGSize(width: size, height: size))
+        let C = self.end + (perpendicular * CGSize(width: size, height: size))
+        let D = self.end - (perpendicular * CGSize(width: size, height: size))
+
+        // Place the quad points into the vertices array to form two triangles.
         self.vertices = [
             // Triangle 1
-            Vertex(position: start, color: color),
-            Vertex(position: bottomLeft, color: color),
-            Vertex(position: end, color: color),
-            
+            Vertex(position: A, color: color),
+            Vertex(position: B, color: color),
+            Vertex(position: C, color: color),
+
             // Triangle 2
-            Vertex(position: end, color: color),
-            Vertex(position: topLeft, color: color),
-            Vertex(position: bottomLeft, color: color),
+            Vertex(position: B, color: color),
+            Vertex(position: C, color: color),
+            Vertex(position: D, color: color),
         ]
     }
     
