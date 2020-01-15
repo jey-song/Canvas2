@@ -21,16 +21,17 @@ public struct Brush {
     internal var color: UIColor
     
     
+    static let Default: Brush = {
+        return Brush(size: 10, color: .black)
+    }()
+    
+    
     
     // MARK: Initialization
     
     init(size s: CGFloat, color c: UIColor) {
-        self.size = s
+        self.size = s / (s + 20) // <-- 20 just seemed like a nice number while testing.
         self.color = c
-    }
-    
-    init() {
-        self.init(size: 10, color: .black)
     }
     
     

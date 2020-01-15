@@ -23,6 +23,9 @@ public class Canvas: MTKView {
     
     internal var currentBrush: Brush
     
+    internal var quads: [Quad]
+    internal var nextQuad: Quad?
+    
     
     
     // MARK: Initialization
@@ -31,6 +34,7 @@ public class Canvas: MTKView {
         dev = MTLCreateSystemDefaultDevice()
         self.currentBrush = Brush(size: 10, color: .black)
         self.commands = dev!.makeCommandQueue()
+        self.quads = []
         super.init(frame: CGRect.zero, device: dev)
         
         // Configure the metal view.
@@ -56,9 +60,9 @@ public class Canvas: MTKView {
     }
     
     
-    let quad: Quad = Quad()
-    let quad2: Quad = Quad(start: CGPoint(x: 0, y: 0.5))
-    var quads: [Quad] = []
+    
+    
+    // MARK: Functions
     
     /** Updates the drawable on the canvas's underlying MTKView. */
     public override func draw() {
@@ -79,10 +83,8 @@ public class Canvas: MTKView {
             encoder.setRenderPipelineState(self.pipeline)
             
             // Draw the curves on the screen.
-            quad.render(encoder: encoder)
-            quad2.render(encoder: encoder)
-            for q in quads {
-                q.render(encoder: encoder)
+            for quad in quads {
+                quad.render(encoder: encoder)
             }
             
             // End the encoding and present the new drawable after its been updated.

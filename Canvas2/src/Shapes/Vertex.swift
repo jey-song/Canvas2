@@ -14,7 +14,7 @@ import simd
 
 struct Vertex {
     
-    // MARK: Variables
+    // MARK: Variables (IMPORTANT: DO NOT change the order of these variables)
     
     var position: SIMD4<Float>
     
