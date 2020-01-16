@@ -17,6 +17,8 @@ var dev: MTLDevice!
 public class Canvas: MTKView {
     
     // MARK: Variables
+
+    // ---> Internal
     
     internal var pipeline: MTLRenderPipelineState!
     internal var commands: MTLCommandQueue!
@@ -30,14 +32,45 @@ public class Canvas: MTKView {
     internal var force: CGFloat
     
     
+    // ---> Public
+    
     /** The brush that determines the styling of the next curve drawn on the canvas. */
     public var currentBrush: Brush
+    
+    /** The tool that is currently used to add objects to the canvas. */
+    public var currentTool: Tool {
+        didSet {
+            // Make sure to reset the canvas reference for each tool.
+            self.currentTool.canvas = self
+        }
+    }
     
     /** Whether or not the canvas should respond to force as a way to draw curves. */
     public var forceEnabled: Bool
     
+    /** The maximum force allowed on the canvas. */
+    public var maximumForce: CGFloat {
+        didSet {
+            self.maximumForce = CGFloat(simd_clamp(Float(self.maximumForce), 0.0, 1.0))
+        }
+    }
+    
     /** Only allow styluses such as the Apple Pencil to be used for drawing. */
     public var stylusOnly: Bool
+    
+    
+    // --> Static/Computed
+    
+    /** A very basic pencil tool for freehand drawing. */
+    static let pencilTool: Pencil = {
+        return Pencil()
+    }()
+    
+    /** A basic tool for creating perfect rectangles. */
+    static let rectangleTool: Rectangle = {
+        return Rectangle()
+    }()
+    
     
     
     
@@ -48,7 +81,9 @@ public class Canvas: MTKView {
         self.forceEnabled = true
         self.stylusOnly = false
         self.force = 1.0
+        self.maximumForce = 1.0
         self.currentBrush = Brush(size: 10, color: .black)
+        self.currentTool = Canvas.pencilTool
         self.commands = dev!.makeCommandQueue()
         self.currentDrawingCurve = []
         self.totalVertices = []
@@ -69,7 +104,8 @@ public class Canvas: MTKView {
         descriptor.fragmentFunction = fragProg
         descriptor.colorAttachments[0].pixelFormat = MTLPixelFormat.bgra8Unorm
         
-        pipeline = try! device.makeRenderPipelineState(descriptor: descriptor)
+        self.pipeline = try! device.makeRenderPipelineState(descriptor: descriptor)
+        self.currentTool.canvas = self
     }
     
     required init(coder: NSCoder) {
@@ -84,7 +120,7 @@ public class Canvas: MTKView {
     /** Updates the force property of the canvas. */
     internal func setForce(value: CGFloat) {
         if self.forceEnabled == true {
-            self.force = value// max(0, value / 3)
+            self.force = min(value, self.maximumForce)
         } else {
             // use simulated force
             var length = CGPoint(x: 1, y: 1).distance(to: .zero)
@@ -99,9 +135,12 @@ public class Canvas: MTKView {
         for quad in self.currentDrawingCurve {
             self.totalVertices.append(contentsOf: quad.vertices)
         }
+        let len = totalVertices.count * MemoryLayout<Vertex>.stride
+        guard len > 0 else { return }
+        
         quadsBuffer = dev.makeBuffer(
             bytes: self.totalVertices,
-            length: totalVertices.count * MemoryLayout<Vertex>.stride,
+            length: len,
             options: []
         )
     }

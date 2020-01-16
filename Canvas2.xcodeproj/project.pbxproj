@@ -21,6 +21,9 @@
 		5A6CA279237B030C0036DF3B /* UIColor+RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */; };
 		5A6CA27B237B05930036DF3B /* Canvas+Touch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */; };
 		5A6CA281237B35A20036DF3B /* UITouch+Metal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */; };
+		5A92EAB623D09C5E00F4A53A /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB523D09C5E00F4A53A /* Tool.swift */; };
+		5A92EAB823D09D0E00F4A53A /* Pencil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB723D09D0E00F4A53A /* Pencil.swift */; };
+		5A92EABA23D0A1A600F4A53A /* Rectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB923D0A1A600F4A53A /* Rectangle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +43,9 @@
 		5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+RGB.swift"; sourceTree = "<group>"; };
 		5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Canvas+Touch.swift"; sourceTree = "<group>"; };
 		5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITouch+Metal.swift"; sourceTree = "<group>"; };
+		5A92EAB523D09C5E00F4A53A /* Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tool.swift; sourceTree = "<group>"; };
+		5A92EAB723D09D0E00F4A53A /* Pencil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pencil.swift; sourceTree = "<group>"; };
+		5A92EAB923D0A1A600F4A53A /* Rectangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rectangle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +114,9 @@
 			isa = PBXGroup;
 			children = (
 				5A59BFB1237FB58000D40E11 /* Brush.swift */,
+				5A92EAB523D09C5E00F4A53A /* Tool.swift */,
+				5A92EAB723D09D0E00F4A53A /* Pencil.swift */,
+				5A92EAB923D0A1A600F4A53A /* Rectangle.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -193,13 +202,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5A92EABA23D0A1A600F4A53A /* Rectangle.swift in Sources */,
 				5A59BFB2237FB58000D40E11 /* Brush.swift in Sources */,
 				5A6CA279237B030C0036DF3B /* UIColor+RGB.swift in Sources */,
 				5A51FC1B23CEC5D700467EFC /* Quad.swift in Sources */,
 				5A4C9C612374E88C0019ED83 /* ViewController.swift in Sources */,
 				5A51FC1923CEC49600467EFC /* Vertex.swift in Sources */,
 				5A51FC1523CEB7E700467EFC /* Shader.metal in Sources */,
+				5A92EAB823D09D0E00F4A53A /* Pencil.swift in Sources */,
 				5A6CA281237B35A20036DF3B /* UITouch+Metal.swift in Sources */,
+				5A92EAB623D09C5E00F4A53A /* Tool.swift in Sources */,
 				5A4C9C5D2374E88C0019ED83 /* AppDelegate.swift in Sources */,
 				5A6CA27B237B05930036DF3B /* Canvas+Touch.swift in Sources */,
 				5A4C9C5F2374E88C0019ED83 /* SceneDelegate.swift in Sources */,

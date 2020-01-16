@@ -99,6 +99,59 @@ struct Quad {
     }
     
     
+    /** Finalizes the data on this quad as a perfect rectangle from the given starting point. */
+    mutating func endAsRectangle(at: CGPoint) {
+        self.end = at
+        let color = self.brush.color
+        
+        // Compute the rectangle from the starting point to the end point.
+        // Remember that the end coordinates can be behind the start.
+        var corner1 = self.start
+        var corner2 = self.start
+        
+        // Condition 1: Going from bottom left to top right.
+        if self.start.x < self.end.x && self.start.y < self.end.y {
+            let xDist = self.end.x - self.start.x
+            let yDist = self.end.y - self.start.y
+            corner2.x += xDist
+            corner1.y += yDist
+        }
+        // Condition 2: Top left to bottom right.
+        else if self.start.x < self.end.x && self.start.y > self.end.y {
+            let xDist = self.end.x - self.start.x
+            let yDist = self.start.y - self.end.y
+            corner2.x += xDist
+            corner1.y -= yDist
+        }
+        // Condition 3: Top right to bottom left.
+        else if self.start.x > self.end.x && self.start.y > self.end.y {
+            let xDist = self.start.x - self.end.x
+            let yDist = self.start.y - self.end.y
+            corner2.x -= xDist
+            corner1.y -= yDist
+        }
+        // Condition 4: Bottom right to top left.
+        else if self.start.x > self.end.x && self.start.y < self.end.y {
+            let xDist = self.start.x - self.end.x
+            let yDist = self.end.y - self.start.y
+            corner2.x -= xDist
+            corner1.y += yDist
+        }
+        
+        // Apply the corners to the vertices array to form two triangles,
+        // which will come together to form one rectangle on the screen.
+        self.vertices = [
+            Vertex(position: self.end, color: color),
+            Vertex(position: corner2, color: color),
+            Vertex(position: self.start, color: color),
+
+            Vertex(position: self.start, color: color),
+            Vertex(position: self.end, color: color),
+            Vertex(position: corner1, color: color),
+        ]
+    }
+    
+    
     /** Renders this quad onto the screen using the given encoder. */
     func render(encoder: MTLRenderCommandEncoder) {
         guard let buffer = dev.makeBuffer(

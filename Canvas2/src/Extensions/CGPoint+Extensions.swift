@@ -64,11 +64,16 @@ extension CGPoint {
         lhs = lhs - rhs
     }
     
+    static func +(lhs: CGPoint, rhs: CGFloat) -> CGPoint {
+        return CGPoint(x: lhs.x + rhs, y: lhs.y + rhs)
+    }
+    
+    static func -(lhs: CGPoint, rhs: CGFloat) -> CGPoint {
+        return CGPoint(x: lhs.x - rhs, y: lhs.y - rhs)
+    }
+    
     static func *(lhs: CGPoint, rhs: CGFloat) -> CGPoint {
         return CGPoint(x: lhs.x * rhs, y: lhs.y * rhs)
     }
     
-    static func *(lhs: CGPoint, rhs: CGSize) -> CGPoint {
-        return CGPoint(x: lhs.x * rhs.width, y: lhs.y * rhs.height)
-    }
 }

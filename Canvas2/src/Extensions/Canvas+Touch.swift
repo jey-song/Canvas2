@@ -20,14 +20,8 @@ public extension Canvas {
             return
         }
         
-        let point = touch.metalLocation(in: self)
-        
-        // Get the force from the user input.
-        self.setForce(value: touch.force)
-        
-        // Start a new quad when a touch is down.
-        nextQuad = Quad(start: point, brush: self.currentBrush.copy())
-        nextQuad?.startForce = self.forceEnabled ? self.force : 1.0
+        // Let the current tool handle manipulating point and quad/vertex data.
+        self.currentTool.beginTouch(touch, touches, with: event)
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -38,55 +32,15 @@ public extension Canvas {
             return
         }
         
-        // Coalesced touches for apple pencil.
-        guard let coalesced = event?.coalescedTouches(for: touch) else { return }
-        
-        // Get the force from the user input.
-        self.setForce(value: touch.force)
-        
-        // NOTE: Run the following code for all of the coalesced touches.
-        for cTouch in coalesced {
-            let point = cTouch.metalLocation(in: self)
-            
-            // Every time you move, end the current quad and that position.
-            guard var next = nextQuad else { continue }
-            next.endForce = self.forceEnabled ? self.force : 1.0
-            
-            if let last = lastQuad {
-                next.end(at: point, prevA: last.c, prevB: last.d)
-            } else {
-                next.end(at: point)
-            }
-            
-            // Add that finalized quad onto the list of quads on the canvas.
-            currentDrawingCurve.append(next)
-            
-            // Set the last quad so that while you are still drawing, you can
-            // use it to get the last quad coordinate points.
-            lastQuad = next
-            
-            // Start the next quad from the end position, in case the touch is still moving.
-            nextQuad = Quad(start: point, brush: self.currentBrush.copy())
-        }
+        // Allow the current tool to handle movement across the screen.
+        self.currentTool.moveTouch(touch, touches, with: event)
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // Add the vertices from the currently drawn curve, and remake the buffer.
-        finalizeCurveAndRemakeBuffer()
-        
-        // Clear the current drawing curve.
-        nextQuad = nil
-        lastQuad = nil
-        currentDrawingCurve.removeAll()
+        self.currentTool.endTouch(touches, with: event)
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // Add the vertices from the currently drawn curve, and remake the buffer.
-        finalizeCurveAndRemakeBuffer()
-        
-        // Clear the current drawing curve.
-        nextQuad = nil
-        lastQuad = nil
-        currentDrawingCurve.removeAll()
+        self.currentTool.cancelTouch(touches, with: event)
     }
 }
