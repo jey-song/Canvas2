@@ -18,14 +18,12 @@ public struct Brush {
     
     internal var size: CGFloat {
         didSet {
-            self.size = computeMetalSize(from: self.size)
+            self.size = Brush.configureBrushSize(from: self.size)
         }
     }
     
     internal var color: UIColor
-    
-    
-    /** The default brush that the canvas uses. */
+        
     static let Default: Brush = {
         return Brush(size: 10, color: .black)
     }()
@@ -35,12 +33,17 @@ public struct Brush {
     // MARK: Initialization
     
     init(size s: CGFloat, color c: UIColor) {
-        self.size = computeMetalSize(from: s)
+        self.size = Brush.configureBrushSize(from: s)
         self.color = c
     }
     
     
     // MARK: Functions
+    
+    /** Changes the brush size to be more metal friendly for the current drawing system. */
+    static func configureBrushSize(from s: CGFloat) -> CGFloat {
+        return (s / 100) * 4
+    }
     
     func copy() -> Brush {
         let b: Brush = Brush(size: self.size, color: self.color)

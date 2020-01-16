@@ -45,12 +45,6 @@ struct Quad {
         self.brush = brush
         self.startForce = 1.0
         self.endForce = 1.0
-//        self.vertices = [
-//            Vertex(position: CGPoint(x: -0.5, y: -0.5), color: .black),
-//            Vertex(position: CGPoint(x: -0.5, y: 0), color: .black),
-//            Vertex(position: CGPoint(x: 0.5, y: -0.5), color: .black),
-//            Vertex(position: CGPoint(x: 0.5, y: 0), color: .black),
-//        ]
     }
     
     init(start: CGPoint, brush: Brush) {
@@ -62,12 +56,6 @@ struct Quad {
         self.brush = brush
         self.startForce = 1.0
         self.endForce = 1.0
-//        self.vertices = [
-//            Vertex(position: start, color: .blue),
-//            Vertex(position: CGPoint(x: start.x - 0.05, y: start.y - 0.05), color: .blue),
-//            Vertex(position: CGPoint(x: start.x + 0.05, y: start.y), color: .blue),
-//            Vertex(position: CGPoint(x: start.x, y: start.y - 0.05), color: .blue),
-//        ]
     }
     
     
@@ -78,17 +66,17 @@ struct Quad {
     mutating func end(at: CGPoint, prevA: CGPoint? = nil, prevB: CGPoint? = nil) {
         self.end = at
         
-        // Compute the quad vertices ABCD.
         let size = self.brush.size / 2
         let color = self.brush.color
-
+        
+        // Compute the quad vertices ABCD.
         let perpendicular = self.start.perpendicular(other: self.end).normalize()
         var A = self.start + (perpendicular * size * self.startForce)
         var B = self.start - (perpendicular * size * self.startForce)
         let C = self.end + (perpendicular * size * self.endForce)
         let D = self.end - (perpendicular * size * self.endForce)
         
-        // Use the previous quad's points
+        // Use the previous quad's points to avoid gaps.
         if let pA = prevA, let pB = prevB {
             A = pA
             B = pB

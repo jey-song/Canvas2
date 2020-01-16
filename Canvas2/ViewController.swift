@@ -14,9 +14,9 @@ class ViewController: UIViewController {
     
     var canvas: Canvas = {
         let a = Canvas()
-        a.forceEnabled = true
-        a.stylusOnly = true
-        a.currentBrush.size = 5
+        a.forceEnabled = false
+        a.stylusOnly = false
+        a.currentBrush.size = 10
         
         return a
     }()

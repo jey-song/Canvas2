@@ -20,16 +20,19 @@ public class Canvas: MTKView {
     
     internal var pipeline: MTLRenderPipelineState!
     internal var commands: MTLCommandQueue!
+    internal var quadsBuffer: MTLBuffer?
+    internal var totalVertices: [Vertex]
     
-    public var currentBrush: Brush
-    
-    internal var quads: [Quad]
+    internal var currentDrawingCurve: [Quad]
     internal var nextQuad: Quad?
     internal var lastQuad: Quad?
     
     internal var force: CGFloat
     
-    // TODO: Must be implemented later.
+    
+    /** The brush that determines the styling of the next curve drawn on the canvas. */
+    public var currentBrush: Brush
+    
     /** Whether or not the canvas should respond to force as a way to draw curves. */
     public var forceEnabled: Bool
     
@@ -47,10 +50,11 @@ public class Canvas: MTKView {
         self.force = 1.0
         self.currentBrush = Brush(size: 10, color: .black)
         self.commands = dev!.makeCommandQueue()
-        self.quads = []
-        super.init(frame: CGRect.zero, device: dev)
+        self.currentDrawingCurve = []
+        self.totalVertices = []
         
         // Configure the metal view.
+        super.init(frame: CGRect.zero, device: dev)
         self.colorPixelFormat = MTLPixelFormat.bgra8Unorm
         self.framebufferOnly = true
         
@@ -90,6 +94,17 @@ public class Canvas: MTKView {
         }
     }
 
+    /** Re-computes the vertex buffer after new points are added. */
+    internal func finalizeCurveAndRemakeBuffer() {
+        for quad in self.currentDrawingCurve {
+            self.totalVertices.append(contentsOf: quad.vertices)
+        }
+        quadsBuffer = dev.makeBuffer(
+            bytes: self.totalVertices,
+            length: totalVertices.count * MemoryLayout<Vertex>.stride,
+            options: []
+        )
+    }
     
     /** Updates the drawable on the canvas's underlying MTKView. */
     public override func draw() {
@@ -109,8 +124,18 @@ public class Canvas: MTKView {
             guard let encoder = buffer.makeRenderCommandEncoder(descriptor: descriptor) else { return }
             encoder.setRenderPipelineState(self.pipeline)
             
-            // Draw the curves on the screen.
-            for quad in quads {
+            // Once we have the buffer, draw it in one step rather than keeping
+            // track of each curve on every render pass.
+            if let b = self.quadsBuffer {
+                let vertCount = b.length / MemoryLayout<Vertex>.stride
+                encoder.setVertexBuffer(b, offset: 0, index: 0)
+                encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertCount)
+            }
+            
+            // Render the shape that is currently being drawn. This is just so
+            // that you don't have to wait until the line is finished before
+            // it shows up on the screen.
+            for quad in currentDrawingCurve {
                 quad.render(encoder: encoder)
             }
             

@@ -50,15 +50,16 @@ public extension Canvas {
             
             // Every time you move, end the current quad and that position.
             guard var next = nextQuad else { continue }
-            let last: Quad = lastQuad ?? next
-            let c: CGPoint = lastQuad != nil ? last.c : next.start
-            let d: CGPoint = lastQuad != nil ? last.d : next.start
-            
             next.endForce = self.forceEnabled ? self.force : 1.0
-            next.end(at: point, prevA: c, prevB: d)
+            
+            if let last = lastQuad {
+                next.end(at: point, prevA: last.c, prevB: last.d)
+            } else {
+                next.end(at: point)
+            }
             
             // Add that finalized quad onto the list of quads on the canvas.
-            quads.append(next)
+            currentDrawingCurve.append(next)
             
             // Set the last quad so that while you are still drawing, you can
             // use it to get the last quad coordinate points.
@@ -70,14 +71,22 @@ public extension Canvas {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // Close the current and last quads, no touches on the screen.
+        // Add the vertices from the currently drawn curve, and remake the buffer.
+        finalizeCurveAndRemakeBuffer()
+        
+        // Clear the current drawing curve.
         nextQuad = nil
         lastQuad = nil
+        currentDrawingCurve.removeAll()
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // Close the current and last quads, no touches on the screen.
+        // Add the vertices from the currently drawn curve, and remake the buffer.
+        finalizeCurveAndRemakeBuffer()
+        
+        // Clear the current drawing curve.
         nextQuad = nil
         lastQuad = nil
+        currentDrawingCurve.removeAll()
     }
 }
