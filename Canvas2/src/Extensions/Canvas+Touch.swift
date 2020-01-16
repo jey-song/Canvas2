@@ -14,15 +14,35 @@ public extension Canvas {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
+        
+        // Check for stylus only touches.
+        if self.stylusOnly == true && touch.type != .pencil && touch.type != .stylus {
+            return
+        }
+        
         let point = touch.metalLocation(in: self)
+        
+        // Get the force from the user input.
+        self.setForce(value: touch.force)
         
         // Start a new quad when a touch is down.
         nextQuad = Quad(start: point, brush: self.currentBrush.copy())
+        nextQuad?.startForce = self.forceEnabled ? self.force : 1.0
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
+        
+        // Check for stylus only touches.
+        if self.stylusOnly == true && touch.type != .pencil && touch.type != .stylus {
+            return
+        }
+        
+        // Coalesced touches for apple pencil.
         guard let coalesced = event?.coalescedTouches(for: touch) else { return }
+        
+        // Get the force from the user input.
+        self.setForce(value: touch.force)
         
         // NOTE: Run the following code for all of the coalesced touches.
         for cTouch in coalesced {
@@ -33,6 +53,8 @@ public extension Canvas {
             let last: Quad = lastQuad ?? next
             let c: CGPoint = lastQuad != nil ? last.c : next.start
             let d: CGPoint = lastQuad != nil ? last.d : next.start
+            
+            next.endForce = self.forceEnabled ? self.force : 1.0
             next.end(at: point, prevA: c, prevB: d)
             
             // Add that finalized quad onto the list of quads on the canvas.

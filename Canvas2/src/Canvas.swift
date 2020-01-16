@@ -21,15 +21,20 @@ public class Canvas: MTKView {
     internal var pipeline: MTLRenderPipelineState!
     internal var commands: MTLCommandQueue!
     
-    internal var currentBrush: Brush
+    public var currentBrush: Brush
     
     internal var quads: [Quad]
     internal var nextQuad: Quad?
     internal var lastQuad: Quad?
     
+    internal var force: CGFloat
+    
     // TODO: Must be implemented later.
-    internal var forceEnabled: Bool
-    internal var stylusOnly: Bool
+    /** Whether or not the canvas should respond to force as a way to draw curves. */
+    public var forceEnabled: Bool
+    
+    /** Only allow styluses such as the Apple Pencil to be used for drawing. */
+    public var stylusOnly: Bool
     
     
     
@@ -39,6 +44,7 @@ public class Canvas: MTKView {
         dev = MTLCreateSystemDefaultDevice()
         self.forceEnabled = true
         self.stylusOnly = false
+        self.force = 1.0
         self.currentBrush = Brush(size: 10, color: .black)
         self.commands = dev!.makeCommandQueue()
         self.quads = []
@@ -70,6 +76,20 @@ public class Canvas: MTKView {
     
     
     // MARK: Functions
+    
+    /** Updates the force property of the canvas. */
+    internal func setForce(value: CGFloat) {
+        if self.forceEnabled == true {
+            self.force = value// max(0, value / 3)
+        } else {
+            // use simulated force
+            var length = CGPoint(x: 1, y: 1).distance(to: .zero)
+            length = min(length, 5000)
+            length = max(100, length)
+            self.force = sqrt(1000 / length)
+        }
+    }
+
     
     /** Updates the drawable on the canvas's underlying MTKView. */
     public override func draw() {

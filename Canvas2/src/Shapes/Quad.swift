@@ -28,6 +28,10 @@ struct Quad {
     
     var d: CGPoint
     
+    var startForce: CGFloat
+    
+    var endForce: CGFloat
+    
     
     
     // MARK: Initialization
@@ -39,6 +43,8 @@ struct Quad {
         self.c = CGPoint()
         self.d = CGPoint()
         self.brush = brush
+        self.startForce = 1.0
+        self.endForce = 1.0
 //        self.vertices = [
 //            Vertex(position: CGPoint(x: -0.5, y: -0.5), color: .black),
 //            Vertex(position: CGPoint(x: -0.5, y: 0), color: .black),
@@ -54,6 +60,8 @@ struct Quad {
         self.c = CGPoint()
         self.d = CGPoint()
         self.brush = brush
+        self.startForce = 1.0
+        self.endForce = 1.0
 //        self.vertices = [
 //            Vertex(position: start, color: .blue),
 //            Vertex(position: CGPoint(x: start.x - 0.05, y: start.y - 0.05), color: .blue),
@@ -75,10 +83,10 @@ struct Quad {
         let color = self.brush.color
 
         let perpendicular = self.start.perpendicular(other: self.end).normalize()
-        var A = self.start + (perpendicular * size)
-        var B = self.start - (perpendicular * size)
-        let C = self.end + (perpendicular * size)
-        let D = self.end - (perpendicular * size)
+        var A = self.start + (perpendicular * size * self.startForce)
+        var B = self.start - (perpendicular * size * self.startForce)
+        let C = self.end + (perpendicular * size * self.endForce)
+        let D = self.end - (perpendicular * size * self.endForce)
         
         // Use the previous quad's points
         if let pA = prevA, let pB = prevB {

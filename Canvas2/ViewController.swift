@@ -12,7 +12,14 @@ class ViewController: UIViewController {
     
     let colors: [UIColor] = [.black, .green, .red, .blue]
     
-    var canvas: Canvas = Canvas()
+    var canvas: Canvas = {
+        let a = Canvas()
+        a.forceEnabled = true
+        a.stylusOnly = true
+        a.currentBrush.size = 5
+        
+        return a
+    }()
     
 
     override func viewDidLoad() {
