@@ -21,7 +21,7 @@ public extension UIDevice {
 class ViewController: UIViewController {
     
     let colors: [UIColor] = [.black, .green, .red, .blue]
-    let tools: [Tool] = [Canvas.pencilTool, Canvas.rectangleTool]
+    let tools: [Tool] = [Canvas.pencilTool, Canvas.rectangleTool, Canvas.lineTool]
     
     var canvas: Canvas = {
         let a = Canvas()

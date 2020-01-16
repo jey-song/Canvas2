@@ -152,6 +152,93 @@ struct Quad {
     }
     
     
+    /** Finalizes a straight line as a quad. */
+    mutating func endAsLine(at: CGPoint) {
+        self.end = at
+        
+        // Create the coordinates of the two triangles.
+        let size = self.brush.size / 2
+        let color = self.brush.color
+        
+        let perpendicular = self.start.perpendicular(other: self.end).normalize()
+        var A: CGPoint = self.start
+        var B: CGPoint = self.end
+        var C: CGPoint = self.end
+        var D: CGPoint = self.start
+        
+        // Based on the rotation, compute the four corners of the quad.
+        // Condition 1: Bottom left to top right.
+        if self.start.x < self.end.x && self.start.y < self.end.y {
+            A.x -= (perpendicular * size).x
+            A.y += (perpendicular * size).x
+            
+            B.x -= (perpendicular * size).x
+            B.y += (perpendicular * size).x
+            
+            C.x += (perpendicular * size).x
+            C.y -= (perpendicular * size).x
+            
+            D.x += (perpendicular * size).x
+            D.y -= (perpendicular * size).x
+        }
+        // Condition 2: Top left to bottom right.
+        else if self.start.x < self.end.x && self.start.y > self.end.y {
+            A.x += (perpendicular * size).x
+            A.y += (perpendicular * size).x
+            
+            B.x += (perpendicular * size).x
+            B.y += (perpendicular * size).x
+            
+            C.x -= (perpendicular * size).x
+            C.y -= (perpendicular * size).x
+            
+            D.x -= (perpendicular * size).x
+            D.y -= (perpendicular * size).x
+        }
+        // Condition 3: Top right to bottom left.
+        else if self.start.x > self.end.x && self.start.y > self.end.y {
+            A.x += (perpendicular * size).x
+            A.y -= (perpendicular * size).x
+            
+            B.x += (perpendicular * size).x
+            B.y -= (perpendicular * size).x
+            
+            C.x -= (perpendicular * size).x
+            C.y += (perpendicular * size).x
+            
+            D.x -= (perpendicular * size).x
+            D.y += (perpendicular * size).x
+        }
+        // Condition 4: Bottom right to top left.
+        else if self.start.x > self.end.x && self.start.y < self.end.y {
+            A.x -= (perpendicular * size).x
+            A.y -= (perpendicular * size).x
+            
+            B.x -= (perpendicular * size).x
+            B.y -= (perpendicular * size).x
+            
+            C.x += (perpendicular * size).x
+            C.y += (perpendicular * size).x
+            
+            D.x += (perpendicular * size).x
+            D.y += (perpendicular * size).x
+        }
+        
+        // Set the vertices of the line quad.
+        self.vertices = [
+            // Triangle 1
+            Vertex(position: A, color: color),
+            Vertex(position: B, color: color),
+            Vertex(position: C, color: color),
+
+            // Triangle 2
+            Vertex(position: A, color: color),
+            Vertex(position: C, color: color),
+            Vertex(position: D, color: color),
+        ]
+    }
+    
+    
     /** Renders this quad onto the screen using the given encoder. */
     func render(encoder: MTLRenderCommandEncoder) {
         guard let buffer = dev.makeBuffer(

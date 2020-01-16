@@ -71,6 +71,11 @@ public class Canvas: MTKView {
         return Rectangle()
     }()
     
+    /** A basic line tool for drawing straight lines. */
+    static let lineTool: Line = {
+        return Line()
+    }()
+    
     
     
     
