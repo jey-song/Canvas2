@@ -239,6 +239,39 @@ struct Quad {
     }
     
     
+    /** Ends a quad as a circle (but technically using triangles). */
+    mutating func endAsCircle(at: CGPoint) {
+        self.end = at
+        
+        let dist = self.start.distance(to: self.end)
+        let color = self.brush.color
+        
+        /** Creates points around a circle. It's just a formula for degrees to radians. */
+        func rads(forDegree d: Int) -> CGFloat {
+            // 7 turns out to be the magic number here :)
+            return (7 * CGFloat.pi * CGFloat(d)) / 180
+        }
+        
+        // Create vertices for the circle.
+        var verts: [Vertex] = [Vertex(position: self.start, color: color)]
+        for i in 0..<720 {
+            // Add the previous point so that the triangle can reconnect to
+            // the start point.
+            if i > 0 && verts.count > 0 && i % 2 == 0 {
+                let last = verts[i - 1]
+                verts.append(last)
+            }
+            
+            // Calculate the point at the distance around the circle.
+            let _x = cos(rads(forDegree: i)) * (dist * abs(self.end.x - self.start.x))
+            let _y = sin(rads(forDegree: i)) * (dist * abs(self.end.y - self.start.y))
+            let pos: CGPoint = CGPoint(x: self.start.x + _x, y: self.start.y + _y)
+            verts.append(Vertex(position: pos, color: color))
+        }
+        self.vertices = verts
+    }
+    
+    
     /** Renders this quad onto the screen using the given encoder. */
     func render(encoder: MTLRenderCommandEncoder) {
         guard let buffer = dev.makeBuffer(

@@ -25,6 +25,7 @@
 		5A92EAB823D09D0E00F4A53A /* Pencil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB723D09D0E00F4A53A /* Pencil.swift */; };
 		5A92EABA23D0A1A600F4A53A /* Rectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB923D0A1A600F4A53A /* Rectangle.swift */; };
 		5ADC3E2B23D0D34100265C41 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADC3E2A23D0D34100265C41 /* Line.swift */; };
+		5ADC3E2D23D0F8AF00265C41 /* Ellipse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADC3E2C23D0F8AF00265C41 /* Ellipse.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		5A92EAB723D09D0E00F4A53A /* Pencil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pencil.swift; sourceTree = "<group>"; };
 		5A92EAB923D0A1A600F4A53A /* Rectangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rectangle.swift; sourceTree = "<group>"; };
 		5ADC3E2A23D0D34100265C41 /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
+		5ADC3E2C23D0F8AF00265C41 /* Ellipse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ellipse.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +122,7 @@
 				5A92EAB723D09D0E00F4A53A /* Pencil.swift */,
 				5A92EAB923D0A1A600F4A53A /* Rectangle.swift */,
 				5ADC3E2A23D0D34100265C41 /* Line.swift */,
+				5ADC3E2C23D0F8AF00265C41 /* Ellipse.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -205,6 +208,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5ADC3E2D23D0F8AF00265C41 /* Ellipse.swift in Sources */,
 				5A92EABA23D0A1A600F4A53A /* Rectangle.swift in Sources */,
 				5A59BFB2237FB58000D40E11 /* Brush.swift in Sources */,
 				5A6CA279237B030C0036DF3B /* UIColor+RGB.swift in Sources */,

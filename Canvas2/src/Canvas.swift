@@ -76,6 +76,11 @@ public class Canvas: MTKView {
         return Line()
     }()
     
+    /** A basic circle tool for drawing straight lines. */
+    static let ellipseTool: Ellipse = {
+        return Ellipse()
+    }()
+    
     
     
     
@@ -88,7 +93,7 @@ public class Canvas: MTKView {
         self.force = 1.0
         self.maximumForce = 1.0
         self.currentBrush = Brush(size: 10, color: .black)
-        self.currentTool = Canvas.pencilTool
+        self.currentTool = Canvas.ellipseTool
         self.commands = dev!.makeCommandQueue()
         self.currentDrawingCurve = []
         self.totalVertices = []
