@@ -81,6 +81,11 @@ public class Canvas: MTKView {
         return Ellipse()
     }()
     
+//    /** A simple eraser. */
+//    static let eraserTool: Eraser = {
+//        return Eraser()
+//    }()
+    
     
     
     
@@ -93,7 +98,7 @@ public class Canvas: MTKView {
         self.force = 1.0
         self.maximumForce = 1.0
         self.currentBrush = Brush(size: 10, color: .black)
-        self.currentTool = Canvas.ellipseTool
+        self.currentTool = Canvas.pencilTool
         self.commands = dev!.makeCommandQueue()
         self.currentDrawingCurve = []
         self.totalVertices = []
@@ -113,6 +118,13 @@ public class Canvas: MTKView {
         descriptor.vertexFunction = vertProg
         descriptor.fragmentFunction = fragProg
         descriptor.colorAttachments[0].pixelFormat = MTLPixelFormat.bgra8Unorm
+        descriptor.colorAttachments[0].isBlendingEnabled = true
+        descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperation.add
+        descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperation.add
+        descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactor.one
+        descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactor.one
+        descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
+        descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
         
         self.pipeline = try! device.makeRenderPipelineState(descriptor: descriptor)
         self.currentTool.canvas = self
