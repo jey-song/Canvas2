@@ -20,7 +20,7 @@ public extension UIDevice {
 
 class ViewController: UIViewController {
     
-    let colors: [UIColor] = [.black, .green, .red, .blue]
+    let colors: [UIColor] = [.black, .green, .red, .blue, .purple, .orange, .brown, .cyan]
     let tools: [Tool] = [Canvas.pencilTool, Canvas.rectangleTool, Canvas.lineTool, Canvas.ellipseTool]
     
     var canvas: Canvas = {
@@ -28,8 +28,9 @@ class ViewController: UIViewController {
         a.translatesAutoresizingMaskIntoConstraints = false
         a.forceEnabled = UIDevice.isSimulator() ? false : true
         a.stylusOnly = UIDevice.isSimulator() ? false : true
-        a.currentBrush.size = 10
+        a.currentBrush.size = 20
         a.maximumForce = 1.0
+        a.canvasColor = .white
         
         return a
     }()
@@ -68,15 +69,105 @@ class ViewController: UIViewController {
         return a
     }()
     
+    let addLayerButton: UIButton = {
+        let a = UIButton(type: UIButton.ButtonType.custom)
+        a.translatesAutoresizingMaskIntoConstraints = false
+        a.setTitle("Add Layer Below", for: .normal)
+        a.setTitleColor(.black, for: .normal)
+        a.setTitleColor(.darkGray, for: .highlighted)
+        a.addTarget(self, action: #selector(addLayer), for: .touchUpInside)
+        a.backgroundColor = .gray
+        a.layer.cornerRadius = 8
+        a.layer.shadowColor = UIColor.black.cgColor
+        a.layer.shadowOffset = CGSize(width: 0, height: 2)
+        a.layer.shadowRadius = 20
+        a.layer.shadowOpacity = Float(0.5)
+        
+        return a
+    }()
+    
+    let addLayerButton2: UIButton = {
+        let a = UIButton(type: UIButton.ButtonType.custom)
+        a.translatesAutoresizingMaskIntoConstraints = false
+        a.setTitle("Add Layer Above", for: .normal)
+        a.setTitleColor(.black, for: .normal)
+        a.setTitleColor(.darkGray, for: .highlighted)
+        a.addTarget(self, action: #selector(addLayerAbove), for: .touchUpInside)
+        a.backgroundColor = .gray
+        a.layer.cornerRadius = 8
+        a.layer.shadowColor = UIColor.black.cgColor
+        a.layer.shadowOffset = CGSize(width: 0, height: 2)
+        a.layer.shadowRadius = 20
+        a.layer.shadowOpacity = Float(0.5)
+        
+        return a
+    }()
+    
+    let switchLayerButton: UIButton = {
+        let a = UIButton(type: UIButton.ButtonType.custom)
+        a.translatesAutoresizingMaskIntoConstraints = false
+        a.setTitle("Next Layer", for: .normal)
+        a.setTitleColor(.black, for: .normal)
+        a.setTitleColor(.darkGray, for: .highlighted)
+        a.addTarget(self, action: #selector(cycleLayer), for: .touchUpInside)
+        a.backgroundColor = .gray
+        a.layer.cornerRadius = 8
+        a.layer.shadowColor = UIColor.black.cgColor
+        a.layer.shadowOffset = CGSize(width: 0, height: 2)
+        a.layer.shadowRadius = 20
+        a.layer.shadowOpacity = Float(0.5)
+        
+        return a
+    }()
+    
+    let removeLayerButton: UIButton = {
+        let a = UIButton(type: UIButton.ButtonType.custom)
+        a.translatesAutoresizingMaskIntoConstraints = false
+        a.setTitle("Remove Current Layer", for: .normal)
+        a.setTitleColor(.black, for: .normal)
+        a.setTitleColor(.darkGray, for: .highlighted)
+        a.addTarget(self, action: #selector(removeCurrentLayer), for: .touchUpInside)
+        a.backgroundColor = .gray
+        a.layer.cornerRadius = 8
+        a.layer.shadowColor = UIColor.black.cgColor
+        a.layer.shadowOffset = CGSize(width: 0, height: 2)
+        a.layer.shadowRadius = 20
+        a.layer.shadowOpacity = Float(0.5)
+        
+        return a
+    }()
+    
+    let moveLayerButton: UIButton = {
+        let a = UIButton(type: UIButton.ButtonType.custom)
+        a.translatesAutoresizingMaskIntoConstraints = false
+        a.setTitle("Move Back Layer to Front", for: .normal)
+        a.setTitleColor(.black, for: .normal)
+        a.setTitleColor(.darkGray, for: .highlighted)
+        a.addTarget(self, action: #selector(moveBackLayerToFront), for: .touchUpInside)
+        a.backgroundColor = .gray
+        a.layer.cornerRadius = 8
+        a.layer.shadowColor = UIColor.black.cgColor
+        a.layer.shadowOffset = CGSize(width: 0, height: 2)
+        a.layer.shadowRadius = 20
+        a.layer.shadowOpacity = Float(0.5)
+        
+        return a
+    }()
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .darkGray
         
-        // Setup the canvas view.
+        // Setup the view.
         self.view.addSubview(canvas)
         self.view.addSubview(toolButton)
         self.view.addSubview(colorButton)
+        self.view.addSubview(addLayerButton)
+        self.view.addSubview(addLayerButton2)
+        self.view.addSubview(switchLayerButton)
+        self.view.addSubview(removeLayerButton)
+        self.view.addSubview(moveLayerButton)
         
         canvas.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         canvas.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -92,6 +183,31 @@ class ViewController: UIViewController {
         colorButton.leadingAnchor.constraint(equalTo: toolButton.trailingAnchor, constant: 10).isActive = true
         colorButton.widthAnchor.constraint(equalToConstant: 150).isActive = true
         colorButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        addLayerButton.topAnchor.constraint(equalTo: canvas.bottomAnchor, constant: 10).isActive = true
+        addLayerButton.leadingAnchor.constraint(equalTo: colorButton.trailingAnchor, constant: 10).isActive = true
+        addLayerButton.widthAnchor.constraint(equalToConstant: 170).isActive = true
+        addLayerButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        addLayerButton2.topAnchor.constraint(equalTo: canvas.bottomAnchor, constant: 10).isActive = true
+        addLayerButton2.leadingAnchor.constraint(equalTo: addLayerButton.trailingAnchor, constant: 10).isActive = true
+        addLayerButton2.widthAnchor.constraint(equalToConstant: 170).isActive = true
+        addLayerButton2.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        switchLayerButton.topAnchor.constraint(equalTo: canvas.bottomAnchor, constant: 10).isActive = true
+        switchLayerButton.leadingAnchor.constraint(equalTo: addLayerButton2.trailingAnchor, constant: 10).isActive = true
+        switchLayerButton.widthAnchor.constraint(equalToConstant: 150).isActive = true
+        switchLayerButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        removeLayerButton.topAnchor.constraint(equalTo: toolButton.bottomAnchor, constant: 10).isActive = true
+        removeLayerButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+        removeLayerButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
+        removeLayerButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        moveLayerButton.topAnchor.constraint(equalTo: toolButton.bottomAnchor, constant: 10).isActive = true
+        moveLayerButton.leadingAnchor.constraint(equalTo: removeLayerButton.trailingAnchor, constant: 10).isActive = true
+        moveLayerButton.widthAnchor.constraint(equalToConstant: 220).isActive = true
+        moveLayerButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 
 
@@ -112,6 +228,36 @@ class ViewController: UIViewController {
         let rand = Int(arc4random_uniform(UInt32(tools.count)))
         canvas.currentTool = tools[rand]
         print("Changed tool to \(tools[rand])")
+    }
+    
+    /** Adds a layer below the current one. */
+    @objc func addLayer() {
+        canvas.addLayer(at: canvas.currentLayer)
+        print("Created layer below. There are now \(canvas.canvasLayers.count) layers")
+    }
+    @objc func addLayerAbove() {
+        canvas.addLayer(at: canvas.currentLayer + 1)
+        print("Created layer below. There are now \(canvas.canvasLayers.count) layers")
+    }
+    
+    /** Cycles to the next layer. */
+    @objc func cycleLayer() {
+        if canvas.currentLayer == canvas.canvasLayers.count - 1 {
+            canvas.currentLayer = 0
+        } else {
+            canvas.currentLayer += 1
+        }
+        print("Switched to layer \(canvas.currentLayer)")
+    }
+    
+    @objc func removeCurrentLayer() {
+        canvas.removeLayer(at: canvas.currentLayer)
+        print("Removed current layer. There are now \(canvas.canvasLayers.count) layers")
+    }
+    
+    @objc func moveBackLayerToFront() {
+        canvas.moveLayer(from: 0, to: 2)
+        print("Moved layer 0 to layer 2. What was layer 0 is now at the front.")
     }
 }
 

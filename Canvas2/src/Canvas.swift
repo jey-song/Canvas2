@@ -22,9 +22,13 @@ public class Canvas: MTKView {
     
     internal var pipeline: MTLRenderPipelineState!
     internal var commands: MTLCommandQueue!
-    internal var quadsBuffer: MTLBuffer?
-    internal var totalVertices: [Vertex]
+//    internal var quadsBuffer: MTLBuffer?
+//    internal var totalVertices: [Vertex]
     
+    internal var canvasLayers: [Layer]
+    internal var totalVertices: [Vertex]
+    internal var buffer: MTLBuffer?
+        
     internal var currentDrawingCurve: [Quad]
     internal var nextQuad: Quad?
     internal var lastQuad: Quad?
@@ -57,6 +61,12 @@ public class Canvas: MTKView {
     
     /** Only allow styluses such as the Apple Pencil to be used for drawing. */
     public var stylusOnly: Bool
+    
+    /** The color to use to clear the canvas, which also serves as the background color. */
+    public var canvasColor: UIColor
+    
+    /** The index of the current layer. */
+    public var currentLayer: Int
     
     
     // --> Static/Computed
@@ -101,12 +111,16 @@ public class Canvas: MTKView {
         self.currentTool = Canvas.pencilTool
         self.commands = dev!.makeCommandQueue()
         self.currentDrawingCurve = []
+//        self.totalVertices = []
+        self.canvasColor = UIColor.white
+        self.canvasLayers = []
         self.totalVertices = []
+        self.currentLayer = -1
         
         // Configure the metal view.
         super.init(frame: CGRect.zero, device: dev)
-        self.colorPixelFormat = MTLPixelFormat.bgra8Unorm
-        self.framebufferOnly = true
+        self.colorPixelFormat = MTLPixelFormat.bgra8Unorm_srgb
+        self.framebufferOnly = false
         
         // Configure the pipeline.
         guard let device = dev else { return }
@@ -117,7 +131,7 @@ public class Canvas: MTKView {
         let descriptor = MTLRenderPipelineDescriptor()
         descriptor.vertexFunction = vertProg
         descriptor.fragmentFunction = fragProg
-        descriptor.colorAttachments[0].pixelFormat = MTLPixelFormat.bgra8Unorm
+        descriptor.colorAttachments[0].pixelFormat = MTLPixelFormat.bgra8Unorm_srgb
         descriptor.colorAttachments[0].isBlendingEnabled = true
         descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperation.add
         descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperation.add
@@ -154,17 +168,36 @@ public class Canvas: MTKView {
 
     /** Re-computes the vertex buffer after new points are added. */
     internal func finalizeCurveAndRemakeBuffer() {
-        for quad in self.currentDrawingCurve {
-            self.totalVertices.append(contentsOf: quad.vertices)
-        }
-        let len = totalVertices.count * MemoryLayout<Vertex>.stride
-        guard len > 0 else { return }
+        // Make sure there is always at least one layer.
+        guard self.canvasLayers.count > 0 else { return }
+        guard self.currentLayer >= 0 && self.currentLayer < self.canvasLayers.count else { return }
         
-        quadsBuffer = dev.makeBuffer(
-            bytes: self.totalVertices,
-            length: len,
-            options: []
-        )
+        // Now you can add on the new vertices to that layer.
+        let oldLength = self.canvasLayers[self.currentLayer].vertices.count
+        let verts = currentDrawingCurve.flatMap { q -> [Vertex] in return q.vertices }
+        self.canvasLayers[self.currentLayer].vertices.append(contentsOf: verts)
+        
+        let newLayerLength = self.canvasLayers[self.currentLayer].vertices.count
+        guard newLayerLength > 0 else { return }
+        
+        // Compute the offset for this layer. This will give you the index of
+        // the exact vertex where this layer starts.
+        var offset: Int = 0
+        for i in 0..<self.currentLayer {
+            offset += self.canvasLayers[i].vertices.count
+        }
+        
+        // Now, just replace that subsection of the total vertex array with
+        // the new one that includes the newest drawn curve.
+        let lay = self.canvasLayers[self.currentLayer]
+        let start = offset
+        let end = offset + oldLength
+        let range = Range<Int>(uncheckedBounds: (lower: start, upper: end))
+        totalVertices.replaceSubrange(range, with: lay.vertices)
+        
+        // Remake the main buffer.
+        let totalLength = totalVertices.count * MemoryLayout<Vertex>.stride
+        buffer = dev.makeBuffer(bytes: totalVertices, length: totalLength, options: [])
     }
     
     /** Updates the drawable on the canvas's underlying MTKView. */
@@ -172,12 +205,16 @@ public class Canvas: MTKView {
         autoreleasepool {
             guard let lay: CAMetalLayer = self.layer as? CAMetalLayer else { return }
             guard let drawable = lay.nextDrawable() else { return }
+            let rgba = self.canvasColor.rgba
             
             // Create a descriptor for the pipeline.
             let descriptor = MTLRenderPassDescriptor()
             descriptor.colorAttachments[0].texture = drawable.texture
             descriptor.colorAttachments[0].loadAction = MTLLoadAction.clear
-            descriptor.colorAttachments[0].clearColor = MTLClearColor(red: 1, green: 1, blue: 1, alpha: 1)
+            descriptor.colorAttachments[0].storeAction = MTLStoreAction.store
+            descriptor.colorAttachments[0].clearColor = MTLClearColor(
+                red: Double(rgba.red), green: Double(rgba.green), blue: Double(rgba.blue), alpha: Double(rgba.alpha)
+            )
             
             // Create a pixel buffer for the command queue. Also make an encoder for
             // the pipeline.
@@ -187,7 +224,7 @@ public class Canvas: MTKView {
             
             // Once we have the buffer, draw it in one step rather than keeping
             // track of each curve on every render pass.
-            if let b = self.quadsBuffer {
+            if let b = self.buffer {
                 let vertCount = b.length / MemoryLayout<Vertex>.stride
                 encoder.setVertexBuffer(b, offset: 0, index: 0)
                 encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertCount)
@@ -204,6 +241,7 @@ public class Canvas: MTKView {
             encoder.endEncoding()
             buffer.present(drawable)
             buffer.commit()
+            
         }
     }
     

@@ -25,6 +25,10 @@
 		5A92EAB623D09C5E00F4A53A /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB523D09C5E00F4A53A /* Tool.swift */; };
 		5A92EAB823D09D0E00F4A53A /* Pencil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB723D09D0E00F4A53A /* Pencil.swift */; };
 		5A92EABA23D0A1A600F4A53A /* Rectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB923D0A1A600F4A53A /* Rectangle.swift */; };
+		5AACBBBC23D36D8F00ECDA8F /* Layer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AACBBBB23D36D8F00ECDA8F /* Layer.swift */; };
+		5AACBBBE23D376F700ECDA8F /* Canvas+Layers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AACBBBD23D376F700ECDA8F /* Canvas+Layers.swift */; };
+		5AC96B7723D2CBE500AC5066 /* MTLTexture+Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC96B7623D2CBE500AC5066 /* MTLTexture+Image.swift */; };
+		5AC96B7923D2D03C00AC5066 /* UIImage+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC96B7823D2D03C00AC5066 /* UIImage+Extensions.swift */; };
 		5ADC3E2B23D0D34100265C41 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADC3E2A23D0D34100265C41 /* Line.swift */; };
 		5ADC3E2D23D0F8AF00265C41 /* Ellipse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADC3E2C23D0F8AF00265C41 /* Ellipse.swift */; };
 /* End PBXBuildFile section */
@@ -50,6 +54,10 @@
 		5A92EAB523D09C5E00F4A53A /* Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tool.swift; sourceTree = "<group>"; };
 		5A92EAB723D09D0E00F4A53A /* Pencil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pencil.swift; sourceTree = "<group>"; };
 		5A92EAB923D0A1A600F4A53A /* Rectangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rectangle.swift; sourceTree = "<group>"; };
+		5AACBBBB23D36D8F00ECDA8F /* Layer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Layer.swift; sourceTree = "<group>"; };
+		5AACBBBD23D376F700ECDA8F /* Canvas+Layers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Canvas+Layers.swift"; sourceTree = "<group>"; };
+		5AC96B7623D2CBE500AC5066 /* MTLTexture+Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MTLTexture+Image.swift"; sourceTree = "<group>"; };
+		5AC96B7823D2D03C00AC5066 /* UIImage+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extensions.swift"; sourceTree = "<group>"; };
 		5ADC3E2A23D0D34100265C41 /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		5ADC3E2C23D0F8AF00265C41 /* Ellipse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ellipse.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -99,6 +107,7 @@
 			isa = PBXGroup;
 			children = (
 				5A4C9C712374E9EA0019ED83 /* Canvas.swift */,
+				5AACBBBB23D36D8F00ECDA8F /* Layer.swift */,
 				5A51FC1423CEB7E700467EFC /* Shader.metal */,
 				5A59BFB0237FB56E00D40E11 /* Tools */,
 				5A574DE4237CBADF004E1BE6 /* Shapes */,
@@ -134,9 +143,12 @@
 			isa = PBXGroup;
 			children = (
 				5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */,
+				5AACBBBD23D376F700ECDA8F /* Canvas+Layers.swift */,
 				5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */,
 				5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */,
 				5A122D7223CF7E3200979CE8 /* CGPoint+Extensions.swift */,
+				5AC96B7623D2CBE500AC5066 /* MTLTexture+Image.swift */,
+				5AC96B7823D2D03C00AC5066 /* UIImage+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -214,16 +226,20 @@
 				5ADC3E2D23D0F8AF00265C41 /* Ellipse.swift in Sources */,
 				5A92EABA23D0A1A600F4A53A /* Rectangle.swift in Sources */,
 				5A59BFB2237FB58000D40E11 /* Brush.swift in Sources */,
+				5AACBBBC23D36D8F00ECDA8F /* Layer.swift in Sources */,
+				5AC96B7923D2D03C00AC5066 /* UIImage+Extensions.swift in Sources */,
 				5A23DAC023D179B40067EF38 /* Eraser.swift in Sources */,
 				5A6CA279237B030C0036DF3B /* UIColor+RGB.swift in Sources */,
 				5A51FC1B23CEC5D700467EFC /* Quad.swift in Sources */,
 				5A4C9C612374E88C0019ED83 /* ViewController.swift in Sources */,
 				5A51FC1923CEC49600467EFC /* Vertex.swift in Sources */,
 				5A51FC1523CEB7E700467EFC /* Shader.metal in Sources */,
+				5AACBBBE23D376F700ECDA8F /* Canvas+Layers.swift in Sources */,
 				5A92EAB823D09D0E00F4A53A /* Pencil.swift in Sources */,
 				5A6CA281237B35A20036DF3B /* UITouch+Metal.swift in Sources */,
 				5A92EAB623D09C5E00F4A53A /* Tool.swift in Sources */,
 				5A4C9C5D2374E88C0019ED83 /* AppDelegate.swift in Sources */,
+				5AC96B7723D2CBE500AC5066 /* MTLTexture+Image.swift in Sources */,
 				5A6CA27B237B05930036DF3B /* Canvas+Touch.swift in Sources */,
 				5A4C9C5F2374E88C0019ED83 /* SceneDelegate.swift in Sources */,
 				5ADC3E2B23D0D34100265C41 /* Line.swift in Sources */,
