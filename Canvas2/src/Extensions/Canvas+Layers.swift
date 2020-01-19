@@ -60,17 +60,17 @@ public extension Canvas {
         // Remake the main buffer.
         let totalLength = totalVertices.count * MemoryLayout<Vertex>.stride
         if totalLength == 0 {
-            buffer = nil
+            mainBuffer = nil
         } else {
-            buffer = dev.makeBuffer(bytes: totalVertices, length: totalLength, options: [])
+            mainBuffer = dev.makeBuffer(bytes: totalVertices, length: totalLength, options: [])
         }
     }
     
     
     /** Moves the layer at the specified index to a different position on the canvas. */
     func moveLayer(from startIndex: Int, to destIndex: Int) {
-        guard startIndex >= 0 && startIndex <= self.canvasLayers.count else { return }
-        guard destIndex >= 0 && destIndex <= self.canvasLayers.count else { return }
+        guard startIndex >= 0 && startIndex < self.canvasLayers.count else { return }
+        guard destIndex >= 0 && destIndex < self.canvasLayers.count else { return }
         
         // First, get a reference to the layer that you are trying to move.
         let moveLayer = self.canvasLayers[startIndex]
@@ -105,9 +105,9 @@ public extension Canvas {
         // Remake the main buffer.
         let totalLength = totalVertices.count * MemoryLayout<Vertex>.stride
         if totalLength == 0 {
-            buffer = nil
+            mainBuffer = nil
         } else {
-            buffer = dev.makeBuffer(bytes: totalVertices, length: totalLength, options: [])
+            mainBuffer = dev.makeBuffer(bytes: totalVertices, length: totalLength, options: [])
         }
     }
     

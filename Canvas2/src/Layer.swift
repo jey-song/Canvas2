@@ -18,7 +18,9 @@ public struct Layer {
     
     internal var buffer: MTLBuffer?
     
-    internal var vertices: [Vertex]    
+    internal var vertices: [Vertex]
+
+    
     
     
     // MARK: Initialization

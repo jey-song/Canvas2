@@ -22,18 +22,19 @@ public class Canvas: MTKView {
     
     internal var pipeline: MTLRenderPipelineState!
     internal var commands: MTLCommandQueue!
-//    internal var quadsBuffer: MTLBuffer?
-//    internal var totalVertices: [Vertex]
+    internal var samplerState: MTLSamplerState!
     
     internal var canvasLayers: [Layer]
     internal var totalVertices: [Vertex]
-    internal var buffer: MTLBuffer?
+    internal var mainBuffer: MTLBuffer?
         
     internal var currentDrawingCurve: [Quad]
     internal var nextQuad: Quad?
     internal var lastQuad: Quad?
     
     internal var force: CGFloat
+    internal var selectionBox: CGRect?
+    internal var textures: [String:MTLTexture]
     
     
     // ---> Public
@@ -111,36 +112,31 @@ public class Canvas: MTKView {
         self.currentTool = Canvas.pencilTool
         self.commands = dev!.makeCommandQueue()
         self.currentDrawingCurve = []
-//        self.totalVertices = []
         self.canvasColor = UIColor.white
         self.canvasLayers = []
         self.totalVertices = []
         self.currentLayer = -1
+        self.textures = [:]
         
         // Configure the metal view.
         super.init(frame: CGRect.zero, device: dev)
         self.colorPixelFormat = MTLPixelFormat.bgra8Unorm_srgb
         self.framebufferOnly = false
-        
+                
         // Configure the pipeline.
         guard let device = dev else { return }
         guard let lib = device.makeDefaultLibrary() else { return }
         guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
-        guard let fragProg = lib.makeFunction(name: "main_fragment") else { return }
+        guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
         
-        let descriptor = MTLRenderPipelineDescriptor()
-        descriptor.vertexFunction = vertProg
-        descriptor.fragmentFunction = fragProg
-        descriptor.colorAttachments[0].pixelFormat = MTLPixelFormat.bgra8Unorm_srgb
-        descriptor.colorAttachments[0].isBlendingEnabled = true
-        descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperation.add
-        descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperation.add
-        descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactor.one
-        descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactor.one
-        descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
-        descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
-        
-        self.pipeline = try! device.makeRenderPipelineState(descriptor: descriptor)
+        let sampleDescriptor = MTLSamplerDescriptor()
+        sampleDescriptor.minFilter = MTLSamplerMinMagFilter.linear
+        sampleDescriptor.magFilter = MTLSamplerMinMagFilter.linear
+        sampleDescriptor.sAddressMode = MTLSamplerAddressMode.mirrorRepeat
+        sampleDescriptor.tAddressMode = MTLSamplerAddressMode.mirrorRepeat
+                
+        self.samplerState = device.makeSamplerState(descriptor: sampleDescriptor)
+        self.pipeline = self.buildRenderPipeline(vertProg: vertProg, fragProg: fragProg)
         self.currentTool.canvas = self
     }
     
@@ -152,6 +148,25 @@ public class Canvas: MTKView {
     
     
     // MARK: Functions
+    
+    /** Tells the canvas to keep track of another texture, which can be used later on for different brush strokes. */
+    public func addTexture(from image: UIImage, forID id: String) {
+        guard let cg = image.cgImage else { return }
+        
+        let loader = MTKTextureLoader(device: dev)
+        let texture = try! loader.newTexture(cgImage: cg, options: [
+            MTKTextureLoader.Option.SRGB : true,
+            MTKTextureLoader.Option.allocateMipmaps: true,
+            MTKTextureLoader.Option.generateMipmaps: true
+        ])
+        self.textures[id] = texture
+    }
+    
+    /** Returns the texture that has been registered on the canvas using a particular ID. */
+    public func getTexture(fromID id: String) -> MTLTexture? {
+        guard let texture = self.textures[id] else { return nil }
+        return texture
+    }
     
     /** Updates the force property of the canvas. */
     internal func setForce(value: CGFloat) {
@@ -197,7 +212,7 @@ public class Canvas: MTKView {
         
         // Remake the main buffer.
         let totalLength = totalVertices.count * MemoryLayout<Vertex>.stride
-        buffer = dev.makeBuffer(bytes: totalVertices, length: totalLength, options: [])
+        mainBuffer = dev.makeBuffer(bytes: totalVertices, length: totalLength, options: [])
     }
     
     /** Updates the drawable on the canvas's underlying MTKView. */
@@ -222,9 +237,15 @@ public class Canvas: MTKView {
             guard let encoder = buffer.makeRenderCommandEncoder(descriptor: descriptor) else { return }
             encoder.setRenderPipelineState(self.pipeline)
             
+            // Set the texture if the current brush has one.
+            self.textures.enumerated().forEach { (offset: Int, element: (key: String, value: MTLTexture)) in
+                encoder.setFragmentTexture(element.value, index: offset)
+            }
+            encoder.setFragmentSamplerState(self.samplerState, index: 0)
+
             // Once we have the buffer, draw it in one step rather than keeping
             // track of each curve on every render pass.
-            if let b = self.buffer {
+            if let b = self.mainBuffer {
                 let vertCount = b.length / MemoryLayout<Vertex>.stride
                 encoder.setVertexBuffer(b, offset: 0, index: 0)
                 encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertCount)
@@ -233,6 +254,9 @@ public class Canvas: MTKView {
             // Render the shape that is currently being drawn. This is just so
             // that you don't have to wait until the line is finished before
             // it shows up on the screen.
+            /// TODO: Later on, instead of drawing the current curve as a separte render call, just insert it at
+            /// the correct location in relation to the current layer in the total vertices array. Then, once it has
+            /// been drawn, remove that subrange from the total vertices array.
             for quad in currentDrawingCurve {
                 quad.render(encoder: encoder)
             }

@@ -68,6 +68,7 @@ struct Quad {
         
         let size = self.brush.size / 2
         let color = self.brush.color
+        let texture = self.brush.texture
         
         // Compute the quad vertices ABCD.
         let perpendicular = self.start.perpendicular(other: self.end).normalize()
@@ -87,14 +88,14 @@ struct Quad {
         // Place the quad points into the vertices array to form two triangles.
         self.vertices = [
             // Triangle 1
-            Vertex(position: A, color: color),
-            Vertex(position: B, color: color),
-            Vertex(position: C, color: color),
+            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
+            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
 
             // Triangle 2
-            Vertex(position: B, color: color),
-            Vertex(position: C, color: color),
-            Vertex(position: D, color: color),
+            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
+            Vertex(position: D, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
         ]
     }
     
@@ -103,6 +104,7 @@ struct Quad {
     mutating func endAsRectangle(at: CGPoint) {
         self.end = at
         let color = self.brush.color
+        let texture = self.brush.texture
         
         // Compute the rectangle from the starting point to the end point.
         // Remember that the end coordinates can be behind the start.
@@ -141,13 +143,13 @@ struct Quad {
         // Apply the corners to the vertices array to form two triangles,
         // which will come together to form one rectangle on the screen.
         self.vertices = [
-            Vertex(position: self.end, color: color),
-            Vertex(position: corner2, color: color),
-            Vertex(position: self.start, color: color),
+            Vertex(position: self.end, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+            Vertex(position: corner2, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
+            Vertex(position: self.start, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
 
-            Vertex(position: self.start, color: color),
-            Vertex(position: self.end, color: color),
-            Vertex(position: corner1, color: color),
+            Vertex(position: self.start, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+            Vertex(position: self.end, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
+            Vertex(position: corner1, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
         ]
     }
     
@@ -159,6 +161,7 @@ struct Quad {
         // Create the coordinates of the two triangles.
         let size = self.brush.size / 2
         let color = self.brush.color
+        let texture = self.brush.texture
         
         let perpendicular = self.start.perpendicular(other: self.end).normalize()
         var A: CGPoint = self.start
@@ -227,14 +230,14 @@ struct Quad {
         // Set the vertices of the line quad.
         self.vertices = [
             // Triangle 1
-            Vertex(position: A, color: color),
-            Vertex(position: B, color: color),
-            Vertex(position: C, color: color),
+            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
+            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
 
             // Triangle 2
-            Vertex(position: A, color: color),
-            Vertex(position: C, color: color),
-            Vertex(position: D, color: color),
+            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
+            Vertex(position: D, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
         ]
     }
     
@@ -244,6 +247,7 @@ struct Quad {
         self.end = at
         
         let color = self.brush.color
+        let texture = self.brush.texture
         var verts: [Vertex] = [Vertex(position: self.start, color: color)]
         
         /** Creates points around a circle. It's just a formula for degrees to radians. */
@@ -265,7 +269,7 @@ struct Quad {
             let _x = cos(rads(forDegree: i)) * abs(self.end.x - self.start.x)
             let _y = sin(rads(forDegree: i)) * abs(self.end.y - self.start.y)
             let pos: CGPoint = CGPoint(x: self.start.x + _x, y: self.start.y + _y)
-            verts.append(Vertex(position: pos, color: color))
+            verts.append(Vertex(position: pos, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil))
         }
         self.vertices = verts
     }

@@ -23,10 +23,10 @@ public struct Brush {
     }
     
     internal var color: UIColor
-        
-    static let Default: Brush = {
-        return Brush(size: 10, color: .black)
-    }()
+    
+    internal var texture: MTLTexture?
+    
+    
     
     
     
@@ -35,18 +35,21 @@ public struct Brush {
     init(size s: CGFloat, color c: UIColor) {
         self.size = Brush.configureBrushSize(from: s)
         self.color = c
+        self.texture = nil
     }
     
     
     // MARK: Functions
     
     /** Changes the brush size to be more metal friendly for the current drawing system. */
-    static func configureBrushSize(from s: CGFloat) -> CGFloat {
+    internal static func configureBrushSize(from s: CGFloat) -> CGFloat {
         return (s / 100) * 4
     }
     
+    /** Makes a copy of this brush. */
     func copy() -> Brush {
-        let b: Brush = Brush(size: self.size, color: self.color)
+        var b: Brush = Brush(size: self.size, color: self.color)
+        b.texture = self.texture
         return b
     }
 }

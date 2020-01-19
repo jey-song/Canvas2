@@ -22,8 +22,9 @@ class ViewController: UIViewController {
     
     let colors: [UIColor] = [.black, .green, .red, .blue, .purple, .orange, .brown, .cyan]
     let tools: [Tool] = [Canvas.pencilTool, Canvas.rectangleTool, Canvas.lineTool, Canvas.ellipseTool]
+    var currentTexture: Int = 1
     
-    var canvas: Canvas = {
+    lazy var canvas: Canvas = {
         let a = Canvas()
         a.translatesAutoresizingMaskIntoConstraints = false
         a.forceEnabled = UIDevice.isSimulator() ? false : true
@@ -32,6 +33,16 @@ class ViewController: UIViewController {
         a.maximumForce = 1.0
         a.canvasColor = .white
         
+        if let img = UIImage(named: "PencilTexture.jpg") {
+            a.addTexture(from: img, forID: "pencilTexture")
+            print("Added the pencil texture!")
+        }
+        if let img = UIImage(named: "InkTexture.jpg") {
+            a.addTexture(from: img, forID: "inkTexture")
+            print("Added the ink texture!")
+        }
+        
+        a.currentBrush.texture = a.getTexture(fromID: "inkTexture")
         return a
     }()
     
@@ -154,6 +165,23 @@ class ViewController: UIViewController {
         return a
     }()
     
+    let textureButton: UIButton = {
+        let a = UIButton(type: UIButton.ButtonType.custom)
+        a.translatesAutoresizingMaskIntoConstraints = false
+        a.setTitle("Toggle Texture", for: .normal)
+        a.setTitleColor(.black, for: .normal)
+        a.setTitleColor(.darkGray, for: .highlighted)
+        a.addTarget(self, action: #selector(toggleTexture), for: .touchUpInside)
+        a.backgroundColor = .gray
+        a.layer.cornerRadius = 8
+        a.layer.shadowColor = UIColor.black.cgColor
+        a.layer.shadowOffset = CGSize(width: 0, height: 2)
+        a.layer.shadowRadius = 20
+        a.layer.shadowOpacity = Float(0.5)
+        
+        return a
+    }()
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -168,6 +196,7 @@ class ViewController: UIViewController {
         self.view.addSubview(switchLayerButton)
         self.view.addSubview(removeLayerButton)
         self.view.addSubview(moveLayerButton)
+        self.view.addSubview(textureButton)
         
         canvas.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         canvas.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -208,6 +237,11 @@ class ViewController: UIViewController {
         moveLayerButton.leadingAnchor.constraint(equalTo: removeLayerButton.trailingAnchor, constant: 10).isActive = true
         moveLayerButton.widthAnchor.constraint(equalToConstant: 220).isActive = true
         moveLayerButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        textureButton.topAnchor.constraint(equalTo: toolButton.bottomAnchor, constant: 10).isActive = true
+        textureButton.leadingAnchor.constraint(equalTo: moveLayerButton.trailingAnchor, constant: 10).isActive = true
+        textureButton.widthAnchor.constraint(equalToConstant: 180).isActive = true
+        textureButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 
 
@@ -237,7 +271,7 @@ class ViewController: UIViewController {
     }
     @objc func addLayerAbove() {
         canvas.addLayer(at: canvas.currentLayer + 1)
-        print("Created layer below. There are now \(canvas.canvasLayers.count) layers")
+        print("Created layer above. There are now \(canvas.canvasLayers.count) layers")
     }
     
     /** Cycles to the next layer. */
@@ -258,6 +292,17 @@ class ViewController: UIViewController {
     @objc func moveBackLayerToFront() {
         canvas.moveLayer(from: 0, to: 2)
         print("Moved layer 0 to layer 2. What was layer 0 is now at the front.")
+    }
+    
+    @objc func toggleTexture() {
+        self.currentTexture = self.currentTexture == 0 ? 1 : 0
+        if self.currentTexture == 0 {
+            canvas.currentBrush.texture = canvas.getTexture(fromID: "pencilTexture")
+            print("Switched to the Pencil Texture")
+        } else {
+            canvas.currentBrush.texture = canvas.getTexture(fromID: "inkTexture")
+            print("Switched to the Ink Texture")
+        }
     }
 }
 

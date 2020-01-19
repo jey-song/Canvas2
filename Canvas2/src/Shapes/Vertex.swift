@@ -22,10 +22,13 @@ struct Vertex {
     
     var color: SIMD4<Float>
     
+    var texture: SIMD2<Float>
+    
+    
     
     // MARK: Initialization
     
-    init(position: CGPoint, color: UIColor) {
+    init(position: CGPoint, color: UIColor, texture: SIMD2<Float>? = nil) {
         let x = Float(position.x)
         let y = Float(position.y)
         let rgba = color.rgba
@@ -35,6 +38,7 @@ struct Vertex {
         
         self.position = SIMD4<Float>(x: x, y: y, z: 0, w: 1)
         self.color = SIMD4<Float>(x: toFloat[0], y: toFloat[1], z: toFloat[2], w: toFloat[3])
+        self.texture = texture ?? SIMD2<Float>(x: -1, y: -1)
     }
     
 }
