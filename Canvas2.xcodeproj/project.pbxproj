@@ -34,6 +34,7 @@
 		5ADC3E2B23D0D34100265C41 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADC3E2A23D0D34100265C41 /* Line.swift */; };
 		5ADC3E2D23D0F8AF00265C41 /* Ellipse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADC3E2C23D0F8AF00265C41 /* Ellipse.swift */; };
 		5AF77BDD23D4BD6C000444FE /* InkTexture.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5AF77BDC23D4BD6B000444FE /* InkTexture.jpg */; };
+		5AF77BE123D5406F000444FE /* Element.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AF77BE023D5406F000444FE /* Element.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -66,6 +67,7 @@
 		5ADC3E2A23D0D34100265C41 /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		5ADC3E2C23D0F8AF00265C41 /* Ellipse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ellipse.swift; sourceTree = "<group>"; };
 		5AF77BDC23D4BD6B000444FE /* InkTexture.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = InkTexture.jpg; sourceTree = "<group>"; };
+		5AF77BE023D5406F000444FE /* Element.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Element.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +131,7 @@
 			children = (
 				5A51FC1823CEC49600467EFC /* Vertex.swift */,
 				5A51FC1A23CEC5D700467EFC /* Quad.swift */,
+				5AF77BE023D5406F000444FE /* Element.swift */,
 			);
 			path = Shapes;
 			sourceTree = "<group>";
@@ -236,6 +239,7 @@
 			files = (
 				5ADC3E2D23D0F8AF00265C41 /* Ellipse.swift in Sources */,
 				5A92EABA23D0A1A600F4A53A /* Rectangle.swift in Sources */,
+				5AF77BE123D5406F000444FE /* Element.swift in Sources */,
 				5A59BFB2237FB58000D40E11 /* Brush.swift in Sources */,
 				5AACBBBC23D36D8F00ECDA8F /* Layer.swift in Sources */,
 				5AC96B7923D2D03C00AC5066 /* UIImage+Extensions.swift in Sources */,

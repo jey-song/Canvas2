@@ -25,7 +25,6 @@ public class Canvas: MTKView {
     internal var samplerState: MTLSamplerState!
     
     internal var canvasLayers: [Layer]
-    internal var totalVertices: [Vertex]
     internal var mainBuffer: MTLBuffer?
         
     internal var currentDrawingCurve: [Quad]
@@ -33,7 +32,6 @@ public class Canvas: MTKView {
     internal var lastQuad: Quad?
     
     internal var force: CGFloat
-    internal var selectionBox: CGRect?
     internal var textures: [String:MTLTexture]
     
     
@@ -114,7 +112,6 @@ public class Canvas: MTKView {
         self.currentDrawingCurve = []
         self.canvasColor = UIColor.white
         self.canvasLayers = []
-        self.totalVertices = []
         self.currentLayer = -1
         self.textures = [:]
         
@@ -152,7 +149,7 @@ public class Canvas: MTKView {
     /** Tells the canvas to keep track of another texture, which can be used later on for different brush strokes. */
     public func addTexture(from image: UIImage, forID id: String) {
         guard let cg = image.cgImage else { return }
-        
+
         let loader = MTKTextureLoader(device: dev)
         let texture = try! loader.newTexture(cgImage: cg, options: [
             MTKTextureLoader.Option.SRGB : true,
@@ -162,11 +159,13 @@ public class Canvas: MTKView {
         self.textures[id] = texture
     }
     
+    
     /** Returns the texture that has been registered on the canvas using a particular ID. */
     public func getTexture(fromID id: String) -> MTLTexture? {
         guard let texture = self.textures[id] else { return nil }
         return texture
     }
+    
     
     /** Updates the force property of the canvas. */
     internal func setForce(value: CGFloat) {
@@ -180,6 +179,7 @@ public class Canvas: MTKView {
             self.force = sqrt(1000 / length)
         }
     }
+    
 
     /** Re-computes the vertex buffer after new points are added. */
     internal func finalizeCurveAndRemakeBuffer() {
@@ -187,33 +187,23 @@ public class Canvas: MTKView {
         guard self.canvasLayers.count > 0 else { return }
         guard self.currentLayer >= 0 && self.currentLayer < self.canvasLayers.count else { return }
         
-        // Now you can add on the new vertices to that layer.
-        let oldLength = self.canvasLayers[self.currentLayer].vertices.count
-        let verts = currentDrawingCurve.flatMap { q -> [Vertex] in return q.vertices }
-        self.canvasLayers[self.currentLayer].vertices.append(contentsOf: verts)
+        // Add the element to the main array. Then tell the current layer that the element
+        // that was just added was technically added onto that layer.
+        let element: Element = Element(quads: currentDrawingCurve, brush: currentBrush.copy())
+        self.canvasLayers[self.currentLayer].add(element: element)
         
-        let newLayerLength = self.canvasLayers[self.currentLayer].vertices.count
-        guard newLayerLength > 0 else { return }
-        
-        // Compute the offset for this layer. This will give you the index of
-        // the exact vertex where this layer starts.
-        var offset: Int = 0
-        for i in 0..<self.currentLayer {
-            offset += self.canvasLayers[i].vertices.count
+        // Rebuild the buffer.
+        let allElements = self.canvasLayers.flatMap { lay -> [Element] in
+            return lay.elements
         }
-        
-        // Now, just replace that subsection of the total vertex array with
-        // the new one that includes the newest drawn curve.
-        let lay = self.canvasLayers[self.currentLayer]
-        let start = offset
-        let end = offset + oldLength
-        let range = Range<Int>(uncheckedBounds: (lower: start, upper: end))
-        totalVertices.replaceSubrange(range, with: lay.vertices)
-        
-        // Remake the main buffer.
-        let totalLength = totalVertices.count * MemoryLayout<Vertex>.stride
-        mainBuffer = dev.makeBuffer(bytes: totalVertices, length: totalLength, options: [])
+        let allVertices = allElements.flatMap { ele -> [Vertex] in
+            return ele.quads.flatMap { q -> [Vertex] in return q.vertices }
+        }
+        let totalLength = allVertices.count * MemoryLayout<Vertex>.stride
+        guard totalLength > 0 else { return }
+        self.mainBuffer = dev.makeBuffer(bytes: allVertices, length: totalLength, options: [])
     }
+    
     
     /** Updates the drawable on the canvas's underlying MTKView. */
     public override func draw() {
@@ -257,8 +247,10 @@ public class Canvas: MTKView {
             /// TODO: Later on, instead of drawing the current curve as a separte render call, just insert it at
             /// the correct location in relation to the current layer in the total vertices array. Then, once it has
             /// been drawn, remove that subrange from the total vertices array.
-            for quad in currentDrawingCurve {
-                quad.render(encoder: encoder)
+            if self.canvasLayers.count > 0 {
+                for quad in currentDrawingCurve {
+                    quad.render(encoder: encoder)
+                }
             }
             
             // End the encoding and present the new drawable after its been updated.

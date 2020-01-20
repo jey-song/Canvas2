@@ -16,17 +16,26 @@ public struct Layer {
     
     // MARK: Variables
     
-    internal var buffer: MTLBuffer?
+    internal var canvas: Canvas
     
-    internal var vertices: [Vertex]
-
+    internal var elements: [Element]
+    
     
     
     
     // MARK: Initialization
     
-    init() {
-        self.vertices = []
+    init(canvas: Canvas) {
+        self.canvas = canvas
+        self.elements = []
+    }
+    
+    
+    // MARK: Functions
+    
+    /** Makes sure that this layer understands that a new element was added on it. */
+    internal mutating func add(element: Element) {
+        self.elements.append(element)
     }
     
 }
