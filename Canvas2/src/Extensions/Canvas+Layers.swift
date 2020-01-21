@@ -38,18 +38,7 @@ public extension Canvas {
         }
         
         // Rebuild the buffer.
-        let allElements = self.canvasLayers.flatMap { lay -> [Element] in
-            return lay.elements
-        }
-        let allVertices = allElements.flatMap { ele -> [Vertex] in
-            return ele.quads.flatMap { q -> [Vertex] in return q.vertices }
-        }
-        let totalLength = allVertices.count * MemoryLayout<Vertex>.stride
-        guard totalLength > 0 else {
-            self.mainBuffer = nil
-            return
-        }
-        self.mainBuffer = dev.makeBuffer(bytes: allVertices, length: totalLength, options: [])
+        
     }
     
     

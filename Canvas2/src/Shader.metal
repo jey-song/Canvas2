@@ -30,9 +30,10 @@ fragment half4 main_fragment(Vertex vert [[stage_in]]) {
     return half4(vert.color);
 };
 
-fragment half4 textured_fragment(Vertex vert [[stage_in]], sampler sampler2D [[sampler(0)]], texture2d<float> texture [[texture(0)]]) {
+fragment half4 textured_fragment(Vertex vert [[stage_in]], texture2d<float> texture [[texture(0)]]) {
     // If there's a texture, display that mixed with the current color.
     if(vert.textureCoords[0] != -1 && vert.textureCoords[1] != -1) {
+        constexpr sampler sampler2D;
         float4 txtr = texture.sample(sampler2D, float2(vert.textureCoords[0], vert.textureCoords[1]));
         float4 clr = vert.color;
         float4 blended = mix(txtr, clr, 0.5); // Blend exactly halfway between the texture and color.

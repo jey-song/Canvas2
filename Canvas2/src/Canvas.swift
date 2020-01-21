@@ -14,7 +14,7 @@ import MetalKit
 var dev: MTLDevice!
 
 /** A Metal-accelerated canvas for drawing and painting. */
-public class Canvas: MTKView {
+public class Canvas: MTKView, MTKViewDelegate {
     
     // MARK: Variables
 
@@ -22,31 +22,34 @@ public class Canvas: MTKView {
     
     internal var pipeline: MTLRenderPipelineState!
     internal var commands: MTLCommandQueue!
-    internal var samplerState: MTLSamplerState!
     
     internal var canvasLayers: [Layer]
-    internal var mainBuffer: MTLBuffer?
         
     internal var currentDrawingCurve: [Quad]
     internal var nextQuad: Quad?
     internal var lastQuad: Quad?
     
     internal var force: CGFloat
-    internal var textures: [String:MTLTexture]
+    internal var textures: [String : MTLTexture]
+    internal var brushes: [String : Brush]
+    
+    
+    // ---> Overrides
+    
+    public override var bounds: CGRect {
+        didSet {
+            self.redraw()
+        }
+    }
     
     
     // ---> Public
     
     /** The brush that determines the styling of the next curve drawn on the canvas. */
-    public var currentBrush: Brush
+    public internal(set) var currentBrush: Brush
     
     /** The tool that is currently used to add objects to the canvas. */
-    public var currentTool: Tool {
-        didSet {
-            // Make sure to reset the canvas reference for each tool.
-            self.currentTool.canvas = self
-        }
-    }
+    public var currentTool: Tool!
     
     /** Whether or not the canvas should respond to force as a way to draw curves. */
     public var forceEnabled: Bool
@@ -71,23 +74,23 @@ public class Canvas: MTKView {
     // --> Static/Computed
     
     /** A very basic pencil tool for freehand drawing. */
-    static let pencilTool: Pencil = {
-        return Pencil()
+    lazy var pencilTool: Pencil = {
+        return Pencil(canvas: self)
     }()
     
     /** A basic tool for creating perfect rectangles. */
-    static let rectangleTool: Rectangle = {
-        return Rectangle()
+    lazy var rectangleTool: Rectangle = {
+        return Rectangle(canvas: self)
     }()
     
     /** A basic line tool for drawing straight lines. */
-    static let lineTool: Line = {
-        return Line()
+    lazy var lineTool: Line = {
+        return Line(canvas: self)
     }()
     
     /** A basic circle tool for drawing straight lines. */
-    static let ellipseTool: Ellipse = {
-        return Ellipse()
+    lazy var ellipseTool: Ellipse = {
+        return Ellipse(canvas: self)
     }()
     
 //    /** A simple eraser. */
@@ -107,34 +110,27 @@ public class Canvas: MTKView {
         self.force = 1.0
         self.maximumForce = 1.0
         self.currentBrush = Brush(size: 10, color: .black)
-        self.currentTool = Canvas.pencilTool
         self.commands = dev!.makeCommandQueue()
         self.currentDrawingCurve = []
         self.canvasColor = UIColor.white
         self.canvasLayers = []
         self.currentLayer = -1
         self.textures = [:]
+        self.brushes = [:]
         
         // Configure the metal view.
         super.init(frame: CGRect.zero, device: dev)
-        self.colorPixelFormat = MTLPixelFormat.bgra8Unorm_srgb
+        self.colorPixelFormat = MTLPixelFormat.bgra8Unorm
         self.framebufferOnly = false
-                
+        
         // Configure the pipeline.
         guard let device = dev else { return }
         guard let lib = device.makeDefaultLibrary() else { return }
         guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
         guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
         
-        let sampleDescriptor = MTLSamplerDescriptor()
-        sampleDescriptor.minFilter = MTLSamplerMinMagFilter.linear
-        sampleDescriptor.magFilter = MTLSamplerMinMagFilter.linear
-        sampleDescriptor.sAddressMode = MTLSamplerAddressMode.mirrorRepeat
-        sampleDescriptor.tAddressMode = MTLSamplerAddressMode.mirrorRepeat
-                
-        self.samplerState = device.makeSamplerState(descriptor: sampleDescriptor)
-        self.pipeline = self.buildRenderPipeline(vertProg: vertProg, fragProg: fragProg)
-        self.currentTool.canvas = self
+        self.pipeline = buildRenderPipeline(vertProg: vertProg, fragProg: fragProg)
+        self.currentTool = self.pencilTool // Default tool
     }
     
     required init(coder: NSCoder) {
@@ -146,26 +142,48 @@ public class Canvas: MTKView {
     
     // MARK: Functions
     
-    /** Tells the canvas to keep track of another texture, which can be used later on for different brush strokes. */
-    public func addTexture(from image: UIImage, forID id: String) {
-        guard let cg = image.cgImage else { return }
-
-        let loader = MTKTextureLoader(device: dev)
-        let texture = try! loader.newTexture(cgImage: cg, options: [
-            MTKTextureLoader.Option.SRGB : true,
-            MTKTextureLoader.Option.allocateMipmaps: true,
-            MTKTextureLoader.Option.generateMipmaps: true
-        ])
-        self.textures[id] = texture
+    // ---> Public
+    
+    /** Registers a new brush that can be used on this canvas. */
+    public func addBrush(_ brush: Brush, forName name: String) {
+        self.brushes[name] = brush
     }
     
+    /** Returns the brush with the specified name. */
+    public func getBrush(withName name: String) -> Brush? {
+        return self.brushes[name] ?? nil
+    }
     
-    /** Returns the texture that has been registered on the canvas using a particular ID. */
-    public func getTexture(fromID id: String) -> MTLTexture? {
-        guard let texture = self.textures[id] else { return nil }
+    /** Tells the canvas to keep track of another texture, which can be used later on for different brush strokes. */
+    public func addTexture(_ image: UIImage, forName name: String) {
+        guard image.size.width * image.size.height > 0 else { return }
+        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .bgra8Unorm,
+            width: Int(image.size.width),
+            height: Int(image.size.height),
+            mipmapped: false
+        )
+        textureDescriptor.usage = [.renderTarget, .shaderRead]
+        let texture = dev.makeTexture(descriptor: textureDescriptor)
+        self.textures[name] = texture
+    }
+    
+    /** Returns the texture that has been registered on the canvas using a particular name. */
+    public func getTexture(withName name: String) -> MTLTexture? {
+        guard let texture = self.textures[name] else { return nil }
         return texture
     }
     
+    /** Tells the canvas to start using a different brush to draw with, based on the registered name. */
+    public func changeBrush(to name: String) {
+        guard let brush = self.getBrush(withName: name) else { return }
+        self.currentBrush = brush
+    }
+    
+    
+    
+    
+    // ---> Internal
     
     /** Updates the force property of the canvas. */
     internal func setForce(value: CGFloat) {
@@ -179,86 +197,31 @@ public class Canvas: MTKView {
             self.force = sqrt(1000 / length)
         }
     }
-    
 
-    /** Re-computes the vertex buffer after new points are added. */
-    internal func finalizeCurveAndRemakeBuffer() {
+    /** Adds a new element onto the canvas from the current drawing path. */
+    internal func finishElement() {
         // Make sure there is always at least one layer.
         guard self.canvasLayers.count > 0 else { return }
         guard self.currentLayer >= 0 && self.currentLayer < self.canvasLayers.count else { return }
         
-        // Add the element to the main array. Then tell the current layer that the element
-        // that was just added was technically added onto that layer.
-        let element: Element = Element(quads: currentDrawingCurve, brush: currentBrush.copy())
-        self.canvasLayers[self.currentLayer].add(element: element)
         
-        // Rebuild the buffer.
-        let allElements = self.canvasLayers.flatMap { lay -> [Element] in
-            return lay.elements
-        }
-        let allVertices = allElements.flatMap { ele -> [Vertex] in
-            return ele.quads.flatMap { q -> [Vertex] in return q.vertices }
-        }
-        let totalLength = allVertices.count * MemoryLayout<Vertex>.stride
-        guard totalLength > 0 else { return }
-        self.mainBuffer = dev.makeBuffer(bytes: allVertices, length: totalLength, options: [])
     }
     
+    /** Clears and updates the screen with the newest drawing data, layer movements, etc. */
+    internal func redraw() {
+        // If there is a current drawing stroke, draw that.
+        if currentDrawingCurve.count > 0 {
+            finishElement()
+        }
+        
+    }
     
     /** Updates the drawable on the canvas's underlying MTKView. */
-    public override func draw() {
-        autoreleasepool {
-            guard let lay: CAMetalLayer = self.layer as? CAMetalLayer else { return }
-            guard let drawable = lay.nextDrawable() else { return }
-            let rgba = self.canvasColor.rgba
-            
-            // Create a descriptor for the pipeline.
-            let descriptor = MTLRenderPassDescriptor()
-            descriptor.colorAttachments[0].texture = drawable.texture
-            descriptor.colorAttachments[0].loadAction = MTLLoadAction.clear
-            descriptor.colorAttachments[0].storeAction = MTLStoreAction.store
-            descriptor.colorAttachments[0].clearColor = MTLClearColor(
-                red: Double(rgba.red), green: Double(rgba.green), blue: Double(rgba.blue), alpha: Double(rgba.alpha)
-            )
-            
-            // Create a pixel buffer for the command queue. Also make an encoder for
-            // the pipeline.
-            guard let buffer = self.commands.makeCommandBuffer() else { return }
-            guard let encoder = buffer.makeRenderCommandEncoder(descriptor: descriptor) else { return }
-            encoder.setRenderPipelineState(self.pipeline)
-            
-            // Set the texture if the current brush has one.
-            self.textures.enumerated().forEach { (offset: Int, element: (key: String, value: MTLTexture)) in
-                encoder.setFragmentTexture(element.value, index: offset)
-            }
-            encoder.setFragmentSamplerState(self.samplerState, index: 0)
-
-            // Once we have the buffer, draw it in one step rather than keeping
-            // track of each curve on every render pass.
-            if let b = self.mainBuffer {
-                let vertCount = b.length / MemoryLayout<Vertex>.stride
-                encoder.setVertexBuffer(b, offset: 0, index: 0)
-                encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertCount)
-            }
-            
-            // Render the shape that is currently being drawn. This is just so
-            // that you don't have to wait until the line is finished before
-            // it shows up on the screen.
-            /// TODO: Later on, instead of drawing the current curve as a separte render call, just insert it at
-            /// the correct location in relation to the current layer in the total vertices array. Then, once it has
-            /// been drawn, remove that subrange from the total vertices array.
-            if self.canvasLayers.count > 0 {
-                for quad in currentDrawingCurve {
-                    quad.render(encoder: encoder)
-                }
-            }
-            
-            // End the encoding and present the new drawable after its been updated.
-            encoder.endEncoding()
-            buffer.present(drawable)
-            buffer.commit()
-            
-        }
+    public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        
     }
     
+    public func draw(in view: MTKView) {
+        
+    }
 }

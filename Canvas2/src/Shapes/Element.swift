@@ -18,23 +18,29 @@ public struct Element {
     
     internal var quads: [Quad]
     
-    internal var buffer: MTLBuffer?
-    
-    internal var brush: Brush
+    internal var pipeline: MTLRenderPipelineState!
     
     
     
     // MARK: Initialization
     
-    init(quads: [Quad], brush: Brush) {
+    init(quads: [Quad]) {
         self.quads = quads
-        self.buffer = nil
-        self.brush = brush
+        
+        guard let device = dev else { return }
+        guard let lib = device.makeDefaultLibrary() else { return }
+        guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
+        guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
+        self.pipeline = buildRenderPipeline(vertProg: vertProg, fragProg: fragProg)
     }
+    
     
     
     // MARK: Functions
     
+    internal func render(canvas: Canvas) {
+        
+    }
     
     
 }

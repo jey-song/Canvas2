@@ -21,7 +21,12 @@ public extension UIDevice {
 class ViewController: UIViewController {
     
     let colors: [UIColor] = [.black, .green, .red, .blue, .purple, .orange, .brown, .cyan]
-    let tools: [Tool] = [Canvas.pencilTool, Canvas.rectangleTool, Canvas.lineTool, Canvas.ellipseTool]
+    lazy var tools: [Tool] = [
+        self.canvas.pencilTool,
+        self.canvas.rectangleTool,
+        self.canvas.lineTool,
+        self.canvas.ellipseTool
+    ]
     var currentTexture: Int = 1
     
     lazy var canvas: Canvas = {
@@ -32,17 +37,6 @@ class ViewController: UIViewController {
         a.currentBrush.size = 20
         a.maximumForce = 1.0
         a.canvasColor = .white
-        
-        if let img = UIImage(named: "PencilTexture.jpg") {
-            a.addTexture(from: img, forID: "pencilTexture")
-            print("Added the pencil texture!")
-        }
-        if let img = UIImage(named: "InkTexture.jpg") {
-            a.addTexture(from: img, forID: "inkTexture")
-            print("Added the ink texture!")
-        }
-        
-        a.currentBrush.texture = a.getTexture(fromID: "inkTexture")
         return a
     }()
     
@@ -244,6 +238,29 @@ class ViewController: UIViewController {
         textureButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 
+    func setupCanvas() {
+        // Load some textures.
+        if let img = UIImage(named: "PencilTexture.jpg") {
+            canvas.addTexture(img, forName: "pencilTexture")
+            print("Added the pencil texture!")
+        }
+        if let img = UIImage(named: "InkTexture.jpg") {
+            canvas.addTexture(img, forName: "inkTexture")
+            print("Added the ink texture!")
+        }
+        
+        // Load a brush.
+        var basicPencil: Brush = Brush(size: 10, color: .black)
+        var basicInk: Brush = Brush(size: 20, color: .black)
+        basicPencil.setTexture(name: "pencilTexture", canvas: canvas)
+        basicInk.setTexture(name: "inkTexture", canvas: canvas)
+        canvas.addBrush(basicPencil, forName: "basicPencil")
+        canvas.addBrush(basicInk, forName: "basicInk")
+        print("Added the basic pencil and basic ink brushes!")
+        
+        // Set the current brush.
+        canvas.changeBrush(to: "basicPencil")
+    }
 
     
     
@@ -297,10 +314,10 @@ class ViewController: UIViewController {
     @objc func toggleTexture() {
         self.currentTexture = self.currentTexture == 0 ? 1 : 0
         if self.currentTexture == 0 {
-            canvas.currentBrush.texture = canvas.getTexture(fromID: "pencilTexture")
+            canvas.currentBrush.setTexture(name: "pencilTexture", canvas: canvas)
             print("Switched to the Pencil Texture")
         } else {
-            canvas.currentBrush.texture = canvas.getTexture(fromID: "inkTexture")
+            canvas.currentBrush.setTexture(name: "inkTexture", canvas: canvas)
             print("Switched to the Ink Texture")
         }
     }

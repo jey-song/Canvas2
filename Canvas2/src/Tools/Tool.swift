@@ -17,6 +17,11 @@ public protocol Tool {
     var canvas: Canvas? { get set }
     
     
+    // MARK: Initialization
+    
+    init(canvas: Canvas)
+    
+    
     // MARK: Functions
     
     /** Called when this tool first hits the canvas. */

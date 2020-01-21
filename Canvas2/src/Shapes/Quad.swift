@@ -32,6 +32,8 @@ struct Quad {
     
     var endForce: CGFloat
     
+    var buffer: MTLBuffer?
+    
     
     
     // MARK: Initialization
@@ -60,6 +62,14 @@ struct Quad {
     
     
     // MARK: Functions
+    
+    mutating func makeBuffer() {
+        self.buffer = dev.makeBuffer(
+            bytes: self.vertices,
+            length: self.vertices.count * MemoryLayout<Vertex>.stride,
+            options: []
+        )
+    }
     
     /** Sets the ending position of this quad and promptly computes the rectangular shape
      needed to display it on screen. It really just computes two triangles at the end of the day. */
@@ -97,6 +107,7 @@ struct Quad {
             Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
             Vertex(position: D, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
         ]
+        self.makeBuffer()
     }
     
     
@@ -281,7 +292,7 @@ struct Quad {
             bytes: self.vertices,
             length: self.vertices.count * MemoryLayout<Vertex>.stride,
             options: []) else { return }
-        
+
         let vertCount = buffer.length / MemoryLayout<Vertex>.stride
         encoder.setVertexBuffer(buffer, offset: 0, index: 0)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertCount)

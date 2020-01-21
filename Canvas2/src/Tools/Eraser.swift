@@ -21,8 +21,8 @@ public struct Eraser: Tool {
     
     // MARK: Initialization
     
-    init() {
-        
+    public init(canvas: Canvas) {
+        self.canvas = canvas
     }
     
     
@@ -46,7 +46,7 @@ public struct Eraser: Tool {
         guard let canvas = self.canvas else { return }
         
         // Add the vertices from the currently drawn curve, and remake the buffer.
-        canvas.finalizeCurveAndRemakeBuffer()
+        canvas.finishElement()
         
         // Clear the current drawing curve.
         canvas.nextQuad = nil
@@ -58,7 +58,7 @@ public struct Eraser: Tool {
         guard let canvas = self.canvas else { return }
         
         // Add the vertices from the currently drawn curve, and remake the buffer.
-        canvas.finalizeCurveAndRemakeBuffer()
+        canvas.finishElement()
         
         // Clear the current drawing curve.
         canvas.nextQuad = nil

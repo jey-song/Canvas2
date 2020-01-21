@@ -11,7 +11,7 @@ import Metal
 import MetalKit
 
 
-/** A customizable brush that draws simple curves on the canvas. */
+/** A customizable brush that determines how curves drawn on the canvas will look. */
 public struct Brush {
     
     // MARK: Variables
@@ -40,6 +40,13 @@ public struct Brush {
     
     
     // MARK: Functions
+    
+    /** Sets the texture on this brush using a texture name that has already been added to the canvas. */
+    public mutating func setTexture(name: String, canvas: Canvas) {
+        guard let txr = canvas.getTexture(withName: name) else { return }
+        self.texture = txr
+    }
+    
     
     /** Changes the brush size to be more metal friendly for the current drawing system. */
     internal static func configureBrushSize(from s: CGFloat) -> CGFloat {
