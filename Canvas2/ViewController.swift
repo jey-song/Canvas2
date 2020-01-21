@@ -180,6 +180,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .darkGray
+        self.setupCanvas()
         
         // Setup the view.
         self.view.addSubview(canvas)

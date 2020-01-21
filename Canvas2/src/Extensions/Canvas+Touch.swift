@@ -37,10 +37,24 @@ public extension Canvas {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        
+        // Check for stylus only touches.
+        if self.stylusOnly == true && touch.type != .pencil && touch.type != .stylus {
+            return
+        }
+        
         self.currentTool.endTouch(touches, with: event)
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        
+        // Check for stylus only touches.
+        if self.stylusOnly == true && touch.type != .pencil && touch.type != .stylus {
+            return
+        }
+        
         self.currentTool.cancelTouch(touches, with: event)
     }
 }

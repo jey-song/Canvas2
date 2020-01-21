@@ -21,32 +21,25 @@ public class Canvas: MTKView, MTKViewDelegate {
     // ---> Internal
     
     internal var pipeline: MTLRenderPipelineState!
-    internal var commands: MTLCommandQueue!
+    internal var commandQueue: MTLCommandQueue!
+    internal var mainVertices: [Vertex]
+    internal var mainBuffer: MTLBuffer?
     
     internal var canvasLayers: [Layer]
-        
-    internal var currentDrawingCurve: [Quad]
-    internal var nextQuad: Quad?
-    internal var lastQuad: Quad?
+    
+    internal var currentPath: Element!
     
     internal var force: CGFloat
     internal var textures: [String : MTLTexture]
     internal var brushes: [String : Brush]
     
     
-    // ---> Overrides
-    
-    public override var bounds: CGRect {
-        didSet {
-            self.redraw()
-        }
-    }
     
     
     // ---> Public
     
     /** The brush that determines the styling of the next curve drawn on the canvas. */
-    public internal(set) var currentBrush: Brush
+    public internal(set) var currentBrush: Brush!
     
     /** The tool that is currently used to add objects to the canvas. */
     public var currentTool: Tool!
@@ -65,7 +58,12 @@ public class Canvas: MTKView, MTKViewDelegate {
     public var stylusOnly: Bool
     
     /** The color to use to clear the canvas, which also serves as the background color. */
-    public var canvasColor: UIColor
+    public var canvasColor: UIColor {
+        didSet {
+            let rgba = self.canvasColor.rgba
+            self.clearColor = MTLClearColor(red: Double(rgba.red), green: Double(rgba.green), blue: Double(rgba.blue), alpha: Double(rgba.alpha))
+        }
+    }
     
     /** The index of the current layer. */
     public var currentLayer: Int
@@ -109,19 +107,21 @@ public class Canvas: MTKView, MTKViewDelegate {
         self.stylusOnly = false
         self.force = 1.0
         self.maximumForce = 1.0
-        self.currentBrush = Brush(size: 10, color: .black)
-        self.commands = dev!.makeCommandQueue()
-        self.currentDrawingCurve = []
+        self.commandQueue = dev!.makeCommandQueue()
         self.canvasColor = UIColor.white
         self.canvasLayers = []
         self.currentLayer = -1
         self.textures = [:]
         self.brushes = [:]
+        self.mainVertices = []
         
         // Configure the metal view.
         super.init(frame: CGRect.zero, device: dev)
+        let rgba = self.canvasColor.rgba
         self.colorPixelFormat = MTLPixelFormat.bgra8Unorm
         self.framebufferOnly = false
+        self.clearColor = MTLClearColor(red: Double(rgba.red), green: Double(rgba.green), blue: Double(rgba.blue), alpha: Double(rgba.alpha))
+        self.delegate = self
         
         // Configure the pipeline.
         guard let device = dev else { return }
@@ -130,7 +130,9 @@ public class Canvas: MTKView, MTKViewDelegate {
         guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
         
         self.pipeline = buildRenderPipeline(vertProg: vertProg, fragProg: fragProg)
+        self.currentBrush = Brush(size: 10, color: .black) // Default brush
         self.currentTool = self.pencilTool // Default tool
+        self.currentPath = Element(quads: [], canvas: self) // Used for drawing temporary paths
     }
     
     required init(coder: NSCoder) {
@@ -197,31 +199,47 @@ public class Canvas: MTKView, MTKViewDelegate {
             self.force = sqrt(1000 / length)
         }
     }
-
-    /** Adds a new element onto the canvas from the current drawing path. */
-    internal func finishElement() {
-        // Make sure there is always at least one layer.
-        guard self.canvasLayers.count > 0 else { return }
-        guard self.currentLayer >= 0 && self.currentLayer < self.canvasLayers.count else { return }
-        
-        
-    }
     
-    /** Clears and updates the screen with the newest drawing data, layer movements, etc. */
-    internal func redraw() {
-        // If there is a current drawing stroke, draw that.
-        if currentDrawingCurve.count > 0 {
-            finishElement()
-        }
+    
+    
+    // ---> Rendering
+    
+    /** Finish the current drawing path and add it to the canvas. Then repaint the view. */
+    internal func repaint() {
+        // Get a copy of the current path before we eventually remove it.
+        guard let copy = currentPath?.copy() else { return }
         
+        // Add the finalized path to the current layer.
+        canvasLayers[currentLayer].add(element: copy)
+        
+        // Recompute the main buffer.
+        let vertices = canvasLayers.flatMap { $0.elements }.flatMap { $0.quads }.flatMap { $0.vertices }
+        guard vertices.count > 0 else { return }
+        mainBuffer = dev.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Vertex>.stride, options: [])
     }
     
     /** Updates the drawable on the canvas's underlying MTKView. */
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        
+        // redraw
     }
     
     public func draw(in view: MTKView) {
+        guard let rpd = view.currentRenderPassDescriptor else { print("no descriptor"); return }
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else { print("no command buffer"); return }
+        guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { print("no encoder"); return }
+        guard let drawable = view.currentDrawable else { print("no drawable"); return }
+        encoder.setRenderPipelineState(pipeline)
         
+        // Draw primitives using the main buffer and texture.
+        if let buffer = self.mainBuffer {
+            let count = buffer.length / MemoryLayout<Vertex>.stride
+            encoder.setVertexBuffer(buffer, offset: 0, index: 0)
+            encoder.setFragmentTexture(drawable.texture, index: 0)
+            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: count)
+        }
+        
+        encoder.endEncoding()
+        commandBuffer.present(drawable)
+        commandBuffer.commit()
     }
 }

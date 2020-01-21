@@ -26,16 +26,27 @@ public struct Brush {
     
     internal var texture: MTLTexture?
     
+    internal var pipeline: MTLRenderPipelineState!
+    
     
     
     
     
     // MARK: Initialization
     
-    init(size s: CGFloat, color c: UIColor) {
+    init(size s: CGFloat, color c: UIColor, makePipeline: Bool = true) {
         self.size = Brush.configureBrushSize(from: s)
         self.color = c
         self.texture = nil
+        
+        if makePipeline == true {
+            guard let device = dev else { return }
+            guard let lib = device.makeDefaultLibrary() else { return }
+            guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
+            guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
+            self.pipeline = buildRenderPipeline(vertProg: vertProg, fragProg: fragProg, modesOn: false)
+            print("Created brush specific pipeline.")
+        }
     }
     
     
@@ -55,8 +66,9 @@ public struct Brush {
     
     /** Makes a copy of this brush. */
     func copy() -> Brush {
-        var b: Brush = Brush(size: self.size, color: self.color)
+        var b: Brush = Brush(size: self.size, color: self.color, makePipeline: false)
         b.texture = self.texture
+        b.pipeline = self.pipeline
         return b
     }
 }

@@ -11,18 +11,20 @@ import Metal
 import MetalKit
 
 /** Builds a render pipeline. */
-internal func buildRenderPipeline(vertProg: MTLFunction, fragProg: MTLFunction) -> MTLRenderPipelineState {
+internal func buildRenderPipeline(vertProg: MTLFunction, fragProg: MTLFunction, modesOn: Bool = false) -> MTLRenderPipelineState {
     let descriptor = MTLRenderPipelineDescriptor()
     descriptor.vertexFunction = vertProg
     descriptor.fragmentFunction = fragProg
     descriptor.colorAttachments[0].pixelFormat = MTLPixelFormat.bgra8Unorm
-    descriptor.colorAttachments[0].isBlendingEnabled = true
-//    descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperation.add
-//    descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperation.add
-//    descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactor.one
-//    descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactor.one
-//    descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
-//    descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
+    if modesOn == true {
+        descriptor.colorAttachments[0].isBlendingEnabled = true
+        descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperation.add
+        descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperation.add
+        descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactor.one
+        descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactor.one
+        descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
+        descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
+    }
     
     let state = try! dev.makeRenderPipelineState(descriptor: descriptor)
     return state

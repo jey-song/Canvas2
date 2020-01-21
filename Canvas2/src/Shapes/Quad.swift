@@ -64,6 +64,10 @@ struct Quad {
     // MARK: Functions
     
     mutating func makeBuffer() {
+        guard vertices.count > 0 else {
+            self.buffer = nil
+            return
+        }
         self.buffer = dev.makeBuffer(
             bytes: self.vertices,
             length: self.vertices.count * MemoryLayout<Vertex>.stride,
