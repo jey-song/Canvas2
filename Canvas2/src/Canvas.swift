@@ -244,7 +244,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         }
         
         // Remake the buffer with the newly added element.
-        let elements = canvasLayers.flatMap { $0.elements }
+        let elements = canvasLayers.filter { $0.isHidden == false }.flatMap { $0.elements }
         let verts = elements.flatMap { $0.quads }.flatMap { $0.vertices }
         let count = verts.count * MemoryLayout<Vertex>.stride
         let defaultViewCount = viewportVertices.count * MemoryLayout<Vertex>.stride
@@ -278,7 +278,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         
         // Go through each element and make sure that it is drawn independently. Meaning
         // each curve with its own texture, color, etc.
-        let elements = canvasLayers.flatMap { $0.elements }
+        let elements = canvasLayers.filter { $0.isHidden == false }.flatMap { $0.elements }
         for var e in elements {
             e.render(buffer: commandBuffer, encoder: encoder)
         }

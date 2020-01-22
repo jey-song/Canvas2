@@ -193,6 +193,23 @@ class ViewController: UIViewController, CanvasEvents {
         return a
     }()
     
+    let toggleHideButton: UIButton = {
+        let a = UIButton(type: UIButton.ButtonType.custom)
+        a.translatesAutoresizingMaskIntoConstraints = false
+        a.setTitle("Toggle Hide Layer 0", for: .normal)
+        a.setTitleColor(.black, for: .normal)
+        a.setTitleColor(.darkGray, for: .highlighted)
+        a.addTarget(self, action: #selector(toggleHide), for: .touchUpInside)
+        a.backgroundColor = .gray
+        a.layer.cornerRadius = 8
+        a.layer.shadowColor = UIColor.black.cgColor
+        a.layer.shadowOffset = CGSize(width: 0, height: 2)
+        a.layer.shadowRadius = 20
+        a.layer.shadowOpacity = Float(0.5)
+        
+        return a
+    }()
+    
     
     // MARK: Initialization
 
@@ -212,6 +229,7 @@ class ViewController: UIViewController, CanvasEvents {
         self.view.addSubview(moveLayerButton)
         self.view.addSubview(brushButton)
         self.view.addSubview(toggleLockButton)
+        self.view.addSubview(toggleHideButton)
         
         canvas.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         canvas.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -262,6 +280,11 @@ class ViewController: UIViewController, CanvasEvents {
         toggleLockButton.leadingAnchor.constraint(equalTo: brushButton.trailingAnchor, constant: 10).isActive = true
         toggleLockButton.widthAnchor.constraint(equalToConstant: 180).isActive = true
         toggleLockButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        toggleHideButton.topAnchor.constraint(equalTo: removeLayerButton.bottomAnchor, constant: 10).isActive = true
+        toggleHideButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+        toggleHideButton.widthAnchor.constraint(equalToConstant: 180).isActive = true
+        toggleHideButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 
     func setupCanvas() {
@@ -369,6 +392,14 @@ class ViewController: UIViewController, CanvasEvents {
             canvas.lock(layer: 0)
         } else {
             canvas.unlock(layer: 0)
+        }
+    }
+    
+    @objc func toggleHide() {
+        if canvas.canvasLayers[canvas.currentLayer].isHidden == false {
+            canvas.hide(layer: 0)
+        } else {
+            canvas.show(layer: 0)
         }
     }
     

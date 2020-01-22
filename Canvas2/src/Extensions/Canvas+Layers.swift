@@ -77,4 +77,19 @@ public extension Canvas {
         canvasLayers[currentLayer].isLocked = false
     }
     
+    /** Hides a particular layer so that it cannot be seen. */
+    func hide(layer at: Int) {
+        guard at >= 0 && at < canvasLayers.count else { return }
+        canvasLayers[currentLayer].isHidden = true
+        rebuildBuffer()
+    }
+    
+    
+    /** Shows a layer that has been hidden so that it can be visible on the canvas */
+    func show(layer at: Int) {
+        guard at >= 0 && at < canvasLayers.count else { return }
+        canvasLayers[currentLayer].isHidden = false
+        rebuildBuffer()
+    }
+    
 }

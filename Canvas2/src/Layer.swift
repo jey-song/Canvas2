@@ -22,6 +22,8 @@ public struct Layer {
     
     internal var isLocked: Bool
     
+    internal var isHidden: Bool
+    
     
     
     
@@ -31,6 +33,7 @@ public struct Layer {
         self.canvas = canvas
         self.elements = []
         self.isLocked = false
+        self.isHidden = false
     }
     
     
