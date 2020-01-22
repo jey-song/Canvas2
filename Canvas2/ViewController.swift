@@ -315,8 +315,8 @@ class ViewController: UIViewController {
     }
     
     @objc func moveBackLayerToFront() {
-        canvas.moveLayer(from: 0, to: 2)
-        print("Moved layer 0 to layer 2. What was layer 0 is now at the front.")
+        canvas.moveLayer(from: 0, to: 1)
+        print("Moved layer 0 to layer 1. What was layer 0 is now at the front.")
     }
     
     @objc func changeBrush() {

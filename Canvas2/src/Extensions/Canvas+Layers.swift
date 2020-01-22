@@ -31,7 +31,7 @@ public extension Canvas {
         
         let newLayer = Layer(canvas: self)
         self.canvasLayers.insert(newLayer, at: index)
-        repaint()
+        rebuildBuffer()
     }
     
     
@@ -46,52 +46,20 @@ public extension Canvas {
         }
         
         // Rebuild the buffer.
-        
+        rebuildBuffer()
     }
     
     
     /** Moves the layer at the specified index to a different position on the canvas. */
     func moveLayer(from startIndex: Int, to destIndex: Int) {
-//        guard startIndex >= 0 && startIndex < self.canvasLayers.count else { return }
-//        guard destIndex >= 0 && destIndex < self.canvasLayers.count else { return }
-//        
-//        // First, get a reference to the layer that you are trying to move.
-//        let moveLayer = self.canvasLayers[startIndex]
-//        
-//        // Now, get a range for the vertices corresponding to that layer in
-//        // the total vertices array.
-//        let oldLength = moveLayer.vertices.count
-//        var offset: Int = 0
-//        for i in 0..<startIndex {
-//            offset += self.canvasLayers[i].vertices.count
-//        }
-//        let start = offset
-//        let end = offset + oldLength
-//        let moveRange = Range<Int>(uncheckedBounds: (lower: start, upper: end))
-//        let verticesToMove = totalVertices[start..<end]
-//        
-//        // Once you have the vertices that you want to move, you can remove them
-//        // from where they used to be in the total array.
-//        self.canvasLayers.remove(at: startIndex)
-//        self.canvasLayers.insert(moveLayer, at: destIndex)
-//        totalVertices.removeSubrange(moveRange)
-//        
-//        // Now you need a new index for where to insert it. This is because the
-//        // removal that is done just above causes the length of the array to change.
-//        var destOffset: Int = 0
-//        for i in 0..<destIndex {
-//            destOffset += self.canvasLayers[i].vertices.count
-//        }
-//        let destStart = destOffset
-//        totalVertices.insert(contentsOf: verticesToMove, at: destStart)
-//        
-//        // Remake the main buffer.
-//        let totalLength = totalVertices.count * MemoryLayout<Vertex>.stride
-//        if totalLength == 0 {
-//            mainBuffer = nil
-//        } else {
-//            mainBuffer = dev.makeBuffer(bytes: totalVertices, length: totalLength, options: [])
-//        }
+        guard startIndex >= 0 && startIndex < self.canvasLayers.count else { return }
+        guard destIndex >= 0 && destIndex < self.canvasLayers.count else { return }
+        
+        let moveLayer = canvasLayers[startIndex]
+        canvasLayers.remove(at: startIndex)
+        canvasLayers.insert(moveLayer, at: destIndex)
+        
+        rebuildBuffer()
     }
     
 }

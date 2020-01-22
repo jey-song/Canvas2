@@ -82,47 +82,22 @@ public struct Element {
     /** Renders the element to the screen. */
     internal mutating func render(buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
         guard quads.count > 0 else { return }
-//        guard let rpd = canvas.currentRenderPassDescriptor else { return }
-//        guard let buffer = canvas.commandQueue.makeCommandBuffer() else { return }
-//        guard let encoder = buffer.makeRenderCommandEncoder(descriptor: rpd) else { return }
         
+        // Make a new buffer out of all of the vertices on this element.
         let vertices = quads.flatMap { $0.vertices }
+        guard vertices.count > 0 else { return }
         guard let vBuffer = dev.makeBuffer(
             bytes: vertices,
             length: vertices.count * MemoryLayout<Vertex>.stride,
             options: []) else { return }
         
+        // Set the properties on the encoder for this element and the brush it uses specifically.
         encoder.setRenderPipelineState(brush.pipeline)
         encoder.setVertexBuffer(vBuffer, offset: 0, index: 0)
-        if let txr = brush.texture {
-            encoder.setFragmentTexture(txr, index: 0)
-        }
-//        encoder.setFragmentSamplerState(sampleState, index: 0)
+        if let txr = brush.texture { encoder.setFragmentTexture(txr, index: 0) }
+        encoder.setFragmentSamplerState(canvas.sampleState, index: 0)
         let count = vBuffer.length / MemoryLayout<Vertex>.stride
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: count)
-//        encoder.endEncoding()
-        print("Encoded single element")
-//        for quad in quads {
-//            let vertices = quad.vertices
-//            guard vertices.count > 0 else {
-//                print("No vertices in this quad")
-//                continue
-//            }
-//            guard let vBuffer = dev.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Vertex>.stride, options: []) else {
-////                encoder.endEncoding()
-//                return
-//            }
-//
-//            encoder.setRenderPipelineState(brush.pipeline)
-//            encoder.setVertexBuffer(vBuffer, offset: 0, index: 0)
-//            if let txr = brush.texture {
-//                encoder.setFragmentTexture(txr, index: 0)
-//            }
-//            let count = vBuffer.length / MemoryLayout<Vertex>.stride
-//            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: count)
-//        }
-//        encoder.endEncoding()
-//        print("Encoded single element")
     }
     
     

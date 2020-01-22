@@ -62,7 +62,7 @@ public struct Pencil: Tool {
         guard let canvas = self.canvas else { return }
         
         // Clear the current drawing curve.
-        canvas.repaint()
+        canvas.rebuildBuffer()
         canvas.currentPath?.closePath()
     }
     
@@ -70,7 +70,7 @@ public struct Pencil: Tool {
         guard let canvas = self.canvas else { return }
         
         // Clear the current drawing curve.
-        canvas.repaint()
+        canvas.rebuildBuffer()
         canvas.currentPath?.closePath()
     }
     
