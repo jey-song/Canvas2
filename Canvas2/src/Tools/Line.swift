@@ -15,6 +15,8 @@ public struct Line: Tool {
     
     // MARK: Variables
     
+    public var name: String
+    
     public var canvas: Canvas?
     
     
@@ -23,6 +25,7 @@ public struct Line: Tool {
     
     public init(canvas: Canvas) {
         self.canvas = canvas
+        self.name = "line"
     }
     
     

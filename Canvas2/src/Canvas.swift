@@ -101,10 +101,10 @@ public class Canvas: MTKView, MTKViewDelegate {
         return Ellipse(canvas: self)
     }()
     
-//    /** A simple eraser. */
-//    static let eraserTool: Eraser = {
-//        return Eraser()
-//    }()
+    /** A simple eraser. */
+    lazy var eraserTool: Eraser = {
+        return Eraser(canvas: self)
+    }()
     
     
     // ---> Overrides
@@ -136,12 +136,12 @@ public class Canvas: MTKView, MTKViewDelegate {
         self.force = 1.0
         self.maximumForce = 1.0
         self.commandQueue = dev!.makeCommandQueue()
-        self.canvasColor = UIColor.white
         self.canvasLayers = []
         self.currentLayer = -1
         self.registeredTextures = [:]
         self.registeredBrushes = [:]
         self.viewportVertices = []
+        self.canvasColor = UIColor.white
         
         // Configure the metal view.
         super.init(frame: CGRect.zero, device: dev)
@@ -159,7 +159,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         self.sampleState = buildSampleState()
         self.pipeline = buildRenderPipeline(vertProg: vertProg, fragProg: fragProg)
         self.textureLoader = MTKTextureLoader(device: dev)
-        self.currentBrush = Brush(name: "defaultBrush", size: 10, color: .black) // Default brush
+        self.currentBrush = Brush(canvas: self, name: "defaultBrush", size: 10, color: .black) // Default brush
         self.currentTool = self.pencilTool // Default tool
         self.currentPath = Element(quads: [], canvas: self) // Used for drawing temporary paths
     }

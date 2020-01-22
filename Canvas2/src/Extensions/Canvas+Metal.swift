@@ -11,12 +11,18 @@ import Metal
 import MetalKit
 
 /** Builds a render pipeline. */
-internal func buildRenderPipeline(vertProg: MTLFunction, fragProg: MTLFunction, modesOn: Bool = false) -> MTLRenderPipelineState {
+internal func buildRenderPipeline(
+    vertProg: MTLFunction,
+    fragProg: MTLFunction,
+    modesOn: Bool = false,
+    eraserSettingsOn: Bool = false
+) -> MTLRenderPipelineState {
+    // Make a descriptor for the pipeline.
     let descriptor = MTLRenderPipelineDescriptor()
     descriptor.vertexFunction = vertProg
     descriptor.fragmentFunction = fragProg
     descriptor.colorAttachments[0].pixelFormat = MTLPixelFormat.bgra8Unorm
-    if modesOn == true {
+    if modesOn == true && eraserSettingsOn == false {
         descriptor.colorAttachments[0].isBlendingEnabled = true
         descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperation.add
         descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperation.add
@@ -24,6 +30,15 @@ internal func buildRenderPipeline(vertProg: MTLFunction, fragProg: MTLFunction, 
         descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactor.one
         descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
         descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
+    }
+    if eraserSettingsOn == true {
+        descriptor.colorAttachments[0].isBlendingEnabled = false
+        descriptor.colorAttachments[0].alphaBlendOperation = .reverseSubtract
+        descriptor.colorAttachments[0].rgbBlendOperation = .reverseSubtract
+        descriptor.colorAttachments[0].sourceRGBBlendFactor = .one
+        descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+        descriptor.colorAttachments[0].destinationRGBBlendFactor = .destinationColor
+        descriptor.colorAttachments[0].destinationAlphaBlendFactor = .zero
     }
     
     let state = try! dev.makeRenderPipelineState(descriptor: descriptor)

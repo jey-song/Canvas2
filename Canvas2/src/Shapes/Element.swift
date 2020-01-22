@@ -135,8 +135,10 @@ public struct Element {
         // Set the properties on the encoder for this element and the brush it uses specifically.
         encoder.setRenderPipelineState(brush.pipeline)
         encoder.setVertexBuffer(vBuffer, offset: 0, index: 0)
+        
         if let txr = brush.texture { encoder.setFragmentTexture(txr, index: 0) }
         encoder.setFragmentSamplerState(canvas.sampleState, index: 0)
+        
         let count = vBuffer.length / MemoryLayout<Vertex>.stride
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: count)
     }

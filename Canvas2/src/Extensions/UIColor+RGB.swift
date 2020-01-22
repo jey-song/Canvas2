@@ -28,3 +28,11 @@ public extension UIColor {
     }
     
 }
+
+public extension MTLClearColor {
+    
+    var uiColor: UIColor {
+        return UIColor(red: CGFloat(red), green: CGFloat(green), blue: CGFloat(blue), alpha: CGFloat(alpha))
+    }
+    
+}

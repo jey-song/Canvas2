@@ -25,7 +25,8 @@ class ViewController: UIViewController, CanvasEvents {
         self.canvas.pencilTool,
         self.canvas.rectangleTool,
         self.canvas.lineTool,
-        self.canvas.ellipseTool
+        self.canvas.ellipseTool,
+        self.canvas.eraserTool
     ]
     var currentBrush: Int = 0
     
@@ -37,6 +38,7 @@ class ViewController: UIViewController, CanvasEvents {
         a.currentBrush.size = 20
         a.maximumForce = 1.0
         a.canvasColor = .white
+        
         return a
     }()
     
@@ -305,16 +307,18 @@ class ViewController: UIViewController, CanvasEvents {
         }
         
         // Load a brush.
-        var basicPencil: Brush = Brush(name: "basicPencil", size: 10, color: .black)
-        var basicInk: Brush = Brush(name: "basicInk", size: 10, color: .black)
-        var basicBrush: Brush = Brush(name: "basicBrush", size: 10, color: .black)
-        basicPencil.setTexture(name: "pencilTexture", canvas: canvas)
-        basicInk.setTexture(name: "inkTexture", canvas: canvas)
-        basicBrush.setTexture(name: "paperTexture", canvas: canvas)
+        var basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", size: 10, color: .black)
+        var basicInk: Brush = Brush(canvas: canvas, name: "basicInk", size: 20, color: .black)
+        var basicBrush: Brush = Brush(canvas: canvas, name: "basicBrush", size: 30, color: .black)
+        let basicPencilEraser: Brush = Brush(canvas: canvas, name: "basicPencilEraser", size: 20, isEraser: true)
+        basicPencil.setTexture(name: "pencilTexture")
+        basicInk.setTexture(name: "inkTexture")
+        basicBrush.setTexture(name: "paperTexture")
         canvas.addBrush(basicPencil)
         canvas.addBrush(basicInk)
         canvas.addBrush(basicBrush)
-        print("Added the basic pencil, basic ink, and basic paintbrush brushes!")
+        canvas.addBrush(basicPencilEraser)
+        print("Added the basic pencil, basic ink, and basic paintbrush brushes! Also added an eraser.")
         
         // Set the current brush.
         canvas.changeBrush(to: "basicPencil")
@@ -421,6 +425,10 @@ class ViewController: UIViewController, CanvasEvents {
     
     func didChaneTool(to tool: Tool) {
         print("---> Changed Tool: \(tool)")
+        
+        if tool.name == "eraser" {
+            canvas.changeBrush(to: "basicPencilEraser")
+        }
     }
     
     

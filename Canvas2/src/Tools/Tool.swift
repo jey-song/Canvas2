@@ -14,6 +14,8 @@ public protocol Tool {
     
     // MARK: Variables
     
+    var name: String { get set }
+    
     var canvas: Canvas? { get set }
     
     

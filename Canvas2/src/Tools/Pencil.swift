@@ -14,6 +14,8 @@ public struct Pencil: Tool {
     
     // MARK: Variables
     
+    public var name: String
+    
     public var canvas: Canvas?
     
     
@@ -22,6 +24,7 @@ public struct Pencil: Tool {
     
     public init(canvas: Canvas) {
         self.canvas = canvas
+        self.name = "pencil"
     }
     
     
@@ -29,8 +32,8 @@ public struct Pencil: Tool {
     
     public func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard let canvas = self.canvas else { return false }
-        let point = firstTouch.metalLocation(in: canvas)
         guard canvas.isOnValidLayer() else { return false }
+        let point = firstTouch.metalLocation(in: canvas)
         
         // Get the force from the user input.
         canvas.setForce(value: firstTouch.force)

@@ -15,6 +15,8 @@ public struct Rectangle: Tool {
     
     // MARK: Variables
     
+    public var name: String
+    
     public var canvas: Canvas?
     
     
@@ -23,6 +25,7 @@ public struct Rectangle: Tool {
     
     public init(canvas: Canvas) {
         self.canvas = canvas
+        self.name = "rectangle"
     }
     
     
