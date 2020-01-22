@@ -28,21 +28,22 @@ public struct Eraser: Tool {
     
     // MARK: Functions
     
-    public func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) {
+    public func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
 //        guard let canvas = self.canvas else { return }
 //        let point = firstTouch.metalLocation(in: canvas)
         
         
+        return true
     }
     
-    public func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) {
+    public func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
 //        guard let canvas = self.canvas else { return }
 //        let point = firstTouch.metalLocation(in: canvas)
         
-        
+        return true
     }
     
-    public func endTouch(_ touches: Set<UITouch>, with event: UIEvent?) {
+    public func endTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
 //        guard let canvas = self.canvas else { return }
 //
 //        // Add the vertices from the currently drawn curve, and remake the buffer.
@@ -52,9 +53,10 @@ public struct Eraser: Tool {
 //        canvas.nextQuad = nil
 //        canvas.lastQuad = nil
 //        canvas.currentPath = nil
+        return true
     }
     
-    public func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) {
+    public func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
 //        guard let canvas = self.canvas else { return }
 //
 //        // Add the vertices from the currently drawn curve, and remake the buffer.
@@ -64,6 +66,7 @@ public struct Eraser: Tool {
 //        canvas.nextQuad = nil
 //        canvas.lastQuad = nil
 //        canvas.currentPath = nil
+        return true
     }
     
 }

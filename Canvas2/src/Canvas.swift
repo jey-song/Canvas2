@@ -285,7 +285,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         
         // Whatever is current being drawn on the screen, display it immediately.
         if var cp = currentPath {
-            if cp.quads.count > 0 {
+            if cp.quads.count > 0 && canvasLayers[currentLayer].isLocked == false {
                 cp.render(buffer: commandBuffer, encoder: encoder)
             }
         }

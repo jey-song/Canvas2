@@ -25,16 +25,16 @@ public protocol Tool {
     // MARK: Functions
     
     /** Called when this tool first hits the canvas. */
-    func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?)
+    func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool
     
     /** Called when this tool starts to move. */
-    func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?)
+    func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool
     
     /** Called when this tool is no longer touching the canvas. */
-    func endTouch(_ touches: Set<UITouch>, with event: UIEvent?)
+    func endTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool
     
     /** Called when this tool stops touching the canvas w/o help from the user. */
-    func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?)
+    func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool
     
     
 }

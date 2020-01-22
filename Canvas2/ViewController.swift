@@ -176,6 +176,23 @@ class ViewController: UIViewController, CanvasEvents {
         return a
     }()
     
+    let toggleLockButton: UIButton = {
+        let a = UIButton(type: UIButton.ButtonType.custom)
+        a.translatesAutoresizingMaskIntoConstraints = false
+        a.setTitle("Toggle Lock Layer 0", for: .normal)
+        a.setTitleColor(.black, for: .normal)
+        a.setTitleColor(.darkGray, for: .highlighted)
+        a.addTarget(self, action: #selector(toggleLock), for: .touchUpInside)
+        a.backgroundColor = .gray
+        a.layer.cornerRadius = 8
+        a.layer.shadowColor = UIColor.black.cgColor
+        a.layer.shadowOffset = CGSize(width: 0, height: 2)
+        a.layer.shadowRadius = 20
+        a.layer.shadowOpacity = Float(0.5)
+        
+        return a
+    }()
+    
     
     // MARK: Initialization
 
@@ -194,6 +211,7 @@ class ViewController: UIViewController, CanvasEvents {
         self.view.addSubview(removeLayerButton)
         self.view.addSubview(moveLayerButton)
         self.view.addSubview(brushButton)
+        self.view.addSubview(toggleLockButton)
         
         canvas.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         canvas.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -239,6 +257,11 @@ class ViewController: UIViewController, CanvasEvents {
         brushButton.leadingAnchor.constraint(equalTo: moveLayerButton.trailingAnchor, constant: 10).isActive = true
         brushButton.widthAnchor.constraint(equalToConstant: 180).isActive = true
         brushButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        toggleLockButton.topAnchor.constraint(equalTo: toolButton.bottomAnchor, constant: 10).isActive = true
+        toggleLockButton.leadingAnchor.constraint(equalTo: brushButton.trailingAnchor, constant: 10).isActive = true
+        toggleLockButton.widthAnchor.constraint(equalToConstant: 180).isActive = true
+        toggleLockButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 
     func setupCanvas() {
@@ -338,6 +361,14 @@ class ViewController: UIViewController, CanvasEvents {
             canvas.changeBrush(to: "basicInk")
         } else {
             canvas.changeBrush(to: "basicBrush")
+        }
+    }
+    
+    @objc func toggleLock() {
+        if canvas.canvasLayers[canvas.currentLayer].isLocked == false {
+            canvas.lock(layer: 0)
+        } else {
+            canvas.unlock(layer: 0)
         }
     }
     

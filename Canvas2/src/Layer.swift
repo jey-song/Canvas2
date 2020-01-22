@@ -20,6 +20,8 @@ public struct Layer {
     
     internal var elements: [Element]
     
+    internal var isLocked: Bool
+    
     
     
     
@@ -28,6 +30,7 @@ public struct Layer {
     init(canvas: Canvas) {
         self.canvas = canvas
         self.elements = []
+        self.isLocked = false
     }
     
     

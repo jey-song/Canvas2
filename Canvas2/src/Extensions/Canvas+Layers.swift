@@ -16,6 +16,7 @@ public extension Canvas {
     internal func isOnValidLayer() -> Bool {
         guard canvasLayers.count > 0 else { return false }
         guard currentLayer >= 0 && currentLayer < canvasLayers.count else { return false }
+        if canvasLayers[currentLayer].isLocked == true { return false }
         return true
     }
     
@@ -60,6 +61,20 @@ public extension Canvas {
         canvasLayers.insert(moveLayer, at: destIndex)
         
         rebuildBuffer()
+    }
+    
+    
+    /** Locks a particular layer so that no actions can be taken on it. */
+    func lock(layer at: Int) {
+        guard at >= 0 && at < canvasLayers.count else { return }
+        canvasLayers[currentLayer].isLocked = true
+    }
+    
+    
+    /** Unlocks a particular layer so that you can interact with it again. */
+    func unlock(layer at: Int) {
+        guard at >= 0 && at < canvasLayers.count else { return }
+        canvasLayers[currentLayer].isLocked = false
     }
     
 }
