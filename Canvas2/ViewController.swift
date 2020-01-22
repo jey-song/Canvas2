@@ -329,15 +329,12 @@ class ViewController: UIViewController {
         }
         
         if self.currentBrush == 0 {
-//            canvas.currentBrush.setTexture(name: "pencilTexture", canvas: canvas)
             canvas.changeBrush(to: "basicPencil")
             print("Switched to basicPencil")
         } else if currentBrush == 1{
-//            canvas.currentBrush.setTexture(name: "inkTexture", canvas: canvas)
             canvas.changeBrush(to: "basicInk")
             print("Switched to basicInk")
         } else {
-//            canvas.currentBrush.setTexture(name: "brushTexture", canvas: canvas)
             canvas.changeBrush(to: "basicBrush")
             print("Switched to basicBrush")
         }

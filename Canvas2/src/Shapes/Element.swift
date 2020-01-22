@@ -79,6 +79,37 @@ public struct Element {
         nextQuad = Quad(start: point)
     }
     
+    /**Ends the curve as a rectangle.  */
+    internal mutating func endRectangle(at point: CGPoint) {
+        guard var next = nextQuad else { return }
+
+        // End and display the quad as a rectangle where you currently drag.
+        next.endAsRectangle(at: point, brush: self.brush)
+        quads = [next]
+    }
+    
+    /** Ends the curve as a line. */
+    internal mutating func endLine(at point: CGPoint) {
+        guard var next = nextQuad else { return }
+        
+        // End and display the quad as a line where you currently drag.
+        next.endAsLine(at: point, brush: self.brush)
+        quads = [next]
+    }
+    
+    /** Ends the curve as an ellipse. */
+    internal mutating func endEllipse(at point: CGPoint) {
+        guard var next = nextQuad else { return }
+        
+        // End and display the quad as an ellipse where you currently drag.
+        next.endAsCircle(at: point, brush: self.brush)
+        quads = [next]
+    }
+    
+    
+    
+    // MARK: Rendering
+    
     /** Renders the element to the screen. */
     internal mutating func render(buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
         guard quads.count > 0 else { return }

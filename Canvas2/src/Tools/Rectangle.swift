@@ -29,47 +29,36 @@ public struct Rectangle: Tool {
     // MARK: Functions
     
     public func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) {
-//        guard let canvas = self.canvas else { return }
-//        let point = firstTouch.metalLocation(in: canvas)
-//        
-//        // When drawing a rectangle, you only need one quad to work with.
-//        canvas.nextQuad = Quad(start: point, brush: canvas.currentBrush.copy())
+        guard let canvas = self.canvas else { return }
+        let point = firstTouch.metalLocation(in: canvas)
+        
+        // When drawing a rectangle, you only need one quad to work with.
+        let quad = Quad(start: point)
+        canvas.currentPath.startPath(quad: quad)
     }
     
     public func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) {
-//        guard let canvas = self.canvas else { return }
-//        guard var next = canvas.nextQuad else { return }
-//
-//        let point = firstTouch.metalLocation(in: canvas)
-//        next.end(at: point)
-//
-//        // End and display the quad as a rectangle where you currently drag.
-//        next.endAsRectangle(at: point)
-//        canvas.currentPath?.quads = [next]
+        guard let canvas = self.canvas else { return }
+        guard canvas.currentPath != nil else { print("No current path"); return }
+        
+        let point = firstTouch.metalLocation(in: canvas)
+        canvas.currentPath.endRectangle(at: point)
     }
     
     public func endTouch(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        guard let canvas = self.canvas else { return }
-//
-//        // Add the vertices from the currently drawn curve, and remake the buffer.
-//        canvas.finishElement()
-//
-//        // Clear the current drawing curve.
-//        canvas.nextQuad = nil
-//        canvas.lastQuad = nil
-//        canvas.currentPath = nil
+        guard let canvas = self.canvas else { return }
+        
+        // Clear the current drawing curve.
+        canvas.rebuildBuffer()
+        canvas.currentPath?.closePath()
     }
     
     public func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        guard let canvas = self.canvas else { return }
-//
-//        // Add the vertices from the currently drawn curve, and remake the buffer.
-//        canvas.finishElement()
-//
-//        // Clear the current drawing curve.
-//        canvas.nextQuad = nil
-//        canvas.lastQuad = nil
-//        canvas.currentPath = nil
+        guard let canvas = self.canvas else { return }
+        
+        // Clear the current drawing curve.
+        canvas.rebuildBuffer()
+        canvas.currentPath?.closePath()
     }
     
 }

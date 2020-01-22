@@ -252,6 +252,17 @@ struct Quad {
             return (7 * CGFloat.pi * CGFloat(d)) / 180
         }
         
+        // Keep track of the texture position for each vertex in the circle.
+        let poses: [(x: Float, y: Float)] = [
+            (0, 0),
+            (0.5, -0.5),
+            (0.5, 0),
+            (0, 0),
+            (-0.5, -0.5),
+            (-0.5, 0)
+        ]
+        var pose: Int = 0
+        
         // Create vertices for the circle.
         for i in 0..<720 {
             // Add the previous point so that the triangle can reconnect to
@@ -265,21 +276,12 @@ struct Quad {
             let _x = cos(rads(forDegree: i)) * abs(self.end.x - self.start.x)
             let _y = sin(rads(forDegree: i)) * abs(self.end.y - self.start.y)
             let pos: CGPoint = CGPoint(x: self.start.x + _x, y: self.start.y + _y)
-            verts.append(Vertex(position: pos, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil))
+            verts.append(Vertex(position: pos, color: color, texture: texture != nil ? SIMD2<Float>(x: poses[pose].x, y: poses[pose].y) : nil))
+            
+            // Update the pose.
+            pose = (pose == poses.count - 1) ? 0 : pose + 1
         }
         self.vertices = verts
     }
     
-    
-    /** Renders this quad onto the screen using the given encoder. */
-    func render(encoder: MTLRenderCommandEncoder) {
-        guard let buffer = dev.makeBuffer(
-            bytes: self.vertices,
-            length: self.vertices.count * MemoryLayout<Vertex>.stride,
-            options: []) else { return }
-
-        let vertCount = buffer.length / MemoryLayout<Vertex>.stride
-        encoder.setVertexBuffer(buffer, offset: 0, index: 0)
-        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertCount)
-    }
 }

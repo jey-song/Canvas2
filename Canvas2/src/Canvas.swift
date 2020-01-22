@@ -228,7 +228,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         // If you were in the process of drawing a curve and are on a valid
         // layer, add that finished element to the layer.
         if let copy = currentPath?.copy() {
-            if isOnValidLayer() && copy.quads.count > 1 {
+            if isOnValidLayer() && copy.quads.count > 0 {
                 canvasLayers[currentLayer].add(element: copy)
             }
         }
@@ -275,7 +275,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         
         // Whatever is current being drawn on the screen, display it immediately.
         if var cp = currentPath {
-            if cp.quads.count > 1 {
+            if cp.quads.count > 0 {
                 cp.render(buffer: commandBuffer, encoder: encoder)
             }
         }
