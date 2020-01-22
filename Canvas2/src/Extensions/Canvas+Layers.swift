@@ -12,6 +12,13 @@ import UIKit
 /** Extension that handles managing canvas layers. */
 public extension Canvas {
     
+    /** Returns whether or not the user is currently on a valid layer. */
+    internal func isOnValidLayer() -> Bool {
+        guard canvasLayers.count > 0 else { return false }
+        guard currentLayer >= 0 && currentLayer < canvasLayers.count else { return false }
+        return true
+    }
+    
     /** Adds a layer to the canvas. */
     func addLayer(at index: Int) {
         // Adding a layer does not require a rebuild of the buffer
@@ -24,6 +31,7 @@ public extension Canvas {
         
         let newLayer = Layer(canvas: self)
         self.canvasLayers.insert(newLayer, at: index)
+        repaint()
     }
     
     

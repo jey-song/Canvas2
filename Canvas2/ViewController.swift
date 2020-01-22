@@ -27,7 +27,7 @@ class ViewController: UIViewController {
         self.canvas.lineTool,
         self.canvas.ellipseTool
     ]
-    var currentTexture: Int = 1
+    var currentBrush: Int = 0
     
     lazy var canvas: Canvas = {
         let a = Canvas()
@@ -159,13 +159,13 @@ class ViewController: UIViewController {
         return a
     }()
     
-    let textureButton: UIButton = {
+    let brushButton: UIButton = {
         let a = UIButton(type: UIButton.ButtonType.custom)
         a.translatesAutoresizingMaskIntoConstraints = false
-        a.setTitle("Toggle Texture", for: .normal)
+        a.setTitle("Change Brush", for: .normal)
         a.setTitleColor(.black, for: .normal)
         a.setTitleColor(.darkGray, for: .highlighted)
-        a.addTarget(self, action: #selector(toggleTexture), for: .touchUpInside)
+        a.addTarget(self, action: #selector(changeBrush), for: .touchUpInside)
         a.backgroundColor = .gray
         a.layer.cornerRadius = 8
         a.layer.shadowColor = UIColor.black.cgColor
@@ -191,7 +191,7 @@ class ViewController: UIViewController {
         self.view.addSubview(switchLayerButton)
         self.view.addSubview(removeLayerButton)
         self.view.addSubview(moveLayerButton)
-        self.view.addSubview(textureButton)
+        self.view.addSubview(brushButton)
         
         canvas.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         canvas.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -233,10 +233,10 @@ class ViewController: UIViewController {
         moveLayerButton.widthAnchor.constraint(equalToConstant: 220).isActive = true
         moveLayerButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        textureButton.topAnchor.constraint(equalTo: toolButton.bottomAnchor, constant: 10).isActive = true
-        textureButton.leadingAnchor.constraint(equalTo: moveLayerButton.trailingAnchor, constant: 10).isActive = true
-        textureButton.widthAnchor.constraint(equalToConstant: 180).isActive = true
-        textureButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        brushButton.topAnchor.constraint(equalTo: toolButton.bottomAnchor, constant: 10).isActive = true
+        brushButton.leadingAnchor.constraint(equalTo: moveLayerButton.trailingAnchor, constant: 10).isActive = true
+        brushButton.widthAnchor.constraint(equalToConstant: 180).isActive = true
+        brushButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 
     func setupCanvas() {
@@ -249,15 +249,22 @@ class ViewController: UIViewController {
             canvas.addTexture(img, forName: "inkTexture")
             print("Added the ink texture!")
         }
+        if let img = UIImage(named: "Paper.jpg") {
+            canvas.addTexture(img, forName: "paperTexture")
+            print("Added the paper texture!")
+        }
         
         // Load a brush.
-        var basicPencil: Brush = Brush(size: 10, color: .black)
-        var basicInk: Brush = Brush(size: 20, color: .black)
+        var basicPencil: Brush = Brush(name: "basicPencil", size: 10, color: .black)
+        var basicInk: Brush = Brush(name: "basicInk", size: 10, color: .black)
+        var basicBrush: Brush = Brush(name: "basicBrush", size: 10, color: .black)
         basicPencil.setTexture(name: "pencilTexture", canvas: canvas)
         basicInk.setTexture(name: "inkTexture", canvas: canvas)
-        canvas.addBrush(basicPencil, forName: "basicPencil")
-        canvas.addBrush(basicInk, forName: "basicInk")
-        print("Added the basic pencil and basic ink brushes!")
+        basicBrush.setTexture(name: "paperTexture", canvas: canvas)
+        canvas.addBrush(basicPencil)
+        canvas.addBrush(basicInk)
+        canvas.addBrush(basicBrush)
+        print("Added the basic pencil, basic ink, and basic paintbrush brushes!")
         
         // Set the current brush.
         canvas.changeBrush(to: "basicPencil")
@@ -312,14 +319,27 @@ class ViewController: UIViewController {
         print("Moved layer 0 to layer 2. What was layer 0 is now at the front.")
     }
     
-    @objc func toggleTexture() {
-        self.currentTexture = self.currentTexture == 0 ? 1 : 0
-        if self.currentTexture == 0 {
-            canvas.currentBrush.setTexture(name: "pencilTexture", canvas: canvas)
-            print("Switched to the Pencil Texture")
+    @objc func changeBrush() {
+        if currentBrush == 0 {
+            currentBrush = 1
+        } else if currentBrush == 1 {
+            currentBrush = 2
         } else {
-            canvas.currentBrush.setTexture(name: "inkTexture", canvas: canvas)
-            print("Switched to the Ink Texture")
+            currentBrush = 0
+        }
+        
+        if self.currentBrush == 0 {
+//            canvas.currentBrush.setTexture(name: "pencilTexture", canvas: canvas)
+            canvas.changeBrush(to: "basicPencil")
+            print("Switched to basicPencil")
+        } else if currentBrush == 1{
+//            canvas.currentBrush.setTexture(name: "inkTexture", canvas: canvas)
+            canvas.changeBrush(to: "basicInk")
+            print("Switched to basicInk")
+        } else {
+//            canvas.currentBrush.setTexture(name: "brushTexture", canvas: canvas)
+            canvas.changeBrush(to: "basicBrush")
+            print("Switched to basicBrush")
         }
     }
 }

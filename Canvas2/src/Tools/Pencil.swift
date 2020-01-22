@@ -35,10 +35,10 @@ public struct Pencil: Tool {
         canvas.setForce(value: firstTouch.force)
         
         // Start a new quad when a touch is down.
-        var quad = Quad(start: point, brush: canvas.currentBrush.copy())
+        var quad = Quad(start: point)
         quad.startForce = canvas.forceEnabled ? canvas.force : 1.0
         
-        canvas.currentPath = Element(quads: [quad], canvas: canvas)
+        canvas.currentPath.startPath(quad: quad)
     }
     
     public func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) {
@@ -54,7 +54,7 @@ public struct Pencil: Tool {
         // NOTE: Run the following code for all of the coalesced touches.
         for cTouch in coalesced {
             let point = cTouch.metalLocation(in: canvas)
-            canvas.currentPath!.endLastQuad(at: point)
+            canvas.currentPath!.endPencil(at: point)
         }
     }
     

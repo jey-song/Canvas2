@@ -16,8 +16,6 @@ struct Quad {
     
     // MARK: Variables
 
-    var brush: Brush
-
     var vertices: [Vertex]
     
     var start: CGPoint
@@ -32,30 +30,26 @@ struct Quad {
     
     var endForce: CGFloat
     
-    var buffer: MTLBuffer?
-    
     
     
     // MARK: Initialization
     
-    init(brush: Brush) {
+    init() {
         self.vertices = []
         self.start = CGPoint()
         self.end = CGPoint()
         self.c = CGPoint()
         self.d = CGPoint()
-        self.brush = brush
         self.startForce = 1.0
         self.endForce = 1.0
     }
     
-    init(start: CGPoint, brush: Brush) {
+    init(start: CGPoint) {
         self.vertices = []
         self.start = start
         self.end = CGPoint()
         self.c = CGPoint()
         self.d = CGPoint()
-        self.brush = brush
         self.startForce = 1.0
         self.endForce = 1.0
     }
@@ -63,26 +57,14 @@ struct Quad {
     
     // MARK: Functions
     
-    mutating func makeBuffer() {
-        guard vertices.count > 0 else {
-            self.buffer = nil
-            return
-        }
-        self.buffer = dev.makeBuffer(
-            bytes: self.vertices,
-            length: self.vertices.count * MemoryLayout<Vertex>.stride,
-            options: []
-        )
-    }
-    
     /** Sets the ending position of this quad and promptly computes the rectangular shape
      needed to display it on screen. It really just computes two triangles at the end of the day. */
-    mutating func end(at: CGPoint, prevA: CGPoint? = nil, prevB: CGPoint? = nil) {
+    mutating func end(at: CGPoint, brush: Brush, prevA: CGPoint? = nil, prevB: CGPoint? = nil) {
         self.end = at
         
-        let size = self.brush.size / 2
-        let color = self.brush.color
-        let texture = self.brush.texture
+        let size = brush.size / 2
+        let color = brush.color
+        let texture = brush.texture
         
         // Compute the quad vertices ABCD.
         let perpendicular = self.start.perpendicular(other: self.end).normalize()
@@ -111,15 +93,14 @@ struct Quad {
             Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
             Vertex(position: D, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
         ]
-        self.makeBuffer()
     }
     
     
     /** Finalizes the data on this quad as a perfect rectangle from the given starting point. */
-    mutating func endAsRectangle(at: CGPoint) {
+    mutating func endAsRectangle(at: CGPoint, brush: Brush) {
         self.end = at
-        let color = self.brush.color
-        let texture = self.brush.texture
+        let color = brush.color
+        let texture = brush.texture
         
         // Compute the rectangle from the starting point to the end point.
         // Remember that the end coordinates can be behind the start.
@@ -170,13 +151,13 @@ struct Quad {
     
     
     /** Finalizes a straight line as a quad. */
-    mutating func endAsLine(at: CGPoint) {
+    mutating func endAsLine(at: CGPoint, brush: Brush) {
         self.end = at
         
         // Create the coordinates of the two triangles.
-        let size = self.brush.size / 2
-        let color = self.brush.color
-        let texture = self.brush.texture
+        let size = brush.size / 2
+        let color = brush.color
+        let texture = brush.texture
         
         let perpendicular = self.start.perpendicular(other: self.end).normalize()
         var A: CGPoint = self.start
@@ -258,11 +239,11 @@ struct Quad {
     
     
     /** Ends a quad as a circle (but technically using triangles). */
-    mutating func endAsCircle(at: CGPoint) {
+    mutating func endAsCircle(at: CGPoint, brush: Brush) {
         self.end = at
         
-        let color = self.brush.color
-        let texture = self.brush.texture
+        let color = brush.color
+        let texture = brush.texture
         var verts: [Vertex] = [Vertex(position: self.start, color: color)]
         
         /** Creates points around a circle. It's just a formula for degrees to radians. */

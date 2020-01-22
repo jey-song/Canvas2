@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Metal
 
 public extension UIColor {
     
@@ -19,6 +20,11 @@ public extension UIColor {
         getRed(&red, green: &green, blue: &blue, alpha: &alpha)
 
         return (red: red, green: green, blue: blue, alpha: alpha)
+    }
+    
+    var metalClearColor: MTLClearColor {
+        let rgba = self.rgba
+        return MTLClearColor(red: Double(rgba.red), green: Double(rgba.green), blue: Double(rgba.blue), alpha: Double(rgba.alpha))
     }
     
 }

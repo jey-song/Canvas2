@@ -31,6 +31,21 @@ internal func buildRenderPipeline(vertProg: MTLFunction, fragProg: MTLFunction, 
 }
 
 
+/** Builds a sample descriptor for the fragment function. */
+internal func buildSampleState() -> MTLSamplerState? {
+    let sd = MTLSamplerDescriptor()
+    sd.magFilter = .linear
+    sd.minFilter = .linear
+    sd.rAddressMode = .mirrorRepeat
+    sd.sAddressMode = .mirrorRepeat
+    sd.tAddressMode = .mirrorRepeat
+    guard let sampleState = dev.makeSamplerState(descriptor: sd) else {
+        return nil
+    }
+    return sampleState
+}
+
+
 /** Creates an empty texture. */
 internal func makeEmptyTexture(width: CGFloat, height: CGFloat) -> MTLTexture? {
     guard width * height > 0 else { return nil }

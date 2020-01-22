@@ -22,18 +22,18 @@ public class Canvas: MTKView, MTKViewDelegate {
     
     internal var pipeline: MTLRenderPipelineState!
     internal var commandQueue: MTLCommandQueue!
-    internal var mainVertices: [Vertex]
+    internal var textureLoader: MTKTextureLoader!
+    internal var sampleState: MTLSamplerState!
+    internal var viewportVertices: [Vertex]
     internal var mainBuffer: MTLBuffer?
+    internal var mainTexture: MTLTexture?
     
     internal var canvasLayers: [Layer]
-    
     internal var currentPath: Element!
     
     internal var force: CGFloat
     internal var textures: [String : MTLTexture]
     internal var brushes: [String : Brush]
-    
-    
     
     
     // ---> Public
@@ -97,6 +97,24 @@ public class Canvas: MTKView, MTKViewDelegate {
 //    }()
     
     
+    // ---> Overrides
+    
+    public override var bounds: CGRect {
+        didSet {
+            // Basically, every time you change the view size, clear the canvas using the
+            // viewport vertices, which is the a clear color screen.
+            mainTexture = makeEmptyTexture(width: bounds.width, height: bounds.height)
+            self.viewportVertices = [
+                Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor),
+                Vertex(position: CGPoint(x: bounds.width, y: 0), color: canvasColor),
+                Vertex(position: CGPoint(x: 0, y: bounds.height), color: canvasColor),
+                Vertex(position: CGPoint(x: bounds.width, y: bounds.height), color: canvasColor)
+            ]
+            repaint()
+        }
+    }
+    
+    
     
     
     // MARK: Initialization
@@ -113,14 +131,13 @@ public class Canvas: MTKView, MTKViewDelegate {
         self.currentLayer = -1
         self.textures = [:]
         self.brushes = [:]
-        self.mainVertices = []
+        self.viewportVertices = []
         
         // Configure the metal view.
         super.init(frame: CGRect.zero, device: dev)
-        let rgba = self.canvasColor.rgba
         self.colorPixelFormat = MTLPixelFormat.bgra8Unorm
         self.framebufferOnly = false
-        self.clearColor = MTLClearColor(red: Double(rgba.red), green: Double(rgba.green), blue: Double(rgba.blue), alpha: Double(rgba.alpha))
+        self.clearColor = self.canvasColor.metalClearColor
         self.delegate = self
         
         // Configure the pipeline.
@@ -129,8 +146,10 @@ public class Canvas: MTKView, MTKViewDelegate {
         guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
         guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
         
+        self.sampleState = buildSampleState()
         self.pipeline = buildRenderPipeline(vertProg: vertProg, fragProg: fragProg)
-        self.currentBrush = Brush(size: 10, color: .black) // Default brush
+        self.textureLoader = MTKTextureLoader(device: dev)
+        self.currentBrush = Brush(name: "defaultBrush", size: 10, color: .black) // Default brush
         self.currentTool = self.pencilTool // Default tool
         self.currentPath = Element(quads: [], canvas: self) // Used for drawing temporary paths
     }
@@ -147,8 +166,11 @@ public class Canvas: MTKView, MTKViewDelegate {
     // ---> Public
     
     /** Registers a new brush that can be used on this canvas. */
-    public func addBrush(_ brush: Brush, forName name: String) {
-        self.brushes[name] = brush
+    public func addBrush(_ brush: Brush) {
+        var cpy = brush.copy()
+        cpy.setupPipeline()
+        self.brushes[brush.name] = cpy
+//        self.brushes[brush.name]?.setupPipeline()
     }
     
     /** Returns the brush with the specified name. */
@@ -158,15 +180,12 @@ public class Canvas: MTKView, MTKViewDelegate {
     
     /** Tells the canvas to keep track of another texture, which can be used later on for different brush strokes. */
     public func addTexture(_ image: UIImage, forName name: String) {
-        guard image.size.width * image.size.height > 0 else { return }
-        let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
-            pixelFormat: .bgra8Unorm,
-            width: Int(image.size.width),
-            height: Int(image.size.height),
-            mipmapped: false
-        )
-        textureDescriptor.usage = [.renderTarget, .shaderRead]
-        let texture = dev.makeTexture(descriptor: textureDescriptor)
+        guard let cg = image.cgImage else { return }
+        let texture = try! self.textureLoader.newTexture(cgImage: cg, options: [
+            MTKTextureLoader.Option.SRGB : false,
+            MTKTextureLoader.Option.allocateMipmaps: false,
+            MTKTextureLoader.Option.generateMipmaps: false,
+        ])
         self.textures[name] = texture
     }
     
@@ -207,15 +226,43 @@ public class Canvas: MTKView, MTKViewDelegate {
     /** Finish the current drawing path and add it to the canvas. Then repaint the view. */
     internal func repaint() {
         // Get a copy of the current path before we eventually remove it.
-        guard let copy = currentPath?.copy() else { return }
+        // If you were in the process of drawing something, add it to the
+        // current layer.
+        if let copy = currentPath?.copy() {
+            if isOnValidLayer() {
+                canvasLayers[currentLayer].add(element: copy)
+            }
+        }
         
-        // Add the finalized path to the current layer.
-        canvasLayers[currentLayer].add(element: copy)
+        // Clear the canvas of whatever was already there.
+        mainTexture = makeEmptyTexture(width: bounds.width, height: bounds.height)
         
         // Recompute the main buffer.
-        let vertices = canvasLayers.flatMap { $0.elements }.flatMap { $0.quads }.flatMap { $0.vertices }
-        guard vertices.count > 0 else { return }
-        mainBuffer = dev.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Vertex>.stride, options: [])
+        guard let rpd = self.currentRenderPassDescriptor else { print("no descriptor"); return }
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else { print("no command buffer"); return }
+        guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { print("no encoder"); return }
+        guard let drawable = self.currentDrawable else { print("no drawable"); return }
+        
+        let elements = canvasLayers.flatMap { $0.elements }
+        let verts = elements.flatMap { $0.quads }.flatMap { $0.vertices }
+        let count = verts.count * MemoryLayout<Vertex>.stride
+        let defaultViewCount = viewportVertices.count * MemoryLayout<Vertex>.stride
+        mainBuffer = dev.makeBuffer(bytes: count > 0 ? verts : viewportVertices, length: count > 0 ? count : defaultViewCount, options: [])
+        
+        let vertCount = mainBuffer!.length / MemoryLayout<Vertex>.stride
+        encoder.setRenderPipelineState(pipeline)
+        encoder.setVertexBuffer(mainBuffer, offset: 0, index: 0)
+        encoder.setFragmentTexture(mainTexture, index: 0)
+        encoder.setFragmentSamplerState(sampleState, index: 0)
+        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertCount)
+        
+        for var e in elements {
+            e.render(buffer: commandBuffer, encoder: encoder)
+        }
+        
+        encoder.endEncoding()
+        commandBuffer.present(drawable)
+        commandBuffer.commit()
     }
     
     /** Updates the drawable on the canvas's underlying MTKView. */
@@ -224,22 +271,15 @@ public class Canvas: MTKView, MTKViewDelegate {
     }
     
     public func draw(in view: MTKView) {
-        guard let rpd = view.currentRenderPassDescriptor else { print("no descriptor"); return }
-        guard let commandBuffer = commandQueue.makeCommandBuffer() else { print("no command buffer"); return }
-        guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { print("no encoder"); return }
-        guard let drawable = view.currentDrawable else { print("no drawable"); return }
-        encoder.setRenderPipelineState(pipeline)
+//        guard let rpd = view.currentRenderPassDescriptor else { print("no descriptor"); return }
+//        guard let commandBuffer = commandQueue.makeCommandBuffer() else { print("no command buffer"); return }
+//        guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { print("no encoder"); return }
+//        guard let drawable = view.currentDrawable else { print("no drawable"); return }
         
-        // Draw primitives using the main buffer and texture.
-        if let buffer = self.mainBuffer {
-            let count = buffer.length / MemoryLayout<Vertex>.stride
-            encoder.setVertexBuffer(buffer, offset: 0, index: 0)
-            encoder.setFragmentTexture(drawable.texture, index: 0)
-            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: count)
-        }
         
-        encoder.endEncoding()
-        commandBuffer.present(drawable)
-        commandBuffer.commit()
+        
+//        encoder.endEncoding()
+//        commandBuffer.present(drawable)
+//        commandBuffer.commit()
     }
 }
