@@ -43,7 +43,11 @@ public class Canvas: MTKView, MTKViewDelegate {
     public internal(set) var currentBrush: Brush!
     
     /** The tool that is currently used to add objects to the canvas. */
-    public var currentTool: Tool!
+    public var currentTool: Tool! {
+        didSet {
+            self.canvasDelegate?.didChaneTool(to: self.currentTool)
+        }
+    }
     
     /** Whether or not the canvas should respond to force as a way to draw curves. */
     public var forceEnabled: Bool
@@ -68,6 +72,11 @@ public class Canvas: MTKView, MTKViewDelegate {
     
     /** The index of the current layer. */
     public var currentLayer: Int
+    
+    /** The delegate for the CanvasEvents protocol. */
+    public var canvasDelegate: CanvasEvents?
+    
+    
     
     
     // --> Static/Computed
@@ -199,6 +208,7 @@ public class Canvas: MTKView, MTKViewDelegate {
     public func changeBrush(to name: String) {
         guard let brush = self.getBrush(withName: name) else { return }
         self.currentBrush = brush
+        self.canvasDelegate?.didChangeBrush(to: brush)
     }
     
     

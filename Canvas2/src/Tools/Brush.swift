@@ -18,11 +18,7 @@ public struct Brush {
     
     internal var name: String
     
-    internal var size: CGFloat {
-        didSet {
-            self.size = Brush.configureBrushSize(from: self.size)
-        }
-    }
+    internal var size: CGFloat
     
     internal var color: UIColor
     
@@ -38,7 +34,7 @@ public struct Brush {
     
     init(name: String, size s: CGFloat, color c: UIColor) {
         self.name = name
-        self.size = Brush.configureBrushSize(from: s)
+        self.size = s
         self.color = c
         self.texture = nil
     }
@@ -61,11 +57,6 @@ public struct Brush {
         guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
         self.pipeline = buildRenderPipeline(vertProg: vertProg, fragProg: fragProg, modesOn: false)
         print("Created brush specific pipeline for brush: \(name).")
-    }
-    
-    /** Changes the brush size to be more metal friendly for the current drawing system. */
-    internal static func configureBrushSize(from s: CGFloat) -> CGFloat {
-        return (s / 100) * 4
     }
     
     /** Makes a copy of this brush. */

@@ -16,6 +16,8 @@ public struct Element {
     
     // MARK: Variables
     
+    // --> Internal
+    
     internal var brush: Brush
     internal var quads: [Quad]
     
@@ -23,6 +25,14 @@ public struct Element {
     internal var lastQuad: Quad?
     
     internal var canvas: Canvas
+    
+    
+    // --> Public
+    
+    /** Returns the number of quad segments that make up this element. */
+    public var length: Int {
+        return quads.count
+    }
     
     
     

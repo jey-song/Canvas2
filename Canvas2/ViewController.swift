@@ -18,7 +18,7 @@ public extension UIDevice {
     }
 }
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, CanvasEvents {
     
     let colors: [UIColor] = [.black, .green, .red, .blue, .purple, .orange, .brown, .cyan]
     lazy var tools: [Tool] = [
@@ -176,6 +176,8 @@ class ViewController: UIViewController {
         return a
     }()
     
+    
+    // MARK: Initialization
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -240,6 +242,8 @@ class ViewController: UIViewController {
     }
 
     func setupCanvas() {
+        canvas.canvasDelegate = self
+        
         // Load some textures.
         if let img = UIImage(named: "PencilTexture.jpg") {
             canvas.addTexture(img, forName: "pencilTexture")
@@ -271,6 +275,7 @@ class ViewController: UIViewController {
     }
 
     
+    // MARK: Functions
     
     /** Changes the color of the brush. */
     @objc func changeColor() {
@@ -286,7 +291,6 @@ class ViewController: UIViewController {
     @objc func changeTool() {
         let rand = Int(arc4random_uniform(UInt32(tools.count)))
         canvas.currentTool = tools[rand]
-        print("Changed tool to \(tools[rand])")
     }
     
     /** Adds a layer below the current one. */
@@ -330,14 +334,34 @@ class ViewController: UIViewController {
         
         if self.currentBrush == 0 {
             canvas.changeBrush(to: "basicPencil")
-            print("Switched to basicPencil")
         } else if currentBrush == 1{
             canvas.changeBrush(to: "basicInk")
-            print("Switched to basicInk")
         } else {
             canvas.changeBrush(to: "basicBrush")
-            print("Switched to basicBrush")
         }
     }
+    
+    
+    
+    // MARK: CanvasEvents
+    
+    func isDrawing(element: Element, on canvas: Canvas) {
+        print("---> Is drawing: \(element.length)")
+    }
+    
+    func stoppedDrawing(element: Element, on canvas: Canvas) {
+        print("---> Stopped drawing: \(element.length)")
+    }
+    
+    func didChangeBrush(to brush: Brush) {
+        print("---> Changed Brush: \(brush.name)")
+    }
+    
+    func didChaneTool(to tool: Tool) {
+        print("---> Changed Tool: \(tool)")
+    }
+    
+    
+    
 }
 

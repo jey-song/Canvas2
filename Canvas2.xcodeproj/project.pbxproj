@@ -30,6 +30,7 @@
 		5A92EABA23D0A1A600F4A53A /* Rectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB923D0A1A600F4A53A /* Rectangle.swift */; };
 		5AACBBBC23D36D8F00ECDA8F /* Layer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AACBBBB23D36D8F00ECDA8F /* Layer.swift */; };
 		5AACBBBE23D376F700ECDA8F /* Canvas+Layers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AACBBBD23D376F700ECDA8F /* Canvas+Layers.swift */; };
+		5ABA0BFB23D8A6FD00A6C57C /* Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ABA0BFA23D8A6FD00A6C57C /* Events.swift */; };
 		5AC96B7723D2CBE500AC5066 /* MTLTexture+Image.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC96B7623D2CBE500AC5066 /* MTLTexture+Image.swift */; };
 		5AC96B7923D2D03C00AC5066 /* UIImage+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC96B7823D2D03C00AC5066 /* UIImage+Extensions.swift */; };
 		5ADC3E2B23D0D34100265C41 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADC3E2A23D0D34100265C41 /* Line.swift */; };
@@ -64,6 +65,7 @@
 		5A92EAB923D0A1A600F4A53A /* Rectangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rectangle.swift; sourceTree = "<group>"; };
 		5AACBBBB23D36D8F00ECDA8F /* Layer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Layer.swift; sourceTree = "<group>"; };
 		5AACBBBD23D376F700ECDA8F /* Canvas+Layers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Canvas+Layers.swift"; sourceTree = "<group>"; };
+		5ABA0BFA23D8A6FD00A6C57C /* Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Events.swift; sourceTree = "<group>"; };
 		5AC96B7623D2CBE500AC5066 /* MTLTexture+Image.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MTLTexture+Image.swift"; sourceTree = "<group>"; };
 		5AC96B7823D2D03C00AC5066 /* UIImage+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extensions.swift"; sourceTree = "<group>"; };
 		5ADC3E2A23D0D34100265C41 /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 			children = (
 				5A4C9C712374E9EA0019ED83 /* Canvas.swift */,
 				5AACBBBB23D36D8F00ECDA8F /* Layer.swift */,
+				5ABA0BFA23D8A6FD00A6C57C /* Events.swift */,
 				5A51FC1423CEB7E700467EFC /* Shader.metal */,
 				5A59BFB0237FB56E00D40E11 /* Tools */,
 				5A574DE4237CBADF004E1BE6 /* Shapes */,
@@ -245,6 +248,7 @@
 				5A92EABA23D0A1A600F4A53A /* Rectangle.swift in Sources */,
 				5AF77BE123D5406F000444FE /* Element.swift in Sources */,
 				5A59BFB2237FB58000D40E11 /* Brush.swift in Sources */,
+				5ABA0BFB23D8A6FD00A6C57C /* Events.swift in Sources */,
 				5AACBBBC23D36D8F00ECDA8F /* Layer.swift in Sources */,
 				5AC96B7923D2D03C00AC5066 /* UIImage+Extensions.swift in Sources */,
 				5A23DAC023D179B40067EF38 /* Eraser.swift in Sources */,

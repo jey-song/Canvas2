@@ -62,7 +62,7 @@ struct Quad {
     mutating func end(at: CGPoint, brush: Brush, prevA: CGPoint? = nil, prevB: CGPoint? = nil) {
         self.end = at
         
-        let size = brush.size / 2
+        let size = (((brush.size / 100) * 4) / 2) / 50
         let color = brush.color
         let texture = brush.texture
         
@@ -155,7 +155,7 @@ struct Quad {
         self.end = at
         
         // Create the coordinates of the two triangles.
-        let size = brush.size / 2
+        let size = (((brush.size / 100) * 4) / 2) / 50
         let color = brush.color
         let texture = brush.texture
         
