@@ -29,7 +29,7 @@ public struct Brush {
     internal var isEraser: Bool {
         didSet {
             // When you use an eraser, set its color to the canvas's clear color.
-            if self.isEraser == true { self.color = self.canvas.canvasColor }
+            if self.isEraser == true { self.color = .black }
         }
     }
     
@@ -45,7 +45,7 @@ public struct Brush {
         self.canvas = canvas
         self.name = name
         self.size = s
-        self.color = (isEraser == true ? canvas.canvasColor : c)
+        self.color = .black
         self.texture = nil
         self.isEraser = isEraser
     }

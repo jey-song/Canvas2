@@ -24,6 +24,8 @@ struct Vertex {
     
     var texture: SIMD2<Float>
     
+    var erased: Bool
+    
     
     
     // MARK: Initialization
@@ -39,6 +41,7 @@ struct Vertex {
         self.position = SIMD4<Float>(x: x, y: y, z: 0, w: 1)
         self.color = SIMD4<Float>(x: toFloat[0], y: toFloat[1], z: toFloat[2], w: toFloat[3])
         self.texture = texture ?? SIMD2<Float>(x: -1, y: -1)
+        self.erased = false
     }
     
 }

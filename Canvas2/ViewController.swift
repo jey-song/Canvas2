@@ -23,9 +23,9 @@ class ViewController: UIViewController, CanvasEvents {
     let colors: [UIColor] = [.black, .green, .red, .blue, .purple, .orange, .brown, .cyan]
     lazy var tools: [Tool] = [
         self.canvas.pencilTool,
-        self.canvas.rectangleTool,
-        self.canvas.lineTool,
-        self.canvas.ellipseTool,
+//        self.canvas.rectangleTool,
+//        self.canvas.lineTool,
+//        self.canvas.ellipseTool,
         self.canvas.eraserTool
     ]
     var currentBrush: Int = 0
@@ -37,7 +37,8 @@ class ViewController: UIViewController, CanvasEvents {
         a.stylusOnly = UIDevice.isSimulator() ? false : true
         a.currentBrush.size = 20
         a.maximumForce = 1.0
-        a.canvasColor = .white
+        a.canvasColor = .clear
+        a.backgroundColor = .clear
         
         return a
     }()
@@ -412,11 +413,11 @@ class ViewController: UIViewController, CanvasEvents {
     // MARK: CanvasEvents
     
     func isDrawing(element: Element, on canvas: Canvas) {
-        print("---> Is drawing: \(element.length)")
+        
     }
     
     func stoppedDrawing(element: Element, on canvas: Canvas) {
-        print("---> Stopped drawing: \(element.length)")
+        
     }
     
     func didChangeBrush(to brush: Brush) {
@@ -428,6 +429,8 @@ class ViewController: UIViewController, CanvasEvents {
         
         if tool.name == "eraser" {
             canvas.changeBrush(to: "basicPencilEraser")
+        } else {
+            changeBrush()
         }
     }
     

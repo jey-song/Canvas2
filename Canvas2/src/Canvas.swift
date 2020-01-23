@@ -145,7 +145,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         
         // Configure the metal view.
         super.init(frame: CGRect.zero, device: dev)
-        self.colorPixelFormat = MTLPixelFormat.bgra8Unorm
+        self.colorPixelFormat = MTLPixelFormat.bgra8Unorm_srgb
         self.framebufferOnly = false
         self.clearColor = self.canvasColor.metalClearColor
         self.delegate = self
@@ -191,7 +191,7 @@ public class Canvas: MTKView, MTKViewDelegate {
     public func addTexture(_ image: UIImage, forName name: String) {
         guard let cg = image.cgImage else { return }
         let texture = try! self.textureLoader.newTexture(cgImage: cg, options: [
-            MTKTextureLoader.Option.SRGB : false,
+            MTKTextureLoader.Option.SRGB : true,
             MTKTextureLoader.Option.allocateMipmaps: false,
             MTKTextureLoader.Option.generateMipmaps: false,
         ])
