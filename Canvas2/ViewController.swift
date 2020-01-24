@@ -308,10 +308,10 @@ class ViewController: UIViewController, CanvasEvents {
         }
         
         // Load a brush.
-        var basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", size: 10, color: .black)
+        var basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", size: 50, color: .black)
         var basicInk: Brush = Brush(canvas: canvas, name: "basicInk", size: 20, color: .black)
         var basicBrush: Brush = Brush(canvas: canvas, name: "basicBrush", size: 30, color: .black)
-        let basicPencilEraser: Brush = Brush(canvas: canvas, name: "basicPencilEraser", size: 20, isEraser: true)
+        let basicPencilEraser: Brush = Brush(canvas: canvas, name: "basicPencilEraser", size: 20, opacity: 0.5, isEraser: true)
         basicPencil.setTexture(name: "pencilTexture")
         basicInk.setTexture(name: "inkTexture")
         basicBrush.setTexture(name: "paperTexture")

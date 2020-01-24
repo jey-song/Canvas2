@@ -51,15 +51,18 @@ public struct Pencil: Tool {
         guard canvas.currentPath != nil else { print("No current path"); return false }
         guard canvas.isOnValidLayer() else { return false }
         
-        // Coalesced touches for apple pencil.
+        // All important touches for apple pencil.
         guard let coalesced = event?.coalescedTouches(for: firstTouch) else { return false }
+        guard let predicted = event?.predictedTouches(for: firstTouch) else { return false }
         
         // Get the force from the user input.
         canvas.setForce(value: firstTouch.force)
         
-        // NOTE: Run the following code for all of the coalesced touches.
-        for cTouch in coalesced {
-            let point = cTouch.metalLocation(in: canvas)
+        // NOTE: Run the following code for all of the touches.
+        var total = coalesced
+        total.append(contentsOf: predicted)
+        for touch in total {
+            let point = touch.metalLocation(in: canvas)
             canvas.currentPath!.endPencil(at: point)
         }
         return true

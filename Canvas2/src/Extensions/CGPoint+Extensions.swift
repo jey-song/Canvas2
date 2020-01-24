@@ -9,7 +9,12 @@
 import Foundation
 import CoreGraphics
 
-extension CGPoint {
+extension CGPoint: Comparable {
+    
+    public static func < (lhs: CGPoint, rhs: CGPoint) -> Bool {
+        return lhs.x < rhs.x && lhs.y < rhs.y
+    }
+    
     
     func direction(to other: CGPoint) -> CGFloat {
         let dX = abs(other.x - self.x)

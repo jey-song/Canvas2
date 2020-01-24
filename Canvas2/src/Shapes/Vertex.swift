@@ -11,7 +11,7 @@ import Metal
 import MetalKit
 import simd
 
-
+var z: Float = 0
 /** Data structure that goes directly to the shader functions. Do not change the order of the variables without
  also changing the order int he Shader.metal file. */
 struct Vertex {
@@ -23,8 +23,6 @@ struct Vertex {
     var color: SIMD4<Float>
     
     var texture: SIMD2<Float>
-    
-    var erased: Bool
     
     
     
@@ -41,7 +39,6 @@ struct Vertex {
         self.position = SIMD4<Float>(x: x, y: y, z: 0, w: 1)
         self.color = SIMD4<Float>(x: toFloat[0], y: toFloat[1], z: toFloat[2], w: toFloat[3])
         self.texture = texture ?? SIMD2<Float>(x: -1, y: -1)
-        self.erased = false
     }
     
 }

@@ -10,6 +10,8 @@ import Foundation
 import Metal
 import MetalKit
 
+let a = UIColor.clear.rgba
+let tempColor = UIColor(red: a.red, green: a.green, blue: a.blue, alpha: 1 * a.alpha)
 
 /** A customizable brush that determines how curves drawn on the canvas will look. */
 public struct Brush {
@@ -24,12 +26,14 @@ public struct Brush {
     
     internal var color: UIColor
     
+    internal var opacity: CGFloat
+    
     internal var texture: MTLTexture?
     
     internal var isEraser: Bool {
         didSet {
             // When you use an eraser, set its color to the canvas's clear color.
-            if self.isEraser == true { self.color = .black }
+            if self.isEraser == true { self.color = tempColor }
         }
     }
     
@@ -41,11 +45,19 @@ public struct Brush {
     
     // MARK: Initialization
     
-    init(canvas: Canvas, name: String, size s: CGFloat, color c: UIColor = UIColor.black, isEraser: Bool = false) {
+    init(
+        canvas: Canvas,
+        name: String,
+        size: CGFloat = 10,
+        color: UIColor = UIColor.black,
+        opacity: CGFloat = 1.0,
+        isEraser: Bool = false)
+    {
         self.canvas = canvas
         self.name = name
-        self.size = s
-        self.color = .black
+        self.size = size
+        self.color = (isEraser == true ? tempColor : color)
+        self.opacity = opacity
         self.texture = nil
         self.isEraser = isEraser
     }
@@ -66,7 +78,7 @@ public struct Brush {
         guard let lib = device.makeDefaultLibrary() else { return }
         guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
         guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
-        self.pipeline = buildRenderPipeline(vertProg: vertProg, fragProg: fragProg, modesOn: false, eraserSettingsOn: self.isEraser)
+        self.pipeline = buildRenderPipeline(vertProg: vertProg, fragProg: fragProg, eraserSettingsOn: self.isEraser)
         print("Created brush specific pipeline for brush: \(name).")
     }
     

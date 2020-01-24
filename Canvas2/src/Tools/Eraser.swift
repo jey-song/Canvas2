@@ -56,36 +56,20 @@ public struct Eraser: Tool {
         guard canvas.currentPath != nil else { print("No current path"); return false }
         guard canvas.isOnValidLayer() else { return false }
         
-        // Coalesced touches for apple pencil.
+        // All important touches for apple pencil.
         guard let coalesced = event?.coalescedTouches(for: firstTouch) else { return false }
-        guard let t = coalesced.first else { return false }
-        let point = t.metalLocation(in: canvas)
+        guard let predicted = event?.predictedTouches(for: firstTouch) else { return false }
         
         // Get the force from the user input.
         canvas.setForce(value: firstTouch.force)
         
         // NOTE: Run the following code for all of the coalesced touches.
-        let size: Float = Float((((canvas.currentBrush.size / 100) * 4) / 2) / 50)
-        
-        let verts = canvas.canvasLayers[canvas.currentLayer].elements.flatMap { $0.quads }.flatMap { $0.vertices }
-        for i in 0..<canvas.canvasLayers[canvas.currentLayer].elements.count {
-            let element = canvas.canvasLayers[canvas.currentLayer].elements[i]
-            for j in 0..<element.quads.count {
-                let quad = element.quads[j]
-                for k in 0..<quad.vertices.count {
-                    let vert = quad.vertices[k]
-                    if self.inRange(x: vert.position.x, y: vert.position.y, a: Float(point.x), b: Float(point.y), size: Float(size)) {
-                        canvas.canvasLayers[canvas.currentLayer].elements[i].quads[j].vertices[k].erased = true
-                    }
-                }
-            }
+        var total = coalesced
+        total.append(contentsOf: predicted)
+        for touch in total {
+            let point = touch.metalLocation(in: canvas)
+            canvas.currentPath!.endPencil(at: point)
         }
-        canvas.rebuildBuffer()
-        
-//        for cTouch in coalesced {
-//            let point = cTouch.metalLocation(in: canvas)
-//            canvas.currentPath!.endPencil(at: point)
-//        }
         return true
     }
     

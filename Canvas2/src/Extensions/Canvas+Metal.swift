@@ -14,32 +14,28 @@ import MetalKit
 internal func buildRenderPipeline(
     vertProg: MTLFunction,
     fragProg: MTLFunction,
-    modesOn: Bool = false,
     eraserSettingsOn: Bool = false
 ) -> MTLRenderPipelineState {
     // Make a descriptor for the pipeline.
     let descriptor = MTLRenderPipelineDescriptor()
     descriptor.vertexFunction = vertProg
     descriptor.fragmentFunction = fragProg
-    descriptor.colorAttachments[0].pixelFormat = MTLPixelFormat.bgra8Unorm_srgb
-//    if modesOn == true && eraserSettingsOn == false {
-        descriptor.colorAttachments[0].isBlendingEnabled = true
-        descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperation.add
-        descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperation.add
-        descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactor.one
-        descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactor.one
-        descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
-        descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
-//    }
-//    if eraserSettingsOn == true {
-//        descriptor.colorAttachments[0].isBlendingEnabled = true
-//        descriptor.colorAttachments[0].alphaBlendOperation = .reverseSubtract
-//        descriptor.colorAttachments[0].rgbBlendOperation = .reverseSubtract
-//        descriptor.colorAttachments[0].sourceRGBBlendFactor = .zero
-//        descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
-//        descriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
-//        descriptor.colorAttachments[0].destinationAlphaBlendFactor = .zero
-//    }
+    descriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+    descriptor.colorAttachments[0].isBlendingEnabled = true
+    descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperation.add
+    descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperation.add
+    descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactor.sourceAlpha
+    descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactor.one
+    descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
+    descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
+    if eraserSettingsOn == true {
+        descriptor.colorAttachments[0].alphaBlendOperation = .reverseSubtract
+        descriptor.colorAttachments[0].rgbBlendOperation = .reverseSubtract
+        descriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceColor
+        descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+        descriptor.colorAttachments[0].destinationRGBBlendFactor = .zero
+        descriptor.colorAttachments[0].destinationAlphaBlendFactor = .zero
+    }
     
     
     
@@ -60,7 +56,8 @@ internal func buildRenderPipeline(
 internal func buildSampleState() -> MTLSamplerState? {
     let sd = MTLSamplerDescriptor()
     sd.magFilter = .linear
-    sd.minFilter = .linear
+    sd.minFilter = .nearest
+    sd.mipFilter = .linear
     sd.rAddressMode = .mirrorRepeat
     sd.sAddressMode = .mirrorRepeat
     sd.tAddressMode = .mirrorRepeat
@@ -72,10 +69,10 @@ internal func buildSampleState() -> MTLSamplerState? {
 
 
 /** Creates an empty texture. */
-internal func makeEmptyTexture(width: CGFloat, height: CGFloat) -> MTLTexture? {
+internal func makeEmptyTexture(width: CGFloat, height: CGFloat, format: MTLPixelFormat = .bgra8Unorm) -> MTLTexture? {
     guard width * height > 0 else { return nil }
     let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
-        pixelFormat: .bgra8Unorm_srgb,
+        pixelFormat: format,
         width: Int(width),
         height: Int(height),
         mipmapped: false

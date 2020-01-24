@@ -24,13 +24,13 @@ public extension Canvas {
     func addLayer(at index: Int) {
         // Adding a layer does not require a rebuild of the buffer
         // because that will happen when the user draws again.
+        let newLayer = Layer(canvas: self)
         if self.canvasLayers.count == 0 {
-            self.canvasLayers.append(Layer(canvas: self))
+            self.canvasLayers.append(newLayer)
             self.currentLayer = 0
             return
         }
         
-        let newLayer = Layer(canvas: self)
         self.canvasLayers.insert(newLayer, at: index)
         rebuildBuffer()
     }
@@ -67,20 +67,20 @@ public extension Canvas {
     /** Locks a particular layer so that no actions can be taken on it. */
     func lock(layer at: Int) {
         guard at >= 0 && at < canvasLayers.count else { return }
-        canvasLayers[currentLayer].isLocked = true
+        canvasLayers[at].isLocked = true
     }
     
     
     /** Unlocks a particular layer so that you can interact with it again. */
     func unlock(layer at: Int) {
         guard at >= 0 && at < canvasLayers.count else { return }
-        canvasLayers[currentLayer].isLocked = false
+        canvasLayers[at].isLocked = false
     }
     
     /** Hides a particular layer so that it cannot be seen. */
     func hide(layer at: Int) {
         guard at >= 0 && at < canvasLayers.count else { return }
-        canvasLayers[currentLayer].isHidden = true
+        canvasLayers[at].isHidden = true
         rebuildBuffer()
     }
     
@@ -88,7 +88,7 @@ public extension Canvas {
     /** Shows a layer that has been hidden so that it can be visible on the canvas */
     func show(layer at: Int) {
         guard at >= 0 && at < canvasLayers.count else { return }
-        canvasLayers[currentLayer].isHidden = false
+        canvasLayers[at].isHidden = false
         rebuildBuffer()
     }
     

@@ -25,6 +25,7 @@ public struct Element {
     internal var lastQuad: Quad?
     
     internal var canvas: Canvas
+    internal var buffer: MTLBuffer?
     
     
     // --> Public
@@ -120,17 +121,23 @@ public struct Element {
     
     // MARK: Rendering
     
+    /** Rebuilds the buffer. */
+    internal mutating func rebuildBuffer() {
+        let vertices = quads.flatMap { $0.vertices }
+        guard vertices.count > 0 else { return }
+        buffer = dev.makeBuffer(
+            bytes: vertices,
+            length: vertices.count * MemoryLayout<Vertex>.stride,
+            options: []
+        )
+    }
+    
     /** Renders the element to the screen. */
     internal mutating func render(buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
         guard quads.count > 0 else { return }
         
         // Make a new buffer out of all of the vertices on this element.
-        let vertices = quads.flatMap { $0.vertices }
-        guard vertices.count > 0 else { return }
-        guard let vBuffer = dev.makeBuffer(
-            bytes: vertices,
-            length: vertices.count * MemoryLayout<Vertex>.stride,
-            options: []) else { return }
+        guard let vBuffer = self.buffer else { return }
         
         // Set the properties on the encoder for this element and the brush it uses specifically.
         encoder.setRenderPipelineState(brush.pipeline)

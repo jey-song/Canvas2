@@ -71,7 +71,12 @@ public class Canvas: MTKView, MTKViewDelegate {
     }
     
     /** The index of the current layer. */
-    public var currentLayer: Int
+    public var currentLayer: Int {
+        didSet {
+            z = Float(self.currentLayer)
+            print("z: \(z)")
+        }
+    }
     
     /** The delegate for the CanvasEvents protocol. */
     public var canvasDelegate: CanvasEvents?
@@ -145,10 +150,12 @@ public class Canvas: MTKView, MTKViewDelegate {
         
         // Configure the metal view.
         super.init(frame: CGRect.zero, device: dev)
-        self.colorPixelFormat = MTLPixelFormat.bgra8Unorm_srgb
+        self.colorPixelFormat = MTLPixelFormat.bgra8Unorm
         self.framebufferOnly = false
         self.clearColor = self.canvasColor.metalClearColor
         self.delegate = self
+        self.isOpaque = false
+        (self.layer as? CAMetalLayer)?.isOpaque = false
         
         // Configure the pipeline.
         guard let device = dev else { return }
@@ -191,7 +198,7 @@ public class Canvas: MTKView, MTKViewDelegate {
     public func addTexture(_ image: UIImage, forName name: String) {
         guard let cg = image.cgImage else { return }
         let texture = try! self.textureLoader.newTexture(cgImage: cg, options: [
-            MTKTextureLoader.Option.SRGB : true,
+            MTKTextureLoader.Option.SRGB : false,
             MTKTextureLoader.Option.allocateMipmaps: false,
             MTKTextureLoader.Option.generateMipmaps: false,
         ])
@@ -237,8 +244,9 @@ public class Canvas: MTKView, MTKViewDelegate {
     internal func rebuildBuffer() {
         // If you were in the process of drawing a curve and are on a valid
         // layer, add that finished element to the layer.
-        if let copy = currentPath?.copy() {
+        if var copy = currentPath?.copy() {
             if isOnValidLayer() && copy.quads.count > 0 {
+                copy.rebuildBuffer()
                 canvasLayers[currentLayer].add(element: copy)
             }
         }
@@ -259,13 +267,13 @@ public class Canvas: MTKView, MTKViewDelegate {
     internal func repaint() {
         // Clear the canvas of whatever was already there.
         mainTexture = makeEmptyTexture(width: bounds.width, height: bounds.height)
-        
+
         // Recompute the main buffer.
+        guard let drawable = currentDrawable else { print("no drawable"); return }
         guard let rpd = self.currentRenderPassDescriptor else { print("no descriptor"); return }
         guard let commandBuffer = commandQueue.makeCommandBuffer() else { print("no command buffer"); return }
         guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { print("no encoder"); return }
-        guard let drawable = currentDrawable else { print("no drawable"); return }
-        
+
         // Send the commands to the encoder and redraw the canvas.
         if let buff = mainBuffer {
             let vertCount = buff.length / MemoryLayout<Vertex>.stride
@@ -275,21 +283,14 @@ public class Canvas: MTKView, MTKViewDelegate {
             encoder.setFragmentSamplerState(sampleState, index: 0)
             encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertCount)
         }
-        
-        // Go through each element and make sure that it is drawn independently. Meaning
-        // each curve with its own texture, color, etc.
-        let elements = canvasLayers.filter { $0.isHidden == false }.flatMap { $0.elements }
-        for var e in elements {
-            e.render(buffer: commandBuffer, encoder: encoder)
+
+        // Render each layer, which will handle rendering each element, then vertex.
+        for i in 0..<canvasLayers.count {
+            let layer = canvasLayers[i]
+            if layer.isHidden == true { continue }
+            layer.render(index: i, buffer: commandBuffer, encoder: encoder)
         }
-        
-        // Whatever is current being drawn on the screen, display it immediately.
-        if var cp = currentPath {
-            if cp.quads.count > 0 && canvasLayers[currentLayer].isLocked == false {
-                cp.render(buffer: commandBuffer, encoder: encoder)
-            }
-        }
-        
+
         // Finishing main encoding and present drawable.
         encoder.endEncoding()
         commandBuffer.present(drawable)
@@ -300,6 +301,8 @@ public class Canvas: MTKView, MTKViewDelegate {
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
     
     public func draw(in view: MTKView) {
-        repaint()
+        autoreleasepool {
+            repaint()
+        }
     }
 }

@@ -12,7 +12,7 @@ import MetalKit
 
 
 /** A layer on the canvas. */
-public struct Layer {
+public class Layer {
     
     // MARK: Variables
     
@@ -27,6 +27,7 @@ public struct Layer {
     
     
     
+    
     // MARK: Initialization
     
     init(canvas: Canvas) {
@@ -36,12 +37,32 @@ public struct Layer {
         self.isHidden = false
     }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     
     // MARK: Functions
     
     /** Makes sure that this layer understands that a new element was added on it. */
-    internal mutating func add(element: Element) {
+    internal func add(element: Element) {
         self.elements.append(element)
+    }
+    
+    internal func render(index: Int, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
+        for var element in elements {
+            element.render(buffer: buffer, encoder: encoder)
+        }
+        
+        // Whatever is current being drawn on the screen, display it immediately.
+        if canvas.currentLayer == index {
+            if var cp = canvas.currentPath {
+                if cp.quads.count > 0 && canvas.canvasLayers[canvas.currentLayer].isLocked == false {
+                    cp.rebuildBuffer()
+                    cp.render(buffer: buffer, encoder: encoder)
+                }
+            }
+        }
     }
     
     
