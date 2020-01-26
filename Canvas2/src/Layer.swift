@@ -45,4 +45,20 @@ public struct Layer {
     }
     
     
+    /** Renders the elements on this layer. */
+    internal mutating func render(index: Int, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
+        for var element in elements {
+            element.render(buffer: buffer, encoder: encoder)
+        }
+        
+        // Draw the current path.
+        if index == canvas.currentLayer {
+            if var cp = canvas.currentPath {
+                if cp.quads.count > 0 && isLocked == false {
+                    cp.render(buffer: buffer, encoder: encoder)
+                }
+            }
+        }
+    }
+    
 }

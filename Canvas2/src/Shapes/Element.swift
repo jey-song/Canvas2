@@ -127,7 +127,7 @@ public struct Element {
         // Make a new buffer out of all of the vertices on this element.
         let vertices = quads.flatMap { $0.vertices }
         guard vertices.count > 0 else { return }
-        guard let vBuffer = dev.makeBuffer(
+        guard let vBuffer = canvas.device!.makeBuffer(
             bytes: vertices,
             length: vertices.count * MemoryLayout<Vertex>.stride,
             options: []) else { return }

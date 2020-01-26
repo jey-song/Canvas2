@@ -27,6 +27,15 @@ public extension UIColor {
         return MTLClearColor(red: Double(rgba.red), green: Double(rgba.green), blue: Double(rgba.blue), alpha: Double(rgba.alpha))
     }
     
+    static func fromSIMD4(simd: SIMD4<Float>) -> UIColor {
+        return UIColor(red: CGFloat(simd.x), green: CGFloat(simd.y), blue: CGFloat(simd.z), alpha: CGFloat(simd.w))
+    }
+    
+    func toSIMD4() -> SIMD4<Float> {
+        let rgba = self.rgba
+        return SIMD4<Float>(x: Float(rgba.red), y: Float(rgba.green), z: Float(rgba.blue), w: Float(rgba.alpha))
+    }
+    
 }
 
 public extension MTLClearColor {

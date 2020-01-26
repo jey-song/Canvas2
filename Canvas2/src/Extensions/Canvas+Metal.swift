@@ -11,60 +11,34 @@ import Metal
 import MetalKit
 
 /** Builds a render pipeline. */
-internal func buildRenderPipeline(
-    vertProg: MTLFunction,
-    fragProg: MTLFunction,
-    modesOn: Bool = false,
-    eraserSettingsOn: Bool = false
-) -> MTLRenderPipelineState {
+internal func buildRenderPipeline(device: MTLDevice, vertProg: MTLFunction, fragProg: MTLFunction) -> MTLRenderPipelineState {
     // Make a descriptor for the pipeline.
     let descriptor = MTLRenderPipelineDescriptor()
     descriptor.vertexFunction = vertProg
     descriptor.fragmentFunction = fragProg
-    descriptor.colorAttachments[0].pixelFormat = MTLPixelFormat.bgra8Unorm_srgb
-//    if modesOn == true && eraserSettingsOn == false {
-        descriptor.colorAttachments[0].isBlendingEnabled = true
-        descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperation.add
-        descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperation.add
-        descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactor.one
-        descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactor.one
-        descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
-        descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
-//    }
-//    if eraserSettingsOn == true {
-//        descriptor.colorAttachments[0].isBlendingEnabled = true
-//        descriptor.colorAttachments[0].alphaBlendOperation = .reverseSubtract
-//        descriptor.colorAttachments[0].rgbBlendOperation = .reverseSubtract
-//        descriptor.colorAttachments[0].sourceRGBBlendFactor = .zero
-//        descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
-//        descriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
-//        descriptor.colorAttachments[0].destinationAlphaBlendFactor = .zero
-//    }
+    descriptor.colorAttachments[0].pixelFormat = CANVAS_PIXEL_FORMAT
+    descriptor.colorAttachments[0].isBlendingEnabled = true
+    descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperation.add
+    descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperation.add
+    descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactor.one
+    descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactor.one
+    descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
+    descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
     
-    
-    
-//    attachment.isBlendingEnabled = true
-//    attachment.alphaBlendOperation = .reverseSubtract
-//    attachment.rgbBlendOperation = .reverseSubtract
-//    attachment.sourceRGBBlendFactor = .zero
-//    attachment.sourceAlphaBlendFactor = .one
-//    attachment.destinationRGBBlendFactor = .oneMinusSourceAlpha
-//    attachment.destinationAlphaBlendFactor = .one
-    
-    let state = try! dev.makeRenderPipelineState(descriptor: descriptor)
+    let state = try! device.makeRenderPipelineState(descriptor: descriptor)
     return state
 }
 
 
 /** Builds a sample descriptor for the fragment function. */
-internal func buildSampleState() -> MTLSamplerState? {
+internal func buildSampleState(device: MTLDevice) -> MTLSamplerState? {
     let sd = MTLSamplerDescriptor()
     sd.magFilter = .linear
     sd.minFilter = .linear
     sd.rAddressMode = .mirrorRepeat
     sd.sAddressMode = .mirrorRepeat
     sd.tAddressMode = .mirrorRepeat
-    guard let sampleState = dev.makeSamplerState(descriptor: sd) else {
+    guard let sampleState = device.makeSamplerState(descriptor: sd) else {
         return nil
     }
     return sampleState
@@ -72,7 +46,7 @@ internal func buildSampleState() -> MTLSamplerState? {
 
 
 /** Creates an empty texture. */
-internal func makeEmptyTexture(width: CGFloat, height: CGFloat) -> MTLTexture? {
+internal func makeEmptyTexture(device: MTLDevice, width: CGFloat, height: CGFloat) -> MTLTexture? {
     guard width * height > 0 else { return nil }
     let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
         pixelFormat: .bgra8Unorm_srgb,
@@ -81,5 +55,5 @@ internal func makeEmptyTexture(width: CGFloat, height: CGFloat) -> MTLTexture? {
         mipmapped: false
     )
     textureDescriptor.usage = [.renderTarget, .shaderRead]
-    return dev!.makeTexture(descriptor: textureDescriptor)
+    return device.makeTexture(descriptor: textureDescriptor)
 }
