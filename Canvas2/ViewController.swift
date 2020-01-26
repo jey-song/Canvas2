@@ -23,9 +23,9 @@ class ViewController: UIViewController, CanvasEvents {
     let colors: [UIColor] = [.black, .green, .red, .blue, .purple, .orange, .brown, .cyan]
     lazy var tools: [Tool] = [
         self.canvas.pencilTool,
-//        self.canvas.rectangleTool,
-//        self.canvas.lineTool,
-//        self.canvas.ellipseTool,
+        self.canvas.rectangleTool,
+        self.canvas.lineTool,
+        self.canvas.ellipseTool,
         self.canvas.eraserTool
     ]
     var currentBrush: Int = 0
@@ -308,7 +308,7 @@ class ViewController: UIViewController, CanvasEvents {
         }
         
         // Load a brush.
-        var basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", size: 50, color: .black)
+        var basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", size: 20, color: .black)
         var basicInk: Brush = Brush(canvas: canvas, name: "basicInk", size: 20, color: .black)
         var basicBrush: Brush = Brush(canvas: canvas, name: "basicBrush", size: 30, color: .black)
         let basicPencilEraser: Brush = Brush(canvas: canvas, name: "basicPencilEraser", size: 20, opacity: 0.5, isEraser: true)

@@ -10,8 +10,7 @@ import Foundation
 import Metal
 import MetalKit
 
-/** The global Metal device. */
-var dev: MTLDevice!
+internal var CANVAS_PIXEL_FORMAT: MTLPixelFormat = .bgra8Unorm
 
 /** A Metal-accelerated canvas for drawing and painting. */
 public class Canvas: MTKView, MTKViewDelegate {
@@ -66,17 +65,17 @@ public class Canvas: MTKView, MTKViewDelegate {
     public var canvasColor: UIColor {
         didSet {
             let rgba = self.canvasColor.rgba
-            self.clearColor = MTLClearColor(red: Double(rgba.red), green: Double(rgba.green), blue: Double(rgba.blue), alpha: Double(rgba.alpha))
+            self.clearColor = MTLClearColor(
+                red: Double(rgba.red),
+                green: Double(rgba.green),
+                blue: Double(rgba.blue),
+                alpha: Double(rgba.alpha)
+            )
         }
     }
     
     /** The index of the current layer. */
-    public var currentLayer: Int {
-        didSet {
-            z = Float(self.currentLayer)
-            print("z: \(z)")
-        }
-    }
+    public var currentLayer: Int
     
     /** The delegate for the CanvasEvents protocol. */
     public var canvasDelegate: CanvasEvents?
@@ -118,7 +117,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         didSet {
             // Basically, every time you change the view size, clear the canvas using the
             // viewport vertices, which is the a clear color screen.
-            mainTexture = makeEmptyTexture(width: bounds.width, height: bounds.height)
+            mainTexture = makeEmptyTexture(device: self.device!, width: bounds.width, height: bounds.height)
             self.viewportVertices = [
                 Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor),
                 Vertex(position: CGPoint(x: bounds.width, y: 0), color: canvasColor),
@@ -135,22 +134,20 @@ public class Canvas: MTKView, MTKViewDelegate {
     // MARK: Initialization
     
     public init() {
-        dev = MTLCreateSystemDefaultDevice()
         self.forceEnabled = true
         self.stylusOnly = false
         self.force = 1.0
         self.maximumForce = 1.0
-        self.commandQueue = dev!.makeCommandQueue()
         self.canvasLayers = []
         self.currentLayer = -1
         self.registeredTextures = [:]
         self.registeredBrushes = [:]
         self.viewportVertices = []
-        self.canvasColor = UIColor.white
+        self.canvasColor = UIColor.clear
         
         // Configure the metal view.
-        super.init(frame: CGRect.zero, device: dev)
-        self.colorPixelFormat = MTLPixelFormat.bgra8Unorm
+        super.init(frame: CGRect.zero, device: MTLCreateSystemDefaultDevice())
+        self.colorPixelFormat = CANVAS_PIXEL_FORMAT
         self.framebufferOnly = false
         self.clearColor = self.canvasColor.metalClearColor
         self.delegate = self
@@ -158,14 +155,15 @@ public class Canvas: MTKView, MTKViewDelegate {
         (self.layer as? CAMetalLayer)?.isOpaque = false
         
         // Configure the pipeline.
-        guard let device = dev else { return }
+        guard let device = device else { return }
         guard let lib = device.makeDefaultLibrary() else { return }
         guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
         guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
         
-        self.sampleState = buildSampleState()
-        self.pipeline = buildRenderPipeline(vertProg: vertProg, fragProg: fragProg)
-        self.textureLoader = MTKTextureLoader(device: dev)
+        self.commandQueue = device.makeCommandQueue()
+        self.sampleState = buildSampleState(device: device)
+        self.pipeline = buildRenderPipeline(device: device, vertProg: vertProg, fragProg: fragProg)
+        self.textureLoader = MTKTextureLoader(device: device)
         self.currentBrush = Brush(canvas: self, name: "defaultBrush", size: 10, color: .black) // Default brush
         self.currentTool = self.pencilTool // Default tool
         self.currentPath = Element(quads: [], canvas: self) // Used for drawing temporary paths
@@ -256,7 +254,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         let verts = elements.flatMap { $0.quads }.flatMap { $0.vertices }
         let count = verts.count * MemoryLayout<Vertex>.stride
         let defaultViewCount = viewportVertices.count * MemoryLayout<Vertex>.stride
-        mainBuffer = dev.makeBuffer(
+        mainBuffer = device!.makeBuffer(
             bytes: count > 0 ? verts : viewportVertices,
             length: count > 0 ? count : defaultViewCount,
             options: []
@@ -266,8 +264,8 @@ public class Canvas: MTKView, MTKViewDelegate {
     /** Finish the current drawing path and add it to the canvas. Then repaint the view. */
     internal func repaint() {
         // Clear the canvas of whatever was already there.
-        mainTexture = makeEmptyTexture(width: bounds.width, height: bounds.height)
-
+        mainTexture = makeEmptyTexture(device: device!, width: bounds.width, height: bounds.height)
+        
         // Recompute the main buffer.
         guard let drawable = currentDrawable else { print("no drawable"); return }
         guard let rpd = self.currentRenderPassDescriptor else { print("no descriptor"); return }
@@ -283,12 +281,12 @@ public class Canvas: MTKView, MTKViewDelegate {
             encoder.setFragmentSamplerState(sampleState, index: 0)
             encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertCount)
         }
-
-        // Render each layer, which will handle rendering each element, then vertex.
+        
+        // Render each layer.
         for i in 0..<canvasLayers.count {
             let layer = canvasLayers[i]
             if layer.isHidden == true { continue }
-            layer.render(index: i, buffer: commandBuffer, encoder: encoder)
+            canvasLayers[i].render(index: i, buffer: commandBuffer, encoder: encoder)
         }
 
         // Finishing main encoding and present drawable.
@@ -305,4 +303,5 @@ public class Canvas: MTKView, MTKViewDelegate {
             repaint()
         }
     }
-}
+    
+} // End of class.

@@ -31,45 +31,66 @@ public struct Eraser: Tool {
     
     // MARK: Functions
     
+    /** Checks if a vertex lies within the range of another vertex by the amount of the brush size. */
+    internal func inRange(x: Float, y: Float, a: Float, b: Float, size: Float) -> Bool {
+        return (x >= a - size && x <= a + size) && (y >= b - size && y <= b + size)
+    }
+    
     public func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard let canvas = self.canvas else { return false }
         guard canvas.isOnValidLayer() else { return false }
-        let point = firstTouch.metalLocation(in: canvas)
         
         // Get the force from the user input.
         canvas.setForce(value: firstTouch.force)
-        
-        // Start a new quad when a touch is down.
-        var quad = Quad(start: point)
-        quad.startForce = canvas.forceEnabled ? canvas.force : 1.0
-        
-        canvas.currentPath.startPath(quad: quad)
         return true
-    }
-    
-    func inRange(x: Float, y: Float, a: Float, b: Float, size: Float) -> Bool {
-        return (x >= a - size && x <= a + size) && (y >= b - size && y <= b + size)
     }
     
     public func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard let canvas = self.canvas else { return false }
         guard canvas.currentPath != nil else { print("No current path"); return false }
         guard canvas.isOnValidLayer() else { return false }
+        if canvas.canvasLayers[canvas.currentLayer].isLocked == true { return false }
         
-        // All important touches for apple pencil.
+        // All touches for apple pencil.
         guard let coalesced = event?.coalescedTouches(for: firstTouch) else { return false }
         guard let predicted = event?.predictedTouches(for: firstTouch) else { return false }
+        var total = coalesced
+        total.append(contentsOf: predicted)
+        
+        guard let t = total.first else { return false }
+        let point = t.metalLocation(in: canvas)
         
         // Get the force from the user input.
         canvas.setForce(value: firstTouch.force)
         
-        // NOTE: Run the following code for all of the coalesced touches.
-        var total = coalesced
-        total.append(contentsOf: predicted)
-        for touch in total {
-            let point = touch.metalLocation(in: canvas)
-            canvas.currentPath!.endPencil(at: point)
+        // Go through the vertices on the layer and have them "erased."
+        let size: Float = Float((((canvas.currentBrush.size / 100) * 4) / 2) / 50)
+        let opacity = canvas.currentBrush!.opacity * canvas.force
+        for i in 0..<canvas.canvasLayers[canvas.currentLayer].elements.count {
+            let element = canvas.canvasLayers[canvas.currentLayer].elements[i]
+            for j in 0..<element.quads.count {
+                let quad = element.quads[j]
+                for k in 0..<quad.vertices.count {
+                    let vert = quad.vertices[k]
+                    
+                    // Tell the vertex to add on to its erase variable.
+                    if self.inRange(
+                        x: vert.position.x,
+                        y: vert.position.y,
+                        a: Float(point.x),
+                        b: Float(point.y),
+                        size: Float(size))
+                    {
+                        canvas.canvasLayers[canvas.currentLayer]
+                            .elements[i]
+                            .quads[j]
+                            .vertices[k]
+                            .erase += Float(opacity)
+                    }
+                }
+            }
         }
+        canvas.rebuildBuffer()
         return true
     }
     

@@ -125,7 +125,7 @@ public struct Element {
     internal mutating func rebuildBuffer() {
         let vertices = quads.flatMap { $0.vertices }
         guard vertices.count > 0 else { return }
-        buffer = dev.makeBuffer(
+        buffer = canvas.device!.makeBuffer(
             bytes: vertices,
             length: vertices.count * MemoryLayout<Vertex>.stride,
             options: []
@@ -137,7 +137,13 @@ public struct Element {
         guard quads.count > 0 else { return }
         
         // Make a new buffer out of all of the vertices on this element.
-        guard let vBuffer = self.buffer else { return }
+        let vertices = quads.flatMap { $0.vertices }
+        guard vertices.count > 0 else { return }
+        guard let vBuffer = canvas.device!.makeBuffer(
+            bytes: vertices,
+            length: vertices.count * MemoryLayout<Vertex>.stride,
+            options: []
+        ) else { return }
         
         // Set the properties on the encoder for this element and the brush it uses specifically.
         encoder.setRenderPipelineState(brush.pipeline)

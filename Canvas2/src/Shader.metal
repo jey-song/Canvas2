@@ -14,6 +14,7 @@ struct Vertex {
     float4 position [[position]];
     float4 color;
     float2 texture [[attribute(2)]];
+    float erase;
 };
 
 vertex Vertex main_vertex(const device Vertex* vertices [[ buffer(0) ]], unsigned int vid [[ vertex_id ]]) {
@@ -22,6 +23,7 @@ vertex Vertex main_vertex(const device Vertex* vertices [[ buffer(0) ]], unsigne
     output.position = vertices[vid].position;
     output.color = vertices[vid].color;
     output.texture = vertices[vid].texture;
+    output.erase = vertices[vid].erase;
     
     return output;
 };
@@ -36,10 +38,27 @@ fragment half4 textured_fragment(Vertex vert [[stage_in]], sampler sampler2D, te
         float4 txtr = texture.sample(sampler2D, float2(vert.texture[0], vert.texture[1]));
         float4 clr = vert.color;
         float4 blended = mix(txtr, clr, 0.5); // Blend exactly halfway between the texture and color.
-        return half4(blended);
+        
+        // If the vertex has been erased, handle that here.
+        half4 ret = half4(blended);
+        ret.r -= vert.erase / 1.5;
+        ret.g -= vert.erase / 1.5;
+        ret.b -= vert.erase / 1.5;
+        ret.a -= vert.erase;
+        
+        return ret;
     }
     // Otherwise, just show the brush color.
     else {
-        return half4(vert.color);
+        float4 clr = vert.color;
+        
+        // If the vertex has been erased, handle that here.
+        half4 ret = half4(clr);
+        ret.r -= vert.erase / 1.5;
+        ret.g -= vert.erase / 1.5;
+        ret.b -= vert.erase / 1.5;
+        ret.a -= vert.erase;
+        
+        return ret;
     }
 }
