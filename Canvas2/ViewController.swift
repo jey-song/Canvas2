@@ -37,8 +37,7 @@ class ViewController: UIViewController, CanvasEvents {
         a.stylusOnly = UIDevice.isSimulator() ? false : true
         a.currentBrush.size = 20
         a.maximumForce = 1.0
-        a.canvasColor = .clear
-        a.backgroundColor = .clear
+        a.canvasColor = .white
         
         return a
     }()
@@ -213,6 +212,57 @@ class ViewController: UIViewController, CanvasEvents {
         return a
     }()
     
+    let undoButton: UIButton = {
+        let a = UIButton(type: UIButton.ButtonType.custom)
+        a.translatesAutoresizingMaskIntoConstraints = false
+        a.setTitle("Undo", for: .normal)
+        a.setTitleColor(.black, for: .normal)
+        a.setTitleColor(.darkGray, for: .highlighted)
+        a.addTarget(self, action: #selector(undo), for: .touchUpInside)
+        a.backgroundColor = .gray
+        a.layer.cornerRadius = 8
+        a.layer.shadowColor = UIColor.black.cgColor
+        a.layer.shadowOffset = CGSize(width: 0, height: 2)
+        a.layer.shadowRadius = 20
+        a.layer.shadowOpacity = Float(0.5)
+        
+        return a
+    }()
+    
+    let redoButton: UIButton = {
+        let a = UIButton(type: UIButton.ButtonType.custom)
+        a.translatesAutoresizingMaskIntoConstraints = false
+        a.setTitle("Redo", for: .normal)
+        a.setTitleColor(.black, for: .normal)
+        a.setTitleColor(.darkGray, for: .highlighted)
+        a.addTarget(self, action: #selector(redo), for: .touchUpInside)
+        a.backgroundColor = .gray
+        a.layer.cornerRadius = 8
+        a.layer.shadowColor = UIColor.black.cgColor
+        a.layer.shadowOffset = CGSize(width: 0, height: 2)
+        a.layer.shadowRadius = 20
+        a.layer.shadowOpacity = Float(0.5)
+        
+        return a
+    }()
+    
+    let clearButton: UIButton = {
+        let a = UIButton(type: UIButton.ButtonType.custom)
+        a.translatesAutoresizingMaskIntoConstraints = false
+        a.setTitle("Clear", for: .normal)
+        a.setTitleColor(.black, for: .normal)
+        a.setTitleColor(.darkGray, for: .highlighted)
+        a.addTarget(self, action: #selector(clear), for: .touchUpInside)
+        a.backgroundColor = .gray
+        a.layer.cornerRadius = 8
+        a.layer.shadowColor = UIColor.black.cgColor
+        a.layer.shadowOffset = CGSize(width: 0, height: 2)
+        a.layer.shadowRadius = 20
+        a.layer.shadowOpacity = Float(0.5)
+        
+        return a
+    }()
+    
     
     // MARK: Initialization
 
@@ -233,6 +283,9 @@ class ViewController: UIViewController, CanvasEvents {
         self.view.addSubview(brushButton)
         self.view.addSubview(toggleLockButton)
         self.view.addSubview(toggleHideButton)
+        self.view.addSubview(undoButton)
+        self.view.addSubview(redoButton)
+        self.view.addSubview(clearButton)
         
         canvas.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         canvas.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -288,6 +341,21 @@ class ViewController: UIViewController, CanvasEvents {
         toggleHideButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
         toggleHideButton.widthAnchor.constraint(equalToConstant: 180).isActive = true
         toggleHideButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        undoButton.topAnchor.constraint(equalTo: removeLayerButton.bottomAnchor, constant: 10).isActive = true
+        undoButton.leadingAnchor.constraint(equalTo: toggleHideButton.trailingAnchor, constant: 10).isActive = true
+        undoButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        undoButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        redoButton.topAnchor.constraint(equalTo: removeLayerButton.bottomAnchor, constant: 10).isActive = true
+        redoButton.leadingAnchor.constraint(equalTo: undoButton.trailingAnchor, constant: 10).isActive = true
+        redoButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        redoButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        clearButton.topAnchor.constraint(equalTo: removeLayerButton.bottomAnchor, constant: 10).isActive = true
+        clearButton.leadingAnchor.constraint(equalTo: redoButton.trailingAnchor, constant: 10).isActive = true
+        clearButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        clearButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 
     func setupCanvas() {
@@ -408,6 +476,18 @@ class ViewController: UIViewController, CanvasEvents {
         }
     }
     
+    @objc func undo() {
+        canvas.undo()
+    }
+    
+    @objc func redo() {
+        canvas.redo()
+    }
+    
+    @objc func clear() {
+        canvas.clear()
+    }
+    
     
     
     // MARK: CanvasEvents
@@ -424,7 +504,7 @@ class ViewController: UIViewController, CanvasEvents {
         print("---> Changed Brush: \(brush.name)")
     }
     
-    func didChaneTool(to tool: Tool) {
+    func didChangeTool(to tool: Tool) {
         print("---> Changed Tool: \(tool)")
         
         if tool.name == "eraser" {
@@ -434,7 +514,41 @@ class ViewController: UIViewController, CanvasEvents {
         }
     }
     
+    func didUndo(on canvas: Canvas) {
+        
+    }
     
+    func didRedo(on canvas: Canvas) {
+        
+    }
     
+    func didClear(canvas: Canvas) {
+        
+    }
+    
+    func didClear(layer at: Int, on canvas: Canvas) {
+        
+    }
+    
+    func didAddLayer(at index: Int, to canvas: Canvas) {
+        
+    }
+    
+    func didRemoveLayer(at index: Int, from canvas: Canvas) {
+        
+    }
+    
+    func didMoveLayer(from startIndex: Int, to destIndex: Int, on canvas: Canvas) {
+        
+    }
+    
+    func didSwitchLayer(from oldLayer: Int, to newLayer: Int, on canvas: Canvas) {
+        canvas.undoRedoManager.clearRedos()
+        canvas.addUndoRedo(onUndo: {
+            canvas.currentLayer = oldLayer
+        }, onRedo: {
+            canvas.currentLayer = newLayer
+        })
+    }
 }
 

@@ -52,6 +52,10 @@ extension CGPoint: Comparable {
         return perp
     }
     
+    /** Checks if a vertex lies within the range of another vertex by the amount of the brush size. */
+    static func inRange(x: Float, y: Float, a: Float, b: Float, size: Float) -> Bool {
+        return (x >= a - size && x <= a + size) && (y >= b - size && y <= b + size)
+    }
     
     static func +(lhs: CGPoint, rhs: CGPoint) -> CGPoint {
         return CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)

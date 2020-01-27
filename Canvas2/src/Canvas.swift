@@ -10,7 +10,7 @@ import Foundation
 import Metal
 import MetalKit
 
-internal var CANVAS_PIXEL_FORMAT: MTLPixelFormat = .bgra8Unorm
+internal let CANVAS_PIXEL_FORMAT: MTLPixelFormat = .bgra8Unorm
 
 /** A Metal-accelerated canvas for drawing and painting. */
 public class Canvas: MTKView, MTKViewDelegate {
@@ -30,10 +30,12 @@ public class Canvas: MTKView, MTKViewDelegate {
     
     internal var canvasLayers: [Layer]
     internal var currentPath: Element!
+    internal var undoRedoManager: UndoRedoManager
     
     internal var force: CGFloat
     internal var registeredTextures: [String : MTLTexture]
     internal var registeredBrushes: [String : Brush]
+    
     
     
     // ---> Public
@@ -44,7 +46,7 @@ public class Canvas: MTKView, MTKViewDelegate {
     /** The tool that is currently used to add objects to the canvas. */
     public var currentTool: Tool! {
         didSet {
-            self.canvasDelegate?.didChaneTool(to: self.currentTool)
+            self.canvasDelegate?.didChangeTool(to: self.currentTool)
         }
     }
     
@@ -75,7 +77,11 @@ public class Canvas: MTKView, MTKViewDelegate {
     }
     
     /** The index of the current layer. */
-    public var currentLayer: Int
+    public var currentLayer: Int {
+        didSet {
+            canvasDelegate?.didSwitchLayer(from: oldValue, to: self.currentLayer, on: self)
+        }
+    }
     
     /** The delegate for the CanvasEvents protocol. */
     public var canvasDelegate: CanvasEvents?
@@ -144,6 +150,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         self.registeredBrushes = [:]
         self.viewportVertices = []
         self.canvasColor = UIColor.clear
+        self.undoRedoManager = UndoRedoManager()
         
         // Configure the metal view.
         super.init(frame: CGRect.zero, device: MTLCreateSystemDefaultDevice())
@@ -216,6 +223,75 @@ public class Canvas: MTKView, MTKViewDelegate {
         self.canvasDelegate?.didChangeBrush(to: brush)
     }
     
+    /** Allows the user to add custom undo/redo actions to their app. */
+    public func addUndoRedo(onUndo: @escaping () -> Any?, onRedo: @escaping () -> Any?) {
+        undoRedoManager.add(onUndo: onUndo, onRedo: onRedo)
+    }
+    
+    /** Undoes the last action on  the canvas. */
+    public func undo() {
+        let _ = undoRedoManager.performUndo()
+        rebuildBuffer()
+        canvasDelegate?.didUndo(on: self)
+    }
+    
+    /** Redoes the last action on  the canvas. */
+    public func redo() {
+        let _ = undoRedoManager.performRedo()
+        rebuildBuffer()
+        canvasDelegate?.didRedo(on: self)
+    }
+    
+    /** Clears the entire canvas. */
+    public func clear() {
+        var copies = [[Element]]()
+        
+        for i in 0..<canvasLayers.count {
+            copies.append(canvasLayers[i].elements)
+            canvasLayers[i].elements.removeAll()
+        }
+        rebuildBuffer()
+        canvasDelegate?.didClear(canvas: self)
+        
+        // Undo action.
+        undoRedoManager.clearRedos()
+        undoRedoManager.add(onUndo: { () -> Any? in
+            for i in 0..<copies.count {
+                self.canvasLayers[i].elements = copies[i]
+            }
+            self.rebuildBuffer()
+            return nil
+        }) { () -> Any? in
+            for i in 0..<self.canvasLayers.count {
+                copies.append(self.canvasLayers[i].elements)
+                self.canvasLayers[i].elements.removeAll()
+            }
+            return nil
+        }
+    }
+    
+    /** Clears the drawings on the specified layer. */
+    public func clear(layer at: Int) {
+        guard at >= 0 && at < canvasLayers.count else { return }
+        
+        let cpy = canvasLayers[at].elements
+        
+        canvasLayers[at].elements.removeAll()
+        rebuildBuffer()
+        canvasDelegate?.didClear(layer: at, on: self)
+        
+        // Undo action.
+        undoRedoManager.clearRedos()
+        undoRedoManager.add(onUndo: { () -> Any? in
+            self.canvasLayers[at].elements = cpy
+            self.rebuildBuffer()
+            return nil
+        }) { () -> Any? in
+            self.canvasLayers[at].elements.removeAll()
+            self.rebuildBuffer()
+            return nil
+        }
+    }
     
     
     
@@ -244,8 +320,21 @@ public class Canvas: MTKView, MTKViewDelegate {
         // layer, add that finished element to the layer.
         if var copy = currentPath?.copy() {
             if isOnValidLayer() && copy.quads.count > 0 {
+                // Add the newly drawn element to the layer.
                 copy.rebuildBuffer()
                 canvasLayers[currentLayer].add(element: copy)
+                
+                // Add an undo action.
+                undoRedoManager.clearRedos()
+                undoRedoManager.add(onUndo: { () -> Any? in
+                    let index = self.canvasLayers[self.currentLayer].elements.count - 1
+                    self.canvasLayers[self.currentLayer].remove(at: index)
+                    return nil
+                }) { () -> Any? in
+                    copy.rebuildBuffer()
+                    self.canvasLayers[self.currentLayer].add(element: copy)
+                    return nil
+                }
             }
         }
         
@@ -261,7 +350,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         )
     }
     
-    /** Finish the current drawing path and add it to the canvas. Then repaint the view. */
+    /** Finish the current drawing path and add it to the canvas. Then repaint the view. Never needs to be called manually. */
     internal func repaint() {
         // Clear the canvas of whatever was already there.
         mainTexture = makeEmptyTexture(device: device!, width: bounds.width, height: bounds.height)

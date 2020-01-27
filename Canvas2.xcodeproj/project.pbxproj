@@ -25,6 +25,7 @@
 		5A6CA27B237B05930036DF3B /* Canvas+Touch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */; };
 		5A6CA281237B35A20036DF3B /* UITouch+Metal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */; };
 		5A79A86223D805AD00362EE9 /* Paper.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5A79A86123D805AC00362EE9 /* Paper.jpg */; };
+		5A89B55623DE786A0093FB25 /* UndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A89B55523DE786A0093FB25 /* UndoManager.swift */; };
 		5A92EAB623D09C5E00F4A53A /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB523D09C5E00F4A53A /* Tool.swift */; };
 		5A92EAB823D09D0E00F4A53A /* Pencil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB723D09D0E00F4A53A /* Pencil.swift */; };
 		5A92EABA23D0A1A600F4A53A /* Rectangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB923D0A1A600F4A53A /* Rectangle.swift */; };
@@ -60,6 +61,7 @@
 		5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Canvas+Touch.swift"; sourceTree = "<group>"; };
 		5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITouch+Metal.swift"; sourceTree = "<group>"; };
 		5A79A86123D805AC00362EE9 /* Paper.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Paper.jpg; sourceTree = "<group>"; };
+		5A89B55523DE786A0093FB25 /* UndoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UndoManager.swift; sourceTree = "<group>"; };
 		5A92EAB523D09C5E00F4A53A /* Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tool.swift; sourceTree = "<group>"; };
 		5A92EAB723D09D0E00F4A53A /* Pencil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pencil.swift; sourceTree = "<group>"; };
 		5A92EAB923D0A1A600F4A53A /* Rectangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rectangle.swift; sourceTree = "<group>"; };
@@ -124,6 +126,7 @@
 				5A4C9C712374E9EA0019ED83 /* Canvas.swift */,
 				5AACBBBB23D36D8F00ECDA8F /* Layer.swift */,
 				5ABA0BFA23D8A6FD00A6C57C /* Events.swift */,
+				5A89B55523DE786A0093FB25 /* UndoManager.swift */,
 				5A51FC1423CEB7E700467EFC /* Shader.metal */,
 				5A59BFB0237FB56E00D40E11 /* Tools */,
 				5A574DE4237CBADF004E1BE6 /* Shapes */,
@@ -249,6 +252,7 @@
 				5AF77BE123D5406F000444FE /* Element.swift in Sources */,
 				5A59BFB2237FB58000D40E11 /* Brush.swift in Sources */,
 				5ABA0BFB23D8A6FD00A6C57C /* Events.swift in Sources */,
+				5A89B55623DE786A0093FB25 /* UndoManager.swift in Sources */,
 				5AACBBBC23D36D8F00ECDA8F /* Layer.swift in Sources */,
 				5AC96B7923D2D03C00AC5066 /* UIImage+Extensions.swift in Sources */,
 				5A23DAC023D179B40067EF38 /* Eraser.swift in Sources */,

@@ -28,11 +28,13 @@ public extension Canvas {
         if self.canvasLayers.count == 0 {
             self.canvasLayers.append(newLayer)
             self.currentLayer = 0
+            self.canvasDelegate?.didAddLayer(at: 0, to: self)
             return
         }
         
         self.canvasLayers.insert(newLayer, at: index)
         rebuildBuffer()
+        self.canvasDelegate?.didAddLayer(at: index, to: self)
     }
     
     
@@ -48,6 +50,8 @@ public extension Canvas {
         
         // Rebuild the buffer.
         rebuildBuffer()
+        
+        self.canvasDelegate?.didRemoveLayer(at: index, from: self)
     }
     
     
@@ -61,6 +65,8 @@ public extension Canvas {
         canvasLayers.insert(moveLayer, at: destIndex)
         
         rebuildBuffer()
+        
+        self.canvasDelegate?.didMoveLayer(from: startIndex, to: destIndex, on: self)
     }
     
     
