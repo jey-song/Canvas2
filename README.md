@@ -1,5 +1,8 @@
 <img src="./Images/Canvas.png" width='75px' height='75px'></img>
 # Canvas 2
+[![Version](https://img.shields.io/cocoapods/v/NameOfYourProject.svg?style=flat)](https://cocoapods.org/pods/Canvas2)
+[![License](https://img.shields.io/cocoapods/l/NameOfYourProject.svg?style=flat)](https://cocoapods.org/pods/Canvas2)
+[![Platform](https://img.shields.io/cocoapods/p/NameOfYourProject.svg?style=flat)](https://cocoapods.org/pods/Canvas2)
 <b><i>Canvas 2</i></b> is the updated version of my older iOS library, [Canvas](https://github.com/Authman2/Canvas)! While the first version uses mostly built in constructs from Core Graphics, this new version takes full advantage of the Metal 2 API. This means that Canvas can now support a wider range of features and do so more efficiently by taking advantage of the GPU.
 
 ## Features
