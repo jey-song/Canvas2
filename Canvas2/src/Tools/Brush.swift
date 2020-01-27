@@ -64,7 +64,6 @@ public struct Brush {
         guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
         guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
         self.pipeline = buildRenderPipeline(device: device, vertProg: vertProg, fragProg: fragProg)
-        print("Created brush specific pipeline for brush: \(name).")
     }
     
     /** Makes a copy of this brush. */

@@ -48,20 +48,17 @@ public struct Pencil: Tool {
     
     public func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard let canvas = self.canvas else { return false }
-        guard canvas.currentPath != nil else { print("No current path"); return false }
+        guard canvas.currentPath != nil else { return false }
         guard canvas.isOnValidLayer() else { return false }
         
         // All important touches for apple pencil.
         guard let coalesced = event?.coalescedTouches(for: firstTouch) else { return false }
-        guard let predicted = event?.predictedTouches(for: firstTouch) else { return false }
         
         // Get the force from the user input.
         canvas.setForce(value: firstTouch.force)
         
         // NOTE: Run the following code for all of the touches.
-        var total = coalesced
-        total.append(contentsOf: predicted)
-        for touch in total {
+        for touch in coalesced {
             let point = touch.metalLocation(in: canvas)
             canvas.currentPath!.endPencil(at: point)
         }

@@ -44,7 +44,7 @@ public struct Ellipse: Tool {
     
     public func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard let canvas = self.canvas else { return false }
-        guard canvas.currentPath != nil else { print("No current path"); return false }
+        guard canvas.currentPath != nil else { return false }
         guard canvas.isOnValidLayer() else { return false }
         
         let point = firstTouch.metalLocation(in: canvas)

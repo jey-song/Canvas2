@@ -42,17 +42,14 @@ public struct Eraser: Tool {
     
     public func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard let canvas = self.canvas else { return false }
-        guard canvas.currentPath != nil else { print("No current path"); return false }
+        guard canvas.currentPath != nil else { return false }
         guard canvas.isOnValidLayer() else { return false }
         if canvas.canvasLayers[canvas.currentLayer].isLocked == true { return false }
         
         // All touches for apple pencil.
         guard let coalesced = event?.coalescedTouches(for: firstTouch) else { return false }
-        guard let predicted = event?.predictedTouches(for: firstTouch) else { return false }
-        var total = coalesced
-        total.append(contentsOf: predicted)
         
-        guard let t = total.first else { return false }
+        guard let t = coalesced.first else { return false }
         let point = t.metalLocation(in: canvas)
         
         // Get the force from the user input.

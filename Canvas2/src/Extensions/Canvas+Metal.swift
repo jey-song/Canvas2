@@ -11,7 +11,7 @@ import Metal
 import MetalKit
 
 /** Builds a render pipeline. */
-internal func buildRenderPipeline(device: MTLDevice, vertProg: MTLFunction, fragProg: MTLFunction) -> MTLRenderPipelineState {
+internal func buildRenderPipeline(device: MTLDevice?, vertProg: MTLFunction?, fragProg: MTLFunction?) -> MTLRenderPipelineState? {
     // Make a descriptor for the pipeline.
     let descriptor = MTLRenderPipelineDescriptor()
     descriptor.vertexFunction = vertProg
@@ -25,13 +25,13 @@ internal func buildRenderPipeline(device: MTLDevice, vertProg: MTLFunction, frag
     descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
     descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
     
-    let state = try! device.makeRenderPipelineState(descriptor: descriptor)
+    let state = try! device?.makeRenderPipelineState(descriptor: descriptor)
     return state
 }
 
 
 /** Builds a sample descriptor for the fragment function. */
-internal func buildSampleState(device: MTLDevice) -> MTLSamplerState? {
+internal func buildSampleState(device: MTLDevice?) -> MTLSamplerState? {
     let sd = MTLSamplerDescriptor()
     sd.magFilter = .linear
     sd.minFilter = .nearest
@@ -39,7 +39,7 @@ internal func buildSampleState(device: MTLDevice) -> MTLSamplerState? {
     sd.rAddressMode = .mirrorRepeat
     sd.sAddressMode = .mirrorRepeat
     sd.tAddressMode = .mirrorRepeat
-    guard let sampleState = device.makeSamplerState(descriptor: sd) else {
+    guard let sampleState = device?.makeSamplerState(descriptor: sd) else {
         return nil
     }
     return sampleState
@@ -47,7 +47,7 @@ internal func buildSampleState(device: MTLDevice) -> MTLSamplerState? {
 
 
 /** Creates an empty texture. */
-internal func makeEmptyTexture(device: MTLDevice, width: CGFloat, height: CGFloat, format: MTLPixelFormat = .bgra8Unorm) -> MTLTexture? {
+internal func makeEmptyTexture(device: MTLDevice?, width: CGFloat, height: CGFloat, format: MTLPixelFormat = .bgra8Unorm) -> MTLTexture? {
     guard width * height > 0 else { return nil }
     let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
         pixelFormat: format,
@@ -56,5 +56,5 @@ internal func makeEmptyTexture(device: MTLDevice, width: CGFloat, height: CGFloa
         mipmapped: false
     )
     textureDescriptor.usage = [.renderTarget, .shaderRead]
-    return device.makeTexture(descriptor: textureDescriptor)
+    return device?.makeTexture(descriptor: textureDescriptor)
 }

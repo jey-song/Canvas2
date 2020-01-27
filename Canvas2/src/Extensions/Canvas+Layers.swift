@@ -20,6 +20,16 @@ public extension Canvas {
         return true
     }
     
+    /** Switches to a different drawing layer. */
+    func switchLayer(to index: Int) {
+        guard index >= 0 && index < canvasLayers.count else { return }
+        
+        let old = self.currentLayer
+        self.currentLayer = index
+        canvasDelegate?.didSwitchLayer(from: old, to: index, on: self)
+    }
+    
+    
     /** Adds a layer to the canvas. */
     func addLayer(at index: Int) {
         // Adding a layer does not require a rebuild of the buffer

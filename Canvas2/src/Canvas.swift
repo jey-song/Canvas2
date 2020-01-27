@@ -41,7 +41,7 @@ public class Canvas: MTKView, MTKViewDelegate {
     // ---> Public
     
     /** The brush that determines the styling of the next curve drawn on the canvas. */
-    public internal(set) var currentBrush: Brush!
+    public var currentBrush: Brush!
     
     /** The tool that is currently used to add objects to the canvas. */
     public var currentTool: Tool! {
@@ -77,11 +77,7 @@ public class Canvas: MTKView, MTKViewDelegate {
     }
     
     /** The index of the current layer. */
-    public var currentLayer: Int {
-        didSet {
-            canvasDelegate?.didSwitchLayer(from: oldValue, to: self.currentLayer, on: self)
-        }
-    }
+    public internal(set) var currentLayer: Int
     
     /** The delegate for the CanvasEvents protocol. */
     public var canvasDelegate: CanvasEvents?
@@ -92,43 +88,45 @@ public class Canvas: MTKView, MTKViewDelegate {
     // --> Static/Computed
     
     /** A very basic pencil tool for freehand drawing. */
-    lazy var pencilTool: Pencil = {
+    lazy internal var pencilTool: Pencil = {
         return Pencil(canvas: self)
     }()
     
     /** A basic tool for creating perfect rectangles. */
-    lazy var rectangleTool: Rectangle = {
+    lazy internal var rectangleTool: Rectangle = {
         return Rectangle(canvas: self)
     }()
     
     /** A basic line tool for drawing straight lines. */
-    lazy var lineTool: Line = {
+    lazy internal var lineTool: Line = {
         return Line(canvas: self)
     }()
     
     /** A basic circle tool for drawing straight lines. */
-    lazy var ellipseTool: Ellipse = {
+    lazy internal var ellipseTool: Ellipse = {
         return Ellipse(canvas: self)
     }()
     
     /** A simple eraser. */
-    lazy var eraserTool: Eraser = {
+    lazy internal var eraserTool: Eraser = {
         return Eraser(canvas: self)
     }()
     
     
     // ---> Overrides
     
-    public override var bounds: CGRect {
+    public override var frame: CGRect {
         didSet {
+            if device == nil { return }
+            
             // Basically, every time you change the view size, clear the canvas using the
             // viewport vertices, which is the a clear color screen.
-            mainTexture = makeEmptyTexture(device: self.device!, width: bounds.width, height: bounds.height)
+            mainTexture = makeEmptyTexture(device: self.device, width: frame.width, height: frame.height)
             self.viewportVertices = [
                 Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor),
-                Vertex(position: CGPoint(x: bounds.width, y: 0), color: canvasColor),
-                Vertex(position: CGPoint(x: 0, y: bounds.height), color: canvasColor),
-                Vertex(position: CGPoint(x: bounds.width, y: bounds.height), color: canvasColor)
+                Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor),
+                Vertex(position: CGPoint(x: 0, y: frame.height), color: canvasColor),
+                Vertex(position: CGPoint(x: frame.width, y: frame.height), color: canvasColor)
             ]
             repaint()
         }
@@ -139,7 +137,7 @@ public class Canvas: MTKView, MTKViewDelegate {
     
     // MARK: Initialization
     
-    public init() {
+    public init(frame: CGRect = CGRect.zero) {
         self.forceEnabled = true
         self.stylusOnly = false
         self.force = 1.0
@@ -153,7 +151,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         self.undoRedoManager = UndoRedoManager()
         
         // Configure the metal view.
-        super.init(frame: CGRect.zero, device: MTLCreateSystemDefaultDevice())
+        super.init(frame: frame, device: MTLCreateSystemDefaultDevice())
         self.colorPixelFormat = CANVAS_PIXEL_FORMAT
         self.framebufferOnly = false
         self.clearColor = self.canvasColor.metalClearColor
@@ -162,15 +160,14 @@ public class Canvas: MTKView, MTKViewDelegate {
         (self.layer as? CAMetalLayer)?.isOpaque = false
         
         // Configure the pipeline.
-        guard let device = device else { return }
-        guard let lib = device.makeDefaultLibrary() else { return }
-        guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
-        guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
+        let lib = device?.makeDefaultLibrary()
+        let vertProg = lib?.makeFunction(name: "main_vertex")
+        let fragProg = lib?.makeFunction(name: "textured_fragment")
         
-        self.commandQueue = device.makeCommandQueue()
+        self.textureLoader = MTKTextureLoader(device: device!)
+        self.commandQueue = device?.makeCommandQueue()
         self.sampleState = buildSampleState(device: device)
         self.pipeline = buildRenderPipeline(device: device, vertProg: vertProg, fragProg: fragProg)
-        self.textureLoader = MTKTextureLoader(device: device)
         self.currentBrush = Brush(canvas: self, name: "defaultBrush", size: 10, color: .black) // Default brush
         self.currentTool = self.pencilTool // Default tool
         self.currentPath = Element(quads: [], canvas: self) // Used for drawing temporary paths
@@ -361,13 +358,13 @@ public class Canvas: MTKView, MTKViewDelegate {
     /** Finish the current drawing path and add it to the canvas. Then repaint the view. Never needs to be called manually. */
     internal func repaint() {
         // Clear the canvas of whatever was already there.
-        mainTexture = makeEmptyTexture(device: device!, width: bounds.width, height: bounds.height)
+        mainTexture = makeEmptyTexture(device: device, width: frame.width, height: frame.height)
         
         // Recompute the main buffer.
-        guard let drawable = currentDrawable else { print("no drawable"); return }
-        guard let rpd = self.currentRenderPassDescriptor else { print("no descriptor"); return }
-        guard let commandBuffer = commandQueue.makeCommandBuffer() else { print("no command buffer"); return }
-        guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { print("no encoder"); return }
+        guard let drawable = currentDrawable else { return }
+        guard let rpd = self.currentRenderPassDescriptor else { return }
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
+        guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { return }
 
         // Send the commands to the encoder and redraw the canvas.
         if let buff = mainBuffer {
