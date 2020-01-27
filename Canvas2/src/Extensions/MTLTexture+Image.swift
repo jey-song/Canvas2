@@ -23,17 +23,17 @@ public extension MTLTexture {
     
     
     /** Returns a CGImage from a texture. */
-    func toCGImage() -> CGImage? {
+    func toCGImage(size: CGSize? = nil) -> CGImage? {
         guard let ciimage = toCIImage() else { return nil }
         let context = CIContext()
-        let rect = CGRect(origin: .zero, size: ciimage.extent.size)
+        let rect = CGRect(origin: .zero, size: size ?? ciimage.extent.size)
         return context.createCGImage(ciimage, from: rect)
     }
     
     
     /** Returns a UIImage from this textrue. */
-    func toUIImage() -> UIImage? {
-        guard let cgimage = toCGImage() else { return nil }
+    func toUIImage(size: CGSize? = nil) -> UIImage? {
+        guard let cgimage = toCGImage(size: size) else { return nil }
         return UIImage(cgImage: cgimage)
     }
     

@@ -293,6 +293,14 @@ public class Canvas: MTKView, MTKViewDelegate {
         }
     }
     
+    /** Exports the canvas as a UIImage. */
+    public func export() -> UIImage? {
+        guard let drawable = currentDrawable else { return nil }
+        guard let cg = drawable.texture.toCGImage2() else { return nil }
+        let image = UIImage(cgImage: cg)
+        return image
+    }
+    
     
     
     // ---> Internal

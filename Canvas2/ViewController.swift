@@ -246,13 +246,13 @@ class ViewController: UIViewController, CanvasEvents {
         return a
     }()
     
-    let clearButton: UIButton = {
+    let exportButton: UIButton = {
         let a = UIButton(type: UIButton.ButtonType.custom)
         a.translatesAutoresizingMaskIntoConstraints = false
-        a.setTitle("Clear", for: .normal)
+        a.setTitle("Export", for: .normal)
         a.setTitleColor(.black, for: .normal)
         a.setTitleColor(.darkGray, for: .highlighted)
-        a.addTarget(self, action: #selector(clear), for: .touchUpInside)
+        a.addTarget(self, action: #selector(export), for: .touchUpInside)
         a.backgroundColor = .gray
         a.layer.cornerRadius = 8
         a.layer.shadowColor = UIColor.black.cgColor
@@ -285,7 +285,7 @@ class ViewController: UIViewController, CanvasEvents {
         self.view.addSubview(toggleHideButton)
         self.view.addSubview(undoButton)
         self.view.addSubview(redoButton)
-        self.view.addSubview(clearButton)
+        self.view.addSubview(exportButton)
         
         canvas.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         canvas.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -352,10 +352,10 @@ class ViewController: UIViewController, CanvasEvents {
         redoButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
         redoButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        clearButton.topAnchor.constraint(equalTo: removeLayerButton.bottomAnchor, constant: 10).isActive = true
-        clearButton.leadingAnchor.constraint(equalTo: redoButton.trailingAnchor, constant: 10).isActive = true
-        clearButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        clearButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        exportButton.topAnchor.constraint(equalTo: removeLayerButton.bottomAnchor, constant: 10).isActive = true
+        exportButton.leadingAnchor.constraint(equalTo: redoButton.trailingAnchor, constant: 10).isActive = true
+        exportButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        exportButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 
     func setupCanvas() {
@@ -484,8 +484,10 @@ class ViewController: UIViewController, CanvasEvents {
         canvas.redo()
     }
     
-    @objc func clear() {
-        canvas.clear()
+    @objc func export() {
+//        canvas.clear()
+        guard let img = canvas.export() else { return }
+        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
     }
     
     
@@ -543,12 +545,7 @@ class ViewController: UIViewController, CanvasEvents {
     }
     
     func didSwitchLayer(from oldLayer: Int, to newLayer: Int, on canvas: Canvas) {
-        canvas.undoRedoManager.clearRedos()
-        canvas.addUndoRedo(onUndo: {
-            canvas.currentLayer = oldLayer
-        }, onRedo: {
-            canvas.currentLayer = newLayer
-        })
+        
     }
 }
 
