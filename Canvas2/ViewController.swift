@@ -31,8 +31,8 @@ class ViewController: UIViewController, CanvasEvents {
     var currentBrush: Int = 0
     
     lazy var canvas: Canvas = {
-        let a = Canvas(frame: CGRect(x: 0, y: 0, width: 500, height: 500))
-//        a.translatesAutoresizingMaskIntoConstraints = false
+        let a = Canvas()
+        a.translatesAutoresizingMaskIntoConstraints = false
         a.forceEnabled = UIDevice.isSimulator() ? false : true
         a.stylusOnly = UIDevice.isSimulator() ? false : true
         a.currentBrush.size = 20
@@ -287,10 +287,10 @@ class ViewController: UIViewController, CanvasEvents {
         self.view.addSubview(redoButton)
         self.view.addSubview(exportButton)
         
-//        canvas.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-//        canvas.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-//        canvas.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-//        canvas.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.7).isActive = true
+        canvas.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        canvas.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        canvas.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        canvas.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.7).isActive = true
         
         toolButton.topAnchor.constraint(equalTo: canvas.bottomAnchor, constant: 10).isActive = true
         toolButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
@@ -391,6 +391,25 @@ class ViewController: UIViewController, CanvasEvents {
         
         // Set the current brush.
         canvas.changeBrush(to: "basicPencil")
+        
+        // Gestures.
+        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(zoom))
+        canvas.addGestureRecognizer(pinch)
+    }
+    
+    @objc func zoom(gesture: UIPinchGestureRecognizer) {
+        let anchor = CGPoint(x: view.frame.width / canvas.frame.width, y: view.frame.height / canvas.frame.height)
+
+        let initialScale = self.canvas.contentScaleFactor
+        let totalScale = min(max(gesture.scale * initialScale, 0.125), 8)
+        let scaling = totalScale/initialScale
+
+        var transform = CGAffineTransform(translationX: anchor.x, y: anchor.y)
+        transform = transform.scaledBy(x: scaling, y: scaling)
+        transform = transform.translatedBy(x: -anchor.x, y: -anchor.y)
+
+        self.canvas.transform = self.canvas.transform.concatenating(transform)
+        gesture.scale = 1
     }
 
     

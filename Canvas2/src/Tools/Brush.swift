@@ -37,7 +37,14 @@ public struct Brush {
     
     // MARK: Initialization
     
-    init(canvas: Canvas, name: String, size: CGFloat, color: UIColor = UIColor.black, opacity: CGFloat = 1.0, isEraser: Bool = false) {
+    public init(
+        canvas: Canvas,
+        name: String,
+        size: CGFloat = 10.0,
+        color: UIColor = UIColor.black,
+        opacity: CGFloat = 1.0,
+        isEraser: Bool = false
+    ) {
         self.canvas = canvas
         self.name = name
         self.size = size

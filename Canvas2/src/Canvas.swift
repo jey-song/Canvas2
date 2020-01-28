@@ -164,6 +164,10 @@ public class Canvas: MTKView, MTKViewDelegate {
         let vertProg = lib?.makeFunction(name: "main_vertex")
         let fragProg = lib?.makeFunction(name: "textured_fragment")
         
+        if vertProg == nil || fragProg == nil {
+            print("--> Canvas2 Error: Issue finding either vertex function or fragment function. You may need to specify your own .metal file to begin drawing on the Canvas.")
+        }
+        
         self.textureLoader = MTKTextureLoader(device: device!)
         self.commandQueue = device?.makeCommandQueue()
         self.sampleState = buildSampleState(device: device)
@@ -171,6 +175,12 @@ public class Canvas: MTKView, MTKViewDelegate {
         self.currentBrush = Brush(canvas: self, name: "defaultBrush", size: 10, color: .black) // Default brush
         self.currentTool = self.pencilTool // Default tool
         self.currentPath = Element(quads: [], canvas: self) // Used for drawing temporary paths
+        self.viewportVertices = [
+            Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor),
+            Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor),
+            Vertex(position: CGPoint(x: 0, y: frame.height), color: canvasColor),
+            Vertex(position: CGPoint(x: frame.width, y: frame.height), color: canvasColor)
+        ]
     }
     
     required init(coder: NSCoder) {
@@ -362,14 +372,24 @@ public class Canvas: MTKView, MTKViewDelegate {
         
         // Recompute the main buffer.
         guard let drawable = currentDrawable else { return }
-        guard let rpd = self.currentRenderPassDescriptor else { return }
+        guard let rpd = currentRenderPassDescriptor else { return }
         guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
         guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { return }
 
         // Send the commands to the encoder and redraw the canvas.
         if let buff = mainBuffer {
             let vertCount = buff.length / MemoryLayout<Vertex>.stride
+//            let viewport = MTLViewport(
+//                originX: 0,
+//                originY: 0,
+//                width: Double(drawableSize.width),
+//                height: Double(drawableSize.height),
+//                znear: 1.0,
+//                zfar: 1.0
+//            )
             encoder.setRenderPipelineState(pipeline)
+//            encoder.setViewport(viewport)
+            
             encoder.setVertexBuffer(buff, offset: 0, index: 0)
             encoder.setFragmentTexture(mainTexture, index: 0)
             encoder.setFragmentSamplerState(sampleState, index: 0)
@@ -389,8 +409,9 @@ public class Canvas: MTKView, MTKViewDelegate {
         commandBuffer.commit()
     }
     
-    /** Updates the drawable on the canvas's underlying MTKView. */
-    public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
+    public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        
+    }
     
     public func draw(in view: MTKView) {
         autoreleasepool {
