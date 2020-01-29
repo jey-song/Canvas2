@@ -12,7 +12,7 @@ import MetalKit
 
 
 /** A layer on the canvas. */
-public class Layer: Codable {
+public struct Layer: Codable {
     
     // MARK: Variables
     
@@ -37,7 +37,7 @@ public class Layer: Codable {
         self.isHidden = false
     }
     
-    public required init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try? decoder.container(keyedBy: LayerCodingKeys.self)
         
         self.elements = try container?.decodeIfPresent([Element].self, forKey: .elements) ?? []
@@ -45,26 +45,23 @@ public class Layer: Codable {
         self.isHidden = try container?.decodeIfPresent(Bool.self, forKey: .isHidden) ?? false
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     
     // MARK: Functions
     
     /** Makes sure that this layer understands that a new element was added on it. */
-    internal func add(element: Element) {
+    internal mutating func add(element: Element) {
         self.elements.append(element)
     }
     
     /** Removes an element from this layer. */
-    internal func remove(at: Int) {
+    internal mutating func remove(at: Int) {
         guard at >= 0 && at < elements.count else { return }
         elements.remove(at: at)
     }
     
     /** Erases points from this layer by making them transparent. */
-    internal func eraseVertices(point: CGPoint) {
+    internal mutating func eraseVertices(point: CGPoint) {
         guard let canvas = self.canvas else { return }
         let size = (((canvas.currentBrush.size / 100) * 4) / 2) / 50
         let opacity = canvas.currentBrush!.opacity * canvas.force
@@ -99,8 +96,9 @@ public class Layer: Codable {
     
     // MARK: Rendering
     
-    internal func render(index: Int, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
-        guard let canvas = self.canvas else { return }
+    internal mutating func render(index: Int, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
+        guard let canvas = self.canvas else { print("no canvas"); return }
+        
         for var element in elements {
             element.render(canvas: canvas, buffer: buffer, encoder: encoder)
         }
@@ -108,7 +106,7 @@ public class Layer: Codable {
         // Whatever is current being drawn on the screen, display it immediately.
         if canvas.currentLayer == index {
             if var cp = canvas.currentPath {
-                if cp.quads.count > 0 && canvas.canvasLayers[canvas.currentLayer].isLocked == false {
+                if cp.quads.count > 0 && isLocked == false {
                     cp.rebuildBuffer()
                     cp.render(canvas: canvas, buffer: buffer, encoder: encoder)
                 }

@@ -152,9 +152,9 @@ public struct Element: Codable {
     
     /** Rebuilds the buffer. */
     internal mutating func rebuildBuffer() {
-        guard let canvas = canvas else { print("no canvas to make buffer"); return }
+        guard let canvas = canvas else { return }
         let vertices = quads.flatMap { $0.vertices }
-        guard vertices.count > 0 else { print("no verts to make buffer"); return }
+        guard vertices.count > 0 else { return }
         buffer = canvas.device!.makeBuffer(
             bytes: vertices,
             length: vertices.count * MemoryLayout<Vertex>.stride,
@@ -165,7 +165,7 @@ public struct Element: Codable {
     /** Renders the element to the screen. */
     internal mutating func render(canvas: Canvas, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
         guard quads.count > 0 else { return }
-        guard let vBuff = self.buffer else { print("still no buffer"); return }
+        guard let vBuff = self.buffer else { return }
         guard let brush = canvas.getBrush(withName: self.brushName) else { return }
         
         // Set the properties on the encoder for this element and the brush it uses specifically.

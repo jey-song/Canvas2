@@ -10,6 +10,16 @@ import Foundation
 import Metal
 import MetalKit
 
+
+/* Returns the library to use for this project. */
+internal func getLibrary(device: MTLDevice?) -> MTLLibrary? {
+    let framework = Bundle(for: Canvas.self)
+    guard let resource = framework.path(forResource: "default", ofType: "metallib") else {
+        return nil
+    }
+    return try? device?.makeLibrary(filepath: resource)
+}
+
 /** Builds a render pipeline. */
 internal func buildRenderPipeline(device: MTLDevice?, vertProg: MTLFunction?, fragProg: MTLFunction?) -> MTLRenderPipelineState? {
     // Make a descriptor for the pipeline.

@@ -160,7 +160,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         (self.layer as? CAMetalLayer)?.isOpaque = false
         
         // Configure the pipeline.
-        let lib = device?.makeDefaultLibrary()
+        let lib = getLibrary(device: device)
         let vertProg = lib?.makeFunction(name: "main_vertex")
         let fragProg = lib?.makeFunction(name: "textured_fragment")
         
@@ -354,9 +354,14 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     /** Loads layer data onto the canvas, then reloads the canvas. */
     public func load(from layersData: Data) -> Bool {
-        guard let layers = try? JSONDecoder().decode([Layer].self, from: layersData) else {
+        guard var layers = try? JSONDecoder().decode([Layer].self, from: layersData) else {
             return false
         }
+        
+        canvasLayers.removeAll()
+        currentLayer = 0
+        mainTexture = nil
+        mainBuffer = nil
         
         // Make sure all canvas references are set.
         for i in 0..<layers.count {
@@ -372,6 +377,33 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         undoRedoManager.clearUndos()
         undoRedoManager.clearRedos()
         rebuildBuffer()
+        setNeedsDisplay()
+        return true
+    }
+    
+    /** Sets the layers based on whatever you pass in.. */
+    public func load(layers: [Layer]) -> Bool {
+        canvasLayers.removeAll()
+        currentLayer = 0
+        mainTexture = nil
+        mainBuffer = nil
+        
+        // Make sure all canvas references are set.
+        var copy = layers
+        for i in 0..<copy.count {
+            copy[i].canvas = self
+            for j in 0..<copy[i].elements.count {
+                copy[i].elements[j].canvas = self
+                copy[i].elements[j].rebuildBuffer()
+            }
+        }
+        
+        canvasLayers = copy
+        currentLayer = copy.count > 0 ? 0 : -1
+        undoRedoManager.clearUndos()
+        undoRedoManager.clearRedos()
+        rebuildBuffer()
+        setNeedsDisplay()
         return true
     }
     

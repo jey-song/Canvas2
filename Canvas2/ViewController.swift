@@ -498,25 +498,12 @@ class ViewController: UIViewController, CanvasEvents {
     }
     
     @objc func redo() {
-//        canvas.redo()
-        
-        let _ = self.canvas.load(from: loaded)
-        print("Reloaded and repainted from data")
+        canvas.redo()
     }
     
-    
-    var loaded: Data!
     @objc func export() {
-//        guard let img = canvas.export() else { return }
-//        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
-    
-        guard let data = self.canvas.exportLayers() else { return }
-        print("Finished encoding the data")
-        
-        let _ = try! JSONDecoder().decode([Layer].self, from: data)
-        print("Finished decoding the data")
-        
-        loaded = data
+        guard let img = canvas.export() else { return }
+        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
     }
     
     

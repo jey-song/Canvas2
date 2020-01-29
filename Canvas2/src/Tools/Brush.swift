@@ -76,7 +76,7 @@ public struct Brush: Codable {
     /** Sets up the pipeline for this brush. */
     internal mutating func setupPipeline() {
         guard let device = canvas?.device else { return }
-        guard let lib = device.makeDefaultLibrary() else { return }
+        guard let lib = getLibrary(device: device) else { return }
         guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
         guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
         self.pipeline = buildRenderPipeline(device: device, vertProg: vertProg, fragProg: fragProg)
