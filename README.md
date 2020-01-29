@@ -16,7 +16,8 @@
 - **Textures**: Each brush supports a texture property so that you can customize your paint strokes based on your choice of image.
 - **Events**: Keep track of when certain actions occur on the canvas by implementing the CanvasEvents protocol.
 - **Undo/Redo/Clear**: Add custom undo and redo actions, and clear the canvas as well as specific layers.
-- **Export**: Export your canvas to a UIImage.
+- **Export**: Export your canvas/layers to a UIImage or to Data.
+- **Codable**: Canvas implements the Codable protocol, which makes saving and loading your canvas data easy.
 
 ## In Progress
 - **Selection/Eyedropper/Fill**: Tools to move elements around the canvas, pick colors from a given pixel, and fill a particular area with color.

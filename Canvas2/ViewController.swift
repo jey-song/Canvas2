@@ -376,13 +376,10 @@ class ViewController: UIViewController, CanvasEvents {
         }
         
         // Load a brush.
-        var basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", size: 20, color: .black)
-        var basicInk: Brush = Brush(canvas: canvas, name: "basicInk", size: 20, color: .black)
-        var basicBrush: Brush = Brush(canvas: canvas, name: "basicBrush", size: 30, color: .black)
+        let basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", size: 20, color: .black, textureName: "pencilTexture")
+        let basicInk: Brush = Brush(canvas: canvas, name: "basicInk", size: 20, color: .black, textureName: "inkTexture")
+        let basicBrush: Brush = Brush(canvas: canvas, name: "basicBrush", size: 30, color: .black, textureName: "paperTexture")
         let basicPencilEraser: Brush = Brush(canvas: canvas, name: "basicPencilEraser", size: 20, opacity: 0.5, isEraser: true)
-        basicPencil.setTexture(name: "pencilTexture")
-        basicInk.setTexture(name: "inkTexture")
-        basicBrush.setTexture(name: "paperTexture")
         canvas.addBrush(basicPencil)
         canvas.addBrush(basicInk)
         canvas.addBrush(basicBrush)
@@ -501,13 +498,25 @@ class ViewController: UIViewController, CanvasEvents {
     }
     
     @objc func redo() {
-        canvas.redo()
+//        canvas.redo()
+        
+        let _ = self.canvas.load(from: loaded)
+        print("Reloaded and repainted from data")
     }
     
+    
+    var loaded: Data!
     @objc func export() {
-//        canvas.clear()
-        guard let img = canvas.export() else { return }
-        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
+//        guard let img = canvas.export() else { return }
+//        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
+    
+        guard let data = self.canvas.exportLayers() else { return }
+        print("Finished encoding the data")
+        
+        let _ = try! JSONDecoder().decode([Layer].self, from: data)
+        print("Finished decoding the data")
+        
+        loaded = data
     }
     
     

@@ -28,6 +28,11 @@ public struct Eraser: Tool {
         self.name = "eraser"
     }
     
+    public init(from decoder: Decoder) throws {
+        let container = try? decoder.container(keyedBy: ToolCodingKeys.self)
+        name = try container?.decodeIfPresent(String.self, forKey: .name) ?? "eraser"
+    }
+    
     
     // MARK: Functions
     
@@ -82,5 +87,14 @@ public struct Eraser: Tool {
         canvas.currentPath?.closePath()
         return true
     }
+    
+    
+    // MARK: Codable
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: ToolCodingKeys.self)
+        try container.encode(name, forKey: .name)
+    }
+    
     
 }

@@ -27,6 +27,12 @@ public struct Pencil: Tool {
         self.name = "pencil"
     }
     
+    public init(from decoder: Decoder) throws {
+        let container = try? decoder.container(keyedBy: ToolCodingKeys.self)
+        name = try container?.decodeIfPresent(String.self, forKey: .name) ?? "pencil"
+    }
+    
+    
     
     // MARK: Functions
     
@@ -83,6 +89,14 @@ public struct Pencil: Tool {
         canvas.rebuildBuffer()
         canvas.currentPath?.closePath()
         return true
+    }
+    
+    
+    // MARK: Codable
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: ToolCodingKeys.self)
+        try container.encode(name, forKey: .name)
     }
     
 }

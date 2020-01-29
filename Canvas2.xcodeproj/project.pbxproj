@@ -25,6 +25,7 @@
 		5A6CA27B237B05930036DF3B /* Canvas+Touch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */; };
 		5A6CA281237B35A20036DF3B /* UITouch+Metal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */; };
 		5A79A86223D805AD00362EE9 /* Paper.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5A79A86123D805AC00362EE9 /* Paper.jpg */; };
+		5A87153223E11B5300A07C29 /* CodingKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A87153123E11B5300A07C29 /* CodingKeys.swift */; };
 		5A89B55623DE786A0093FB25 /* UndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A89B55523DE786A0093FB25 /* UndoManager.swift */; };
 		5A92EAB623D09C5E00F4A53A /* Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB523D09C5E00F4A53A /* Tool.swift */; };
 		5A92EAB823D09D0E00F4A53A /* Pencil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A92EAB723D09D0E00F4A53A /* Pencil.swift */; };
@@ -61,6 +62,7 @@
 		5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Canvas+Touch.swift"; sourceTree = "<group>"; };
 		5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITouch+Metal.swift"; sourceTree = "<group>"; };
 		5A79A86123D805AC00362EE9 /* Paper.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Paper.jpg; sourceTree = "<group>"; };
+		5A87153123E11B5300A07C29 /* CodingKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodingKeys.swift; sourceTree = "<group>"; };
 		5A89B55523DE786A0093FB25 /* UndoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UndoManager.swift; sourceTree = "<group>"; };
 		5A92EAB523D09C5E00F4A53A /* Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tool.swift; sourceTree = "<group>"; };
 		5A92EAB723D09D0E00F4A53A /* Pencil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pencil.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 				5AACBBBB23D36D8F00ECDA8F /* Layer.swift */,
 				5ABA0BFA23D8A6FD00A6C57C /* Events.swift */,
 				5A89B55523DE786A0093FB25 /* UndoManager.swift */,
+				5A87153123E11B5300A07C29 /* CodingKeys.swift */,
 				5A51FC1423CEB7E700467EFC /* Shader.metal */,
 				5A59BFB0237FB56E00D40E11 /* Tools */,
 				5A574DE4237CBADF004E1BE6 /* Shapes */,
@@ -258,6 +261,7 @@
 				5A23DAC023D179B40067EF38 /* Eraser.swift in Sources */,
 				5A6CA279237B030C0036DF3B /* UIColor+RGB.swift in Sources */,
 				5A51FC1B23CEC5D700467EFC /* Quad.swift in Sources */,
+				5A87153223E11B5300A07C29 /* CodingKeys.swift in Sources */,
 				5A4C9C612374E88C0019ED83 /* ViewController.swift in Sources */,
 				5A51FC1923CEC49600467EFC /* Vertex.swift in Sources */,
 				5A66C58323D4004200F469DF /* Canvas+Metal.swift in Sources */,

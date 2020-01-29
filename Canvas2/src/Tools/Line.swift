@@ -28,6 +28,11 @@ public struct Line: Tool {
         self.name = "line"
     }
     
+    public init(from decoder: Decoder) throws {
+        let container = try? decoder.container(keyedBy: ToolCodingKeys.self)
+        name = try container?.decodeIfPresent(String.self, forKey: .name) ?? "line"
+    }
+    
     
     // MARK: Functions
     
@@ -71,5 +76,13 @@ public struct Line: Tool {
         canvas.currentPath?.closePath()
         return true
     }
+    
+    // MARK: Codable
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: ToolCodingKeys.self)
+        try container.encode(name, forKey: .name)
+    }
+    
     
 }

@@ -68,6 +68,11 @@ public class UndoRedoManager {
         return val
     }
     
+    /** Clears the undos. */
+    public func clearUndos() {
+        undos.removeAll()
+    }
+    
     /** Clears the redos. */
     public func clearRedos() {
         redos.removeAll()

@@ -28,6 +28,11 @@ public struct Ellipse: Tool {
         self.name = "ellipse"
     }
     
+    public init(from decoder: Decoder) throws {
+        let container = try? decoder.container(keyedBy: ToolCodingKeys.self)
+        name = try container?.decodeIfPresent(String.self, forKey: .name) ?? "ellipse"
+    }
+    
     
     // MARK: Functions
     
@@ -71,5 +76,13 @@ public struct Ellipse: Tool {
         canvas.currentPath?.closePath()
         return true
     }
+    
+    // MARK: Codable
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: ToolCodingKeys.self)
+        try container.encode(name, forKey: .name)
+    }
+    
     
 }

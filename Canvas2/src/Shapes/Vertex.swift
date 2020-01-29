@@ -11,10 +11,9 @@ import Metal
 import MetalKit
 import simd
 
-var z: Float = 0
 /** Data structure that goes directly to the shader functions. Do not change the order of the variables without
  also changing the order int he Shader.metal file. */
-struct Vertex {
+struct Vertex: Codable {
     
     // MARK: Variables (IMPORTANT: DO NOT change the order of these variables)
     
@@ -42,5 +41,31 @@ struct Vertex {
         self.texture = texture ?? SIMD2<Float>(x: -1, y: -1)
         self.erase = Float(0.0)
     }
+    
+    
+    // MARK: Codable
+    
+    public init(from decoder: Decoder) throws {
+        let container = try? decoder.container(keyedBy: VertexCodingKeys.self)
+        
+        self.position = try container?.decodeIfPresent(SIMD4<Float>.self, forKey: .position) ?? SIMD4<Float>(x: 0, y: 0, z: 0, w: 0)
+        self.color = try container?.decodeIfPresent(SIMD4<Float>.self, forKey: .color) ?? SIMD4<Float>(x: 0, y: 0, z: 0, w: 1)
+        self.texture = try container?.decodeIfPresent(SIMD2<Float>.self, forKey: .texture) ?? SIMD2<Float>(x: -1, y: -1)
+        self.erase = try container?.decodeIfPresent(Float.self, forKey: .erase) ?? 0.0
+    }
+    
+    
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: VertexCodingKeys.self)
+        
+        try container.encode(position, forKey: .position)
+        try container.encode(color, forKey: .color)
+        try container.encode(texture, forKey: .texture)
+        try container.encode(erase, forKey: .erase)
+    }
+    
+    
+    
     
 }

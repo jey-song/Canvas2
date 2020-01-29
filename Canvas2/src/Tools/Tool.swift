@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 /** A protocol for defining a tool, which determines how to manipulate the vertex/quad data on the canvas. */
-public protocol Tool {
+public protocol Tool: Codable {
     
     // MARK: Variables
     
@@ -22,6 +22,9 @@ public protocol Tool {
     // MARK: Initialization
     
     init(canvas: Canvas)
+    
+    init(from decoder: Decoder) throws
+    
     
     
     // MARK: Functions
@@ -38,5 +41,9 @@ public protocol Tool {
     /** Called when this tool stops touching the canvas w/o help from the user. */
     func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool
     
+    
+    // MARK: Codable
+    
+    func encode(to encoder: Encoder) throws
     
 }

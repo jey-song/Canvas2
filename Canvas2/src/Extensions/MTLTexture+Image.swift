@@ -12,6 +12,41 @@ import MetalKit
 import UIKit
 
 
+/** Converts a dictionary of textures to be codable. */
+internal func dictionaryToCodable(dictionary: [String : MTLTexture?]) -> [String : Data?] {
+    var ret: [String : Data?] = [:]
+    for (key, val) in dictionary {
+        ret[key] = val?.toData()
+    }
+    return ret
+}
+
+/** Converts a dictionary of texture data to MTLTextures. */
+internal func textureDataToDictionary(loader: MTKTextureLoader, dictionary: [String : Data?]) -> [String : MTLTexture] {
+    var ret: [String : MTLTexture] = [:]
+    for (key, val) in dictionary {
+        if val == nil { continue }
+        let txr = try! loader.newTexture(data: val!, options: [
+            MTKTextureLoader.Option.SRGB : false,
+            MTKTextureLoader.Option.allocateMipmaps: false,
+            MTKTextureLoader.Option.generateMipmaps: false,
+        ])
+        ret[key] = txr
+    }
+    return ret
+}
+
+/** Loads a texture from data. */
+func textureFromData(loader: MTKTextureLoader, data: Data) -> MTLTexture {
+    let txr = try! loader.newTexture(data: data, options: [
+        MTKTextureLoader.Option.SRGB : false,
+        MTKTextureLoader.Option.allocateMipmaps: false,
+        MTKTextureLoader.Option.generateMipmaps: false,
+    ])
+    return txr
+}
+
+
 public extension MTLTexture {
     
     /** Returns a CIImage from this texture. */
@@ -71,4 +106,6 @@ public extension MTLTexture {
         let cgImage = CGImage(width: self.width, height: self.height, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: rowBytes, space: colorSpace, bitmapInfo: bitmapInfo, provider: prov, decode: nil, shouldInterpolate: true, intent: CGColorRenderingIntent.defaultIntent)
         return cgImage
     }
+    
+    
 }

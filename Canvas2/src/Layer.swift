@@ -12,11 +12,11 @@ import MetalKit
 
 
 /** A layer on the canvas. */
-public class Layer {
+public class Layer: Codable {
     
     // MARK: Variables
     
-    internal var canvas: Canvas
+    internal var canvas: Canvas?
     
     internal var elements: [Element]
     
@@ -30,11 +30,19 @@ public class Layer {
     
     // MARK: Initialization
     
-    init(canvas: Canvas) {
+    init(canvas: Canvas?) {
         self.canvas = canvas
         self.elements = []
         self.isLocked = false
         self.isHidden = false
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let container = try? decoder.container(keyedBy: LayerCodingKeys.self)
+        
+        self.elements = try container?.decodeIfPresent([Element].self, forKey: .elements) ?? []
+        self.isLocked = try container?.decodeIfPresent(Bool.self, forKey: .isLocked) ?? false
+        self.isHidden = try container?.decodeIfPresent(Bool.self, forKey: .isHidden) ?? false
     }
     
     required init?(coder: NSCoder) {
@@ -57,6 +65,7 @@ public class Layer {
     
     /** Erases points from this layer by making them transparent. */
     internal func eraseVertices(point: CGPoint) {
+        guard let canvas = self.canvas else { return }
         let size = (((canvas.currentBrush.size / 100) * 4) / 2) / 50
         let opacity = canvas.currentBrush!.opacity * canvas.force
         
@@ -91,8 +100,9 @@ public class Layer {
     // MARK: Rendering
     
     internal func render(index: Int, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
+        guard let canvas = self.canvas else { return }
         for var element in elements {
-            element.render(buffer: buffer, encoder: encoder)
+            element.render(canvas: canvas, buffer: buffer, encoder: encoder)
         }
         
         // Whatever is current being drawn on the screen, display it immediately.
@@ -100,10 +110,21 @@ public class Layer {
             if var cp = canvas.currentPath {
                 if cp.quads.count > 0 && canvas.canvasLayers[canvas.currentLayer].isLocked == false {
                     cp.rebuildBuffer()
-                    cp.render(buffer: buffer, encoder: encoder)
+                    cp.render(canvas: canvas, buffer: buffer, encoder: encoder)
                 }
             }
         }
+    }
+    
+    
+    // MARK: Decoding
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: LayerCodingKeys.self)
+        
+        try container.encode(elements, forKey: .elements)
+        try container.encode(isLocked, forKey: .isLocked)
+        try container.encode(isHidden, forKey: .isHidden)
     }
     
 }

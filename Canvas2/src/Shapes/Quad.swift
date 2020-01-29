@@ -12,7 +12,7 @@ import MetalKit
 import UIKit
 
 /** A four-sided shape that gets rendered on the screen as two adjacent triangles. */
-struct Quad {
+struct Quad: Codable {
     
     // MARK: Variables
 
@@ -54,6 +54,18 @@ struct Quad {
         self.endForce = 1.0
     }
     
+    public init(from decoder: Decoder) throws {
+        let container = try? decoder.container(keyedBy: QuadCodingKeys.self)
+        
+        self.vertices = try container?.decodeIfPresent([Vertex].self, forKey: .vertices) ?? []
+        self.start = try container?.decodeIfPresent(CGPoint.self, forKey: .start) ?? CGPoint.zero
+        self.end = try container?.decodeIfPresent(CGPoint.self, forKey: .end) ?? CGPoint.zero
+        self.c = try container?.decodeIfPresent(CGPoint.self, forKey: .c) ?? CGPoint.zero
+        self.d = try container?.decodeIfPresent(CGPoint.self, forKey: .d) ?? CGPoint.zero
+        self.startForce = try container?.decodeIfPresent(CGFloat.self, forKey: .startForce) ?? 1.0
+        self.endForce = try container?.decodeIfPresent(CGFloat.self, forKey: .endForce) ?? 1.0
+    }
+    
     
     // MARK: Functions
     
@@ -64,7 +76,7 @@ struct Quad {
         
         let size = (((brush.size / 100) * 4) / 2) / 50
         let color = brush.color
-        let texture = brush.texture
+        let texture = brush.textureName
         
         // Compute the quad vertices ABCD.
         let perpendicular = self.start.perpendicular(other: self.end).normalize()
@@ -100,7 +112,7 @@ struct Quad {
     mutating func endAsRectangle(at: CGPoint, brush: Brush) {
         self.end = at
         let color = brush.color
-        let texture = brush.texture
+        let texture = brush.textureName
         
         // Compute the rectangle from the starting point to the end point.
         // Remember that the end coordinates can be behind the start.
@@ -157,7 +169,7 @@ struct Quad {
         // Create the coordinates of the two triangles.
         let size = (((brush.size / 100) * 4) / 2) / 50
         let color = brush.color
-        let texture = brush.texture
+        let texture = brush.textureName
         
         let perpendicular = self.start.perpendicular(other: self.end).normalize()
         var A: CGPoint = self.start
@@ -243,7 +255,7 @@ struct Quad {
         self.end = at
         
         let color = brush.color
-        let texture = brush.texture
+        let texture = brush.textureName
         var verts: [Vertex] = [Vertex(position: self.start, color: color)]
         
         /** Creates points around a circle. It's just a formula for degrees to radians. */
@@ -283,5 +295,22 @@ struct Quad {
         }
         self.vertices = verts
     }
+    
+    
+    
+    // MARK: Encoding
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: QuadCodingKeys.self)
+        
+        try container.encode(vertices, forKey: .vertices)
+        try container.encode(start, forKey: .start)
+        try container.encode(end, forKey: .end)
+        try container.encode(c, forKey: .c)
+        try container.encode(d, forKey: .d)
+        try container.encode(startForce, forKey: .startForce)
+        try container.encode(endForce, forKey: .endForce)
+    }
+    
     
 }

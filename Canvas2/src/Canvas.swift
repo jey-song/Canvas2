@@ -13,7 +13,7 @@ import MetalKit
 internal let CANVAS_PIXEL_FORMAT: MTLPixelFormat = .bgra8Unorm
 
 /** A Metal-accelerated canvas for drawing and painting. */
-public class Canvas: MTKView, MTKViewDelegate {
+public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     // MARK: Variables
 
@@ -174,13 +174,32 @@ public class Canvas: MTKView, MTKViewDelegate {
         self.pipeline = buildRenderPipeline(device: device, vertProg: vertProg, fragProg: fragProg)
         self.currentBrush = Brush(canvas: self, name: "defaultBrush", size: 10, color: .black) // Default brush
         self.currentTool = self.pencilTool // Default tool
-        self.currentPath = Element(quads: [], canvas: self) // Used for drawing temporary paths
+        self.currentPath = Element(quads: [], canvas: self, brushName: "defaultBrush") // Used for drawing temporary paths
         self.viewportVertices = [
             Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor),
             Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor),
             Vertex(position: CGPoint(x: 0, y: frame.height), color: canvasColor),
             Vertex(position: CGPoint(x: frame.width, y: frame.height), color: canvasColor)
         ]
+    }
+    
+    public required convenience init(from decoder: Decoder) throws {
+        self.init()
+        let container = try? decoder.container(keyedBy: CanvasCodingKeys.self)
+        
+        canvasLayers = try container?.decodeIfPresent([Layer].self, forKey: .canvasLayers) ?? []
+        force = try container?.decodeIfPresent(CGFloat.self, forKey: .force) ?? 1.0
+        maximumForce = try container?.decodeIfPresent(CGFloat.self, forKey: .maximumForce) ?? 1.0
+        
+        let codedTextures = try container?.decodeIfPresent([String: Data?].self, forKey: .registeredTextures) ?? [:]
+        registeredTextures = textureDataToDictionary(loader: textureLoader, dictionary: codedTextures)
+        
+        registeredBrushes = try container?.decodeIfPresent([String : Brush].self, forKey: .registeredBrushes) ?? [:]
+        currentBrush = try container?.decodeIfPresent(Brush.self, forKey: .currentBrush) ?? Brush(canvas: self, name: "defaultBrush", size: 10, color: .black)
+        stylusOnly = try container?.decodeIfPresent(Bool.self, forKey: .stylusOnly) ?? false
+        
+        let c = try container?.decodeIfPresent([CGFloat].self, forKey: .canvasColor) ?? [0,0,0,1]
+        canvasColor = UIColor(red: c[0], green: c[1], blue: c[2], alpha: c[3])
     }
     
     required init(coder: NSCoder) {
@@ -202,8 +221,19 @@ public class Canvas: MTKView, MTKViewDelegate {
     }
     
     /** Returns the brush with the specified name. */
-    public func getBrush(withName name: String) -> Brush? {
-        return self.registeredBrushes[name] ?? nil
+    public func getBrush(withName name: String, with color: UIColor = .black) -> Brush? {
+        guard var brush = self.registeredBrushes[name] else { return nil }
+        brush.color = color
+        
+        return brush
+    }
+    
+    // TODO: Edit to include all brush options.
+    /** Tells the canvas to start using a different brush to draw with, based on the registered name. */
+    public func changeBrush(to name: String) {
+        guard let brush = self.getBrush(withName: name) else { return }
+        self.currentBrush = brush
+        self.canvasDelegate?.didChangeBrush(to: brush)
     }
     
     /** Tells the canvas to keep track of another texture, which can be used later on for different brush strokes. */
@@ -221,13 +251,6 @@ public class Canvas: MTKView, MTKViewDelegate {
     public func getTexture(withName name: String) -> MTLTexture? {
         guard let texture = self.registeredTextures[name] else { return nil }
         return texture
-    }
-    
-    /** Tells the canvas to start using a different brush to draw with, based on the registered name. */
-    public func changeBrush(to name: String) {
-        guard let brush = self.getBrush(withName: name) else { return }
-        self.currentBrush = brush
-        self.canvasDelegate?.didChangeBrush(to: brush)
     }
     
     /** Allows the user to add custom undo/redo actions to their app. */
@@ -308,6 +331,51 @@ public class Canvas: MTKView, MTKViewDelegate {
         return image
     }
     
+    /** Exports the canvas, all of its layers, brush data, etc. into codable data. */
+    public func exportData() -> Data? {
+        do {
+            let data: Data = try JSONEncoder().encode(self)
+            return data
+        } catch {
+            return nil
+        }
+    }
+    
+    /** Exports just the drawing layers so they can be reconstructed later on. */
+    public func exportLayers() -> Data? {
+        do {
+            let layers: [Layer] = canvasLayers
+            let data: Data = try JSONEncoder().encode(layers)
+            return data
+        } catch {
+            return nil
+        }
+    }
+    
+    /** Loads layer data onto the canvas, then reloads the canvas. */
+    public func load(from layersData: Data) -> Bool {
+        guard let layers = try? JSONDecoder().decode([Layer].self, from: layersData) else {
+            return false
+        }
+        
+        // Make sure all canvas references are set.
+        for i in 0..<layers.count {
+            layers[i].canvas = self
+            for j in 0..<layers[i].elements.count {
+                layers[i].elements[j].canvas = self
+                layers[i].elements[j].rebuildBuffer()
+            }
+        }
+        
+        canvasLayers = layers
+        currentLayer = layers.count > 0 ? 0 : -1
+        undoRedoManager.clearUndos()
+        undoRedoManager.clearRedos()
+        rebuildBuffer()
+        return true
+    }
+    
+    
     
     
     // ---> Internal
@@ -379,17 +447,7 @@ public class Canvas: MTKView, MTKViewDelegate {
         // Send the commands to the encoder and redraw the canvas.
         if let buff = mainBuffer {
             let vertCount = buff.length / MemoryLayout<Vertex>.stride
-//            let viewport = MTLViewport(
-//                originX: 0,
-//                originY: 0,
-//                width: Double(drawableSize.width),
-//                height: Double(drawableSize.height),
-//                znear: 1.0,
-//                zfar: 1.0
-//            )
             encoder.setRenderPipelineState(pipeline)
-//            encoder.setViewport(viewport)
-            
             encoder.setVertexBuffer(buff, offset: 0, index: 0)
             encoder.setFragmentTexture(mainTexture, index: 0)
             encoder.setFragmentSamplerState(sampleState, index: 0)
@@ -418,5 +476,28 @@ public class Canvas: MTKView, MTKViewDelegate {
             repaint()
         }
     }
+    
+    
+    // MARK: Codable
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CanvasCodingKeys.self)
+        
+        try container.encode(canvasLayers, forKey: .canvasLayers)
+        try container.encode(force, forKey: .force)
+        
+        let codableTextures = dictionaryToCodable(dictionary: registeredTextures)
+        try container.encode(codableTextures, forKey: .registeredTextures)
+        try container.encode(registeredBrushes, forKey: .registeredBrushes)
+        try container.encode(currentBrush, forKey: .currentBrush)
+        try container.encode(maximumForce, forKey: .maximumForce)
+        try container.encode(stylusOnly, forKey: .stylusOnly)
+        
+        let c = canvasColor.rgba
+        try container.encode([c.red, c.green, c.blue, c.alpha], forKey: .canvasColor)
+        try container.encode(currentLayer, forKey: .currentLayer)
+    }
+    
+    
     
 } // End of class.
