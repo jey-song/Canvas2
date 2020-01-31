@@ -20,6 +20,7 @@ public extension Canvas {
         return true
     }
     
+    
     /** Switches to a different drawing layer. */
     func switchLayer(to index: Int) {
         guard index >= 0 && index < canvasLayers.count else { return }
@@ -93,6 +94,7 @@ public extension Canvas {
         canvasLayers[at].isLocked = false
     }
     
+    
     /** Hides a particular layer so that it cannot be seen. */
     func hide(layer at: Int) {
         guard at >= 0 && at < canvasLayers.count else { return }
@@ -106,6 +108,13 @@ public extension Canvas {
         guard at >= 0 && at < canvasLayers.count else { return }
         canvasLayers[at].isHidden = false
         rebuildBuffer()
+    }
+    
+    
+    /** Returns the layer at the given index. */
+    func getLayer(at index: Int) -> Layer? {
+        guard index >= 0 && index < canvasLayers.count else { return nil }
+        return canvasLayers[index]
     }
     
 }
