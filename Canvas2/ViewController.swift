@@ -376,10 +376,26 @@ class ViewController: UIViewController, CanvasEvents {
         }
         
         // Load a brush.
-        let basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", size: 20, color: .black, textureName: "pencilTexture")
-        let basicInk: Brush = Brush(canvas: canvas, name: "basicInk", size: 20, color: .black, textureName: "inkTexture")
-        let basicBrush: Brush = Brush(canvas: canvas, name: "basicBrush", size: 30, color: .black, textureName: "paperTexture")
-        let basicPencilEraser: Brush = Brush(canvas: canvas, name: "basicPencilEraser", size: 20, opacity: 0.5, isEraser: true)
+        let basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", config: [
+            BrushOption.Size: 20,
+            BrushOption.Color: UIColor.black,
+            BrushOption.TextureName: "pencilTexture"
+        ])
+        let basicInk: Brush = Brush(canvas: canvas, name: "basicInk", config: [
+            BrushOption.Size: 30,
+            BrushOption.Color: UIColor.black,
+            BrushOption.TextureName: "inkTexture"
+        ])
+        let basicBrush: Brush = Brush(canvas: canvas, name: "basicBrush", config: [
+            BrushOption.Size: 50,
+            BrushOption.Color: UIColor.black,
+            BrushOption.TextureName: "paperTexture"
+        ])
+        let basicPencilEraser: Brush = Brush(canvas: canvas, name: "basicPencilEraser", config: [
+            BrushOption.Size: 20,
+            BrushOption.Opacity: 0.5,
+            BrushOption.IsEraser: true
+        ])
         canvas.addBrush(basicPencil)
         canvas.addBrush(basicInk)
         canvas.addBrush(basicBrush)
@@ -469,11 +485,17 @@ class ViewController: UIViewController, CanvasEvents {
         }
         
         if self.currentBrush == 0 {
-            canvas.changeBrush(to: "basicPencil")
+            canvas.changeBrush(to: "basicPencil", with: [
+                BrushOption.Size: CGFloat(10)
+            ])
         } else if currentBrush == 1{
-            canvas.changeBrush(to: "basicInk")
+            canvas.changeBrush(to: "basicInk", with: [
+                BrushOption.Size: CGFloat(20)
+            ])
         } else {
-            canvas.changeBrush(to: "basicBrush")
+            canvas.changeBrush(to: "basicBrush", with: [
+                BrushOption.Size: CGFloat(30)
+            ])
         }
     }
     

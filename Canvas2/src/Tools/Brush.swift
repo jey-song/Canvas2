@@ -10,6 +10,36 @@ import Foundation
 import Metal
 import MetalKit
 
+
+/** A single configuration option for a brush. */
+public enum BrushOption {
+    /** A CGFloat value for the size of the brush. */
+    case Size
+    
+    /** A UIColor value for the color of the brush. */
+    case Color
+    
+    /** A CGFloat value for the opacity of the brush. */
+    case Opacity
+    
+    /** An optional String value for the name of the texture to use on this brush.*/
+    case TextureName
+    
+    /** A Bool value for whether or not this brush should be used as an eraser. */
+    case IsEraser
+}
+
+public let defaultConfig: [BrushOption : Any?] = {
+    return [
+        BrushOption.Size: CGFloat(10.0),
+        BrushOption.Color: UIColor.black,
+        BrushOption.Opacity: CGFloat(1.0),
+        BrushOption.TextureName: nil,
+        BrushOption.IsEraser: false,
+    ]
+}()
+
+
 /** A customizable brush that determines how curves drawn on the canvas will look. */
 public struct Brush: Codable {
     
@@ -35,19 +65,20 @@ public struct Brush: Codable {
     
     
     
+    
+    
     // MARK: Initialization
     
-    public init(
-        canvas: Canvas?,
-        name: String,
-        size: CGFloat = 10.0,
-        color: UIColor = UIColor.black,
-        opacity: CGFloat = 1.0,
-        textureName: String? = nil,
-        isEraser: Bool = false
-    ) {
+    public init(canvas: Canvas?, name: String, config: [BrushOption : Any?] = defaultConfig) {
         self.canvas = canvas
         self.name = name
+        
+        let size = config[BrushOption.Size] as? CGFloat ?? defaultConfig[BrushOption.Size] as! CGFloat
+        let color = config[BrushOption.Color] as? UIColor ?? defaultConfig[BrushOption.Color] as! UIColor
+        let opacity = config[BrushOption.Opacity] as? CGFloat ?? defaultConfig[BrushOption.Opacity] as! CGFloat
+        let textureName = config[BrushOption.TextureName] as? String ?? defaultConfig[BrushOption.TextureName] as? String
+        let isEraser = config[BrushOption.IsEraser] as? Bool ?? defaultConfig[BrushOption.IsEraser] as! Bool
+        
         self.size = size
         self.color = color
         self.opacity = opacity
@@ -84,21 +115,37 @@ public struct Brush: Codable {
     
     /** Makes a copy of this brush. */
     func copy() -> Brush {
-        var b: Brush = Brush(
-            canvas: self.canvas,
-            name: self.name,
-            size: self.size,
-            color: self.color,
-            opacity: self.opacity,
-            isEraser: self.isEraser
-        )
-        b.textureName = self.textureName
+        let config: [BrushOption : Any?] = [
+            BrushOption.Size: self.size,
+            BrushOption.Color: self.color,
+            BrushOption.Opacity: self.opacity,
+            BrushOption.TextureName: self.textureName,
+            BrushOption.IsEraser: self.isEraser,
+        ]
+        var b: Brush = Brush(canvas: self.canvas, name: self.name, config: config)
         b.pipeline = self.pipeline
         return b
     }
     
     
     // MARK: Decoding
+    
+    /** Changes the brush to match the current options. */
+    internal mutating func load(from config: [BrushOption : Any?]) -> Brush {
+        let s = config[BrushOption.Size] as? CGFloat
+        let color = config[BrushOption.Color] as? UIColor
+        let opacity = config[BrushOption.Opacity] as? CGFloat
+        let textureName = config[BrushOption.TextureName] as? String
+        let isEraser = config[BrushOption.IsEraser] as? Bool
+        
+        var brush = copy()
+        if s != nil { brush.size = s! }
+        if color != nil { brush.color = color! }
+        if opacity != nil { brush.opacity = opacity! }
+        if textureName != nil { brush.textureName = textureName! }
+        if isEraser != nil { brush.isEraser = isEraser! }
+        return brush
+    }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: BrushCodingKeys.self)

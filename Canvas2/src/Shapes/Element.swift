@@ -88,11 +88,19 @@ public struct Element: Codable {
         guard var next = nextQuad else { return }
         guard let brush = canvas.getBrush(
             withName: self.brushName,
-            with: canvas.currentBrush.color
+            with: [
+                // TODO: Brush size is not working
+                BrushOption.Size: canvas.currentBrush.size,
+                BrushOption.Color: canvas.currentBrush.color,
+                BrushOption.Opacity: canvas.currentBrush.opacity,
+                BrushOption.TextureName: canvas.currentBrush.textureName,
+                BrushOption.IsEraser: canvas.currentBrush.isEraser,
+            ]
         ) else { return }
         next.endForce = canvas.forceEnabled ? canvas.force : 1.0
         
         // Call the quad's end method to set the vertices.
+        print("Size: \(canvas.currentBrush.size)")
         if let last = lastQuad { next.end(at: point, brush: brush, prevA: last.c, prevB: last.d) }
         else { next.end(at: point, brush: brush) }
         
@@ -110,7 +118,13 @@ public struct Element: Codable {
         guard var next = nextQuad else { return }
         guard let brush = canvas.getBrush(
             withName: self.brushName,
-            with: canvas.currentBrush.color
+            with: [
+                BrushOption.Size: canvas.currentBrush.size,
+                BrushOption.Color: canvas.currentBrush.color,
+                BrushOption.Opacity: canvas.currentBrush.opacity,
+                BrushOption.TextureName: canvas.currentBrush.textureName,
+                BrushOption.IsEraser: canvas.currentBrush.isEraser,
+            ]
         ) else { return }
 
         // End and display the quad as a rectangle where you currently drag.
@@ -124,7 +138,13 @@ public struct Element: Codable {
         guard var next = nextQuad else { return }
         guard let brush = canvas.getBrush(
             withName: self.brushName,
-            with: canvas.currentBrush.color
+            with: [
+                BrushOption.Size: canvas.currentBrush.size,
+                BrushOption.Color: canvas.currentBrush.color,
+                BrushOption.Opacity: canvas.currentBrush.opacity,
+                BrushOption.TextureName: canvas.currentBrush.textureName,
+                BrushOption.IsEraser: canvas.currentBrush.isEraser,
+            ]
         ) else { return }
         
         // End and display the quad as a line where you currently drag.
@@ -138,7 +158,13 @@ public struct Element: Codable {
         guard var next = nextQuad else { return }
         guard let brush = canvas.getBrush(
             withName: self.brushName,
-            with: canvas.currentBrush.color
+            with: [
+                BrushOption.Size: canvas.currentBrush.size,
+                BrushOption.Color: canvas.currentBrush.color,
+                BrushOption.Opacity: canvas.currentBrush.opacity,
+                BrushOption.TextureName: canvas.currentBrush.textureName,
+                BrushOption.IsEraser: canvas.currentBrush.isEraser,
+            ]
         ) else { return }
         
         // End and display the quad as an ellipse where you currently drag.

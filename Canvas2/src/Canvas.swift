@@ -172,7 +172,10 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         self.commandQueue = device?.makeCommandQueue()
         self.sampleState = buildSampleState(device: device)
         self.pipeline = buildRenderPipeline(device: device, vertProg: vertProg, fragProg: fragProg)
-        self.currentBrush = Brush(canvas: self, name: "defaultBrush", size: 10, color: .black) // Default brush
+        self.currentBrush = Brush(canvas: self, name: "defaultBrush", config: [
+            BrushOption.Size: 10.0,
+            BrushOption.Color: UIColor.black
+        ])
         self.currentTool = self.pencilTool // Default tool
         self.currentPath = Element(quads: [], canvas: self, brushName: "defaultBrush") // Used for drawing temporary paths
         self.viewportVertices = [
@@ -195,7 +198,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         registeredTextures = textureDataToDictionary(loader: textureLoader, dictionary: codedTextures)
         
         registeredBrushes = try container?.decodeIfPresent([String : Brush].self, forKey: .registeredBrushes) ?? [:]
-        currentBrush = try container?.decodeIfPresent(Brush.self, forKey: .currentBrush) ?? Brush(canvas: self, name: "defaultBrush", size: 10, color: .black)
         stylusOnly = try container?.decodeIfPresent(Bool.self, forKey: .stylusOnly) ?? false
         
         let c = try container?.decodeIfPresent([CGFloat].self, forKey: .canvasColor) ?? [0,0,0,1]
@@ -221,17 +223,17 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     }
     
     /** Returns the brush with the specified name. */
-    public func getBrush(withName name: String, with color: UIColor = .black) -> Brush? {
+    public func getBrush(withName name: String, with configuration: [BrushOption : Any?]? = nil) -> Brush? {
         guard var brush = self.registeredBrushes[name] else { return nil }
-        brush.color = color
+        if let config = configuration { brush = brush.load(from: config) }
         
         return brush
     }
     
-    // TODO: Edit to include all brush options.
     /** Tells the canvas to start using a different brush to draw with, based on the registered name. */
-    public func changeBrush(to name: String) {
-        guard let brush = self.getBrush(withName: name) else { return }
+    public func changeBrush(to name: String, with configuration: [BrushOption : Any?]? = nil) {
+        guard let brush = self.getBrush(withName: name, with: configuration) else { return }
+        
         self.currentBrush = brush
         self.canvasDelegate?.didChangeBrush(to: brush)
     }
