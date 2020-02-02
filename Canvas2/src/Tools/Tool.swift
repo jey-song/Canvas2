@@ -9,6 +9,15 @@
 import Foundation
 import UIKit
 
+/** The different tools that can be used on the canvas. */
+public enum CanvasTool {
+    case pencil
+    case rectangle
+    case line
+    case ellipse
+    case eraser
+}
+
 /** A protocol for defining a tool, which determines how to manipulate the vertex/quad data on the canvas. */
 public protocol Tool: Codable {
     

@@ -97,7 +97,7 @@ public struct Layer: Codable {
     // MARK: Rendering
     
     internal mutating func render(index: Int, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
-        guard let canvas = self.canvas else { print("no canvas"); return }
+        guard let canvas = self.canvas else { return }
         
         for var element in elements {
             element.render(canvas: canvas, buffer: buffer, encoder: encoder)

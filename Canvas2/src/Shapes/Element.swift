@@ -100,7 +100,6 @@ public struct Element: Codable {
         next.endForce = canvas.forceEnabled ? canvas.force : 1.0
         
         // Call the quad's end method to set the vertices.
-        print("Size: \(canvas.currentBrush.size)")
         if let last = lastQuad { next.end(at: point, brush: brush, prevA: last.c, prevB: last.d) }
         else { next.end(at: point, brush: brush) }
         

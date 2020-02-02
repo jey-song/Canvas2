@@ -164,8 +164,8 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         let vertProg = lib?.makeFunction(name: "main_vertex")
         let fragProg = lib?.makeFunction(name: "textured_fragment")
         
-        if vertProg == nil || fragProg == nil {
-            print("--> Canvas2 Error: Issue finding either vertex function or fragment function. You may need to specify your own .metal file to begin drawing on the Canvas.")
+        if lib == nil {
+            print("--> Canvas2 Error: Canvas2 cannot be used in the iOS simulator. Please test on a real device.")
         }
         
         self.textureLoader = MTKTextureLoader(device: device!)
@@ -253,6 +253,27 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     public func getTexture(withName name: String) -> MTLTexture? {
         guard let texture = self.registeredTextures[name] else { return nil }
         return texture
+    }
+    
+    /** Changes the tool being used on the canvas. */
+    public func changeTool(to tool: CanvasTool) {
+        switch tool {
+        case CanvasTool.pencil:
+            self.currentTool = self.pencilTool
+            break
+        case CanvasTool.rectangle:
+            self.currentTool = self.rectangleTool
+            break
+        case CanvasTool.line:
+            self.currentTool = self.lineTool
+            break
+        case CanvasTool.ellipse:
+            self.currentTool = self.ellipseTool
+            break
+        case CanvasTool.eraser:
+            self.currentTool = self.eraserTool
+            break
+        }
     }
     
     /** Allows the user to add custom undo/redo actions to their app. */

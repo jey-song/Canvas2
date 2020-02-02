@@ -21,12 +21,12 @@ public extension UIDevice {
 class ViewController: UIViewController, CanvasEvents {
     
     let colors: [UIColor] = [.black, .green, .red, .blue, .purple, .orange, .brown, .cyan]
-    lazy var tools: [Tool] = [
-        self.canvas.pencilTool,
-        self.canvas.rectangleTool,
-        self.canvas.lineTool,
-        self.canvas.ellipseTool,
-        self.canvas.eraserTool
+    lazy var tools: [CanvasTool] = [
+        CanvasTool.pencil,
+        CanvasTool.rectangle,
+        CanvasTool.line,
+        CanvasTool.ellipse,
+        CanvasTool.eraser
     ]
     var currentBrush: Int = 0
     
@@ -441,7 +441,7 @@ class ViewController: UIViewController, CanvasEvents {
     /** Changes to a random shape. */
     @objc func changeTool() {
         let rand = Int(arc4random_uniform(UInt32(tools.count)))
-        canvas.currentTool = tools[rand]
+        canvas.changeTool(to: tools[rand])
     }
     
     /** Adds a layer below the current one. */
