@@ -40,6 +40,19 @@ extension Canvas {
         }
     }
     
+    /** Exports a single layer's drawing data. */
+    public func exportLayerDrawings(at index: Int) -> Data? {
+        guard index >= 0 && index < canvasLayers.count else { return nil }
+        
+        do {
+            let layer = canvasLayers[index]
+            let data: Data = try JSONEncoder().encode(layer.elements)
+            return data
+        } catch {
+            return nil
+        }
+    }
+    
     /** Loads layer data onto the canvas, then reloads the canvas. */
     public func load(from layersData: Data) -> Bool {
         guard var layers = try? JSONDecoder().decode([Layer].self, from: layersData) else {
@@ -62,8 +75,6 @@ extension Canvas {
         
         canvasLayers = layers
         currentLayer = layers.count > 0 ? 0 : -1
-        undoRedoManager.clearUndos()
-        undoRedoManager.clearRedos()
         rebuildBuffer()
         setNeedsDisplay()
         return true
@@ -88,10 +99,7 @@ extension Canvas {
         
         canvasLayers = copy
         currentLayer = copy.count > 0 ? 0 : -1
-        undoRedoManager.clearUndos()
-        undoRedoManager.clearRedos()
         rebuildBuffer()
-        setNeedsDisplay()
         return true
     }
     

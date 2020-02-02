@@ -16,36 +16,13 @@ internal enum BrushCodingKeys: CodingKey {
     case color
     case opacity
     case isEraser
-    case textureID
-    case registeredTextures
+    case textureName
 }
 
 internal enum LayerCodingKeys: CodingKey {
     case elements
     case isLocked
     case isHidden
-}
-
-internal enum VertexCodingKeys: CodingKey {
-    case position
-    case color
-    case texture
-    case erase
-}
-
-internal enum QuadCodingKeys: CodingKey {
-    case vertices
-    case start
-    case end
-    case c
-    case d
-    case startForce
-    case endForce
-}
-
-internal enum ElementCodingKeys: CodingKey {
-    case brushID
-    case quads
 }
 
 internal enum ToolCodingKeys: CodingKey {

@@ -20,50 +20,20 @@ struct Quad: Codable {
     
     var start: CGPoint
     
-    var end: CGPoint
-    
-    var c: CGPoint
-    
-    var d: CGPoint
-    
-    var startForce: CGFloat
-    
-    var endForce: CGFloat
-    
     
     
     // MARK: Initialization
     
-    init() {
-        self.vertices = []
-        self.start = CGPoint()
-        self.end = CGPoint()
-        self.c = CGPoint()
-        self.d = CGPoint()
-        self.startForce = 1.0
-        self.endForce = 1.0
-    }
-    
     init(start: CGPoint) {
         self.vertices = []
         self.start = start
-        self.end = CGPoint()
-        self.c = CGPoint()
-        self.d = CGPoint()
-        self.startForce = 1.0
-        self.endForce = 1.0
     }
     
     public init(from decoder: Decoder) throws {
-        let container = try? decoder.container(keyedBy: QuadCodingKeys.self)
+        var container = try? decoder.unkeyedContainer()
         
-        self.vertices = try container?.decodeIfPresent([Vertex].self, forKey: .vertices) ?? []
-        self.start = try container?.decodeIfPresent(CGPoint.self, forKey: .start) ?? CGPoint.zero
-        self.end = try container?.decodeIfPresent(CGPoint.self, forKey: .end) ?? CGPoint.zero
-        self.c = try container?.decodeIfPresent(CGPoint.self, forKey: .c) ?? CGPoint.zero
-        self.d = try container?.decodeIfPresent(CGPoint.self, forKey: .d) ?? CGPoint.zero
-        self.startForce = try container?.decodeIfPresent(CGFloat.self, forKey: .startForce) ?? 1.0
-        self.endForce = try container?.decodeIfPresent(CGFloat.self, forKey: .endForce) ?? 1.0
+        self.vertices = try container?.decode([Vertex].self) ?? []
+        self.start = CGPoint.zero
     }
     
     
@@ -71,28 +41,32 @@ struct Quad: Codable {
     
     /** Sets the ending position of this quad and promptly computes the rectangular shape
      needed to display it on screen. It really just computes two triangles at the end of the day. */
-    mutating func end(at: CGPoint, brush: Brush, prevA: CGPoint? = nil, prevB: CGPoint? = nil) {
-        self.end = at
-        
+    mutating func end(
+        at end: CGPoint,
+        brush: Brush,
+        prevA: CGPoint? = nil,
+        prevB: CGPoint? = nil,
+        startForce: CGFloat = 1.0,
+        endForce: CGFloat = 1.0
+    ) -> (_: CGPoint, _:CGPoint)
+    {
         let size = (((brush.size / 100) * 4) / 2) / 50
         let color = brush.color
         let texture = brush.textureName
         
         // Compute the quad vertices ABCD.
-        let perpendicular = self.start.perpendicular(other: self.end).normalize()
-        var A = self.start + (perpendicular * size * self.startForce)
-        var B = self.start - (perpendicular * size * self.startForce)
-        let C = self.end + (perpendicular * size * self.endForce)
-        let D = self.end - (perpendicular * size * self.endForce)
+        let perpendicular = self.start.perpendicular(other: end).normalize()
+        var A = self.start + (perpendicular * size * startForce)
+        var B = self.start - (perpendicular * size * startForce)
+        let C = end + (perpendicular * size * endForce)
+        let D = end - (perpendicular * size * endForce)
         
         // Use the previous quad's points to avoid gaps.
         if let pA = prevA, let pB = prevB {
             A = pA
             B = pB
         }
-        self.c = C
-        self.d = D
-
+        
         // Place the quad points into the vertices array to form two triangles.
         self.vertices = [
             // Triangle 1
@@ -105,12 +79,12 @@ struct Quad: Codable {
             Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
             Vertex(position: D, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
         ]
+        return (C, D)
     }
     
     
     /** Finalizes the data on this quad as a perfect rectangle from the given starting point. */
-    mutating func endAsRectangle(at: CGPoint, brush: Brush) {
-        self.end = at
+    mutating func endAsRectangle(at end: CGPoint, brush: Brush) {
         let color = brush.color
         let texture = brush.textureName
         
@@ -120,30 +94,30 @@ struct Quad: Codable {
         var corner2 = self.start
         
         // Condition 1: Going from bottom left to top right.
-        if self.start.x < self.end.x && self.start.y < self.end.y {
-            let xDist = self.end.x - self.start.x
-            let yDist = self.end.y - self.start.y
+        if self.start.x < end.x && self.start.y < end.y {
+            let xDist = end.x - self.start.x
+            let yDist = end.y - self.start.y
             corner2.x += xDist
             corner1.y += yDist
         }
         // Condition 2: Top left to bottom right.
-        else if self.start.x < self.end.x && self.start.y > self.end.y {
-            let xDist = self.end.x - self.start.x
-            let yDist = self.start.y - self.end.y
+        else if self.start.x < end.x && self.start.y > end.y {
+            let xDist = end.x - self.start.x
+            let yDist = self.start.y - end.y
             corner2.x += xDist
             corner1.y -= yDist
         }
         // Condition 3: Top right to bottom left.
-        else if self.start.x > self.end.x && self.start.y > self.end.y {
-            let xDist = self.start.x - self.end.x
-            let yDist = self.start.y - self.end.y
+        else if self.start.x > end.x && self.start.y > end.y {
+            let xDist = self.start.x - end.x
+            let yDist = self.start.y - end.y
             corner2.x -= xDist
             corner1.y -= yDist
         }
         // Condition 4: Bottom right to top left.
-        else if self.start.x > self.end.x && self.start.y < self.end.y {
-            let xDist = self.start.x - self.end.x
-            let yDist = self.end.y - self.start.y
+        else if self.start.x > end.x && self.start.y < end.y {
+            let xDist = self.start.x - end.x
+            let yDist = end.y - self.start.y
             corner2.x -= xDist
             corner1.y += yDist
         }
@@ -151,35 +125,33 @@ struct Quad: Codable {
         // Apply the corners to the vertices array to form two triangles,
         // which will come together to form one rectangle on the screen.
         self.vertices = [
-            Vertex(position: self.end, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+            Vertex(position: end, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
             Vertex(position: corner2, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
             Vertex(position: self.start, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
 
             Vertex(position: self.start, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
-            Vertex(position: self.end, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
+            Vertex(position: end, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
             Vertex(position: corner1, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
         ]
     }
     
     
     /** Finalizes a straight line as a quad. */
-    mutating func endAsLine(at: CGPoint, brush: Brush) {
-        self.end = at
-        
+    mutating func endAsLine(at end: CGPoint, brush: Brush) {
         // Create the coordinates of the two triangles.
         let size = (((brush.size / 100) * 4) / 2) / 50
         let color = brush.color
         let texture = brush.textureName
         
-        let perpendicular = self.start.perpendicular(other: self.end).normalize()
+        let perpendicular = self.start.perpendicular(other: end).normalize()
         var A: CGPoint = self.start
-        var B: CGPoint = self.end
-        var C: CGPoint = self.end
+        var B: CGPoint = end
+        var C: CGPoint = end
         var D: CGPoint = self.start
         
         // Based on the rotation, compute the four corners of the quad.
         // Condition 1: Bottom left to top right.
-        if self.start.x < self.end.x && self.start.y < self.end.y {
+        if self.start.x < end.x && self.start.y < end.y {
             A.x -= (perpendicular * size).x
             A.y += (perpendicular * size).x
             
@@ -193,7 +165,7 @@ struct Quad: Codable {
             D.y -= (perpendicular * size).x
         }
         // Condition 2: Top left to bottom right.
-        else if self.start.x < self.end.x && self.start.y > self.end.y {
+        else if self.start.x < end.x && self.start.y > end.y {
             A.x += (perpendicular * size).x
             A.y += (perpendicular * size).x
             
@@ -207,7 +179,7 @@ struct Quad: Codable {
             D.y -= (perpendicular * size).x
         }
         // Condition 3: Top right to bottom left.
-        else if self.start.x > self.end.x && self.start.y > self.end.y {
+        else if self.start.x > end.x && self.start.y > end.y {
             A.x += (perpendicular * size).x
             A.y -= (perpendicular * size).x
             
@@ -221,7 +193,7 @@ struct Quad: Codable {
             D.y += (perpendicular * size).x
         }
         // Condition 4: Bottom right to top left.
-        else if self.start.x > self.end.x && self.start.y < self.end.y {
+        else if self.start.x > end.x && self.start.y < end.y {
             A.x -= (perpendicular * size).x
             A.y -= (perpendicular * size).x
             
@@ -251,9 +223,7 @@ struct Quad: Codable {
     
     
     /** Ends a quad as a circle (but technically using triangles). */
-    mutating func endAsCircle(at: CGPoint, brush: Brush) {
-        self.end = at
-        
+    mutating func endAsCircle(at end: CGPoint, brush: Brush) {
         let color = brush.color
         let texture = brush.textureName
         var verts: [Vertex] = [Vertex(position: self.start, color: color)]
@@ -285,8 +255,8 @@ struct Quad: Codable {
             }
             
             // Calculate the point at the distance around the circle.
-            let _x = cos(rads(forDegree: i)) * abs(self.end.x - self.start.x)
-            let _y = sin(rads(forDegree: i)) * abs(self.end.y - self.start.y)
+            let _x = cos(rads(forDegree: i)) * abs(end.x - self.start.x)
+            let _y = sin(rads(forDegree: i)) * abs(end.y - self.start.y)
             let pos: CGPoint = CGPoint(x: self.start.x + _x, y: self.start.y + _y)
             verts.append(Vertex(position: pos, color: color, texture: texture != nil ? SIMD2<Float>(x: poses[pose].x, y: poses[pose].y) : nil))
             
@@ -301,15 +271,8 @@ struct Quad: Codable {
     // MARK: Encoding
     
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: QuadCodingKeys.self)
-        
-        try container.encode(vertices, forKey: .vertices)
-        try container.encode(start, forKey: .start)
-        try container.encode(end, forKey: .end)
-        try container.encode(c, forKey: .c)
-        try container.encode(d, forKey: .d)
-        try container.encode(startForce, forKey: .startForce)
-        try container.encode(endForce, forKey: .endForce)
+        var container = encoder.unkeyedContainer()
+        try container.encode(vertices)
     }
     
     

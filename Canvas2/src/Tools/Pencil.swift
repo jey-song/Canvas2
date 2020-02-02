@@ -45,9 +45,7 @@ public struct Pencil: Tool {
         canvas.setForce(value: firstTouch.force)
         
         // Start a new quad when a touch is down.
-        var quad = Quad(start: point)
-        quad.startForce = canvas.forceEnabled ? canvas.force : 1.0
-        
+        let quad = Quad(start: point)
         canvas.currentPath.startPath(quad: quad)
         return true
     }

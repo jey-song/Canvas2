@@ -46,23 +46,36 @@ struct Vertex: Codable {
     // MARK: Codable
     
     public init(from decoder: Decoder) throws {
-        let container = try? decoder.container(keyedBy: VertexCodingKeys.self)
+        var container = try? decoder.unkeyedContainer()
         
-        self.position = try container?.decodeIfPresent(SIMD4<Float>.self, forKey: .position) ?? SIMD4<Float>(x: 0, y: 0, z: 0, w: 0)
-        self.color = try container?.decodeIfPresent(SIMD4<Float>.self, forKey: .color) ?? SIMD4<Float>(x: 0, y: 0, z: 0, w: 1)
-        self.texture = try container?.decodeIfPresent(SIMD2<Float>.self, forKey: .texture) ?? SIMD2<Float>(x: -1, y: -1)
-        self.erase = try container?.decodeIfPresent(Float.self, forKey: .erase) ?? 0.0
+        let decString = (try container?.decodeIfPresent(String.self) ?? "0,0,0,1*0,0,0,1*-1,-1*0.0").split(separator: "*")
+        let posString = decString[0]
+        let colString = decString[1]
+        let texString = decString[2]
+        let eraseString = decString[3]
+        
+        let posArr = posString.split(separator: ",")
+        let colArr = colString.split(separator: ",")
+        let texArr = texString.split(separator: ",")
+        
+        self.position = SIMD4<Float>(x: Float(posArr[0]) ?? 0.0, y: Float(posArr[1]) ?? 0.0, z:0, w: 1)
+        self.color = SIMD4<Float>(x: Float(colArr[0]) ?? 0.0, y: Float(colArr[1]) ?? 0.0, z: Float(colArr[2]) ?? 0.0, w: Float(colArr[3]) ?? 0.0)
+        self.texture = SIMD2<Float>(x: Float(texArr[0]) ?? 0.0, y: Float(texArr[1]) ?? 0.0)
+        self.erase = Float(eraseString) ?? 0.0
     }
     
     
     
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: VertexCodingKeys.self)
+        var container = encoder.unkeyedContainer()
         
-        try container.encode(position, forKey: .position)
-        try container.encode(color, forKey: .color)
-        try container.encode(texture, forKey: .texture)
-        try container.encode(erase, forKey: .erase)
+        let posString = "\(position.x),\(position.y)"
+        let colString = "\(color.x),\(color.y),\(color.z),\(color.w)"
+        let texString = "\(texture.x),\(texture.y)"
+        let eraseString = "\(erase)"
+        
+        let encodeString = "\(posString)*\(colString)*\(texString)*\(eraseString)"
+        try container.encode(encodeString)
     }
     
     

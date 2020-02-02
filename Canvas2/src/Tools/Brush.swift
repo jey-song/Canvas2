@@ -87,16 +87,27 @@ public struct Brush: Codable {
     }
     
     public init(from decoder: Decoder) throws {
-        let container = try? decoder.container(keyedBy: BrushCodingKeys.self)
-        name = try container?.decodeIfPresent(String.self, forKey: .name) ?? "defaultBrush"
-        size = try container?.decodeIfPresent(CGFloat.self, forKey: .size) ?? 10
+        var container = try? decoder.unkeyedContainer()
         
-        let c = try container?.decodeIfPresent([CGFloat].self, forKey: .color) ?? [0,0,0,1]
-        color = UIColor(red: c[0], green: c[1], blue: c[2], alpha: c[3])
-        opacity = try container?.decodeIfPresent(CGFloat.self, forKey: .opacity) ?? 1.0
-        textureName = try container?.decodeIfPresent(String?.self, forKey: .textureID) ?? ""
-        isEraser = try container?.decodeIfPresent(Bool.self, forKey: .isEraser) ?? false
-        name = try container?.decodeIfPresent(String.self, forKey: .name) ?? "defaultBrush"
+        let decArr = (try container?.decodeIfPresent(String.self) ?? "").split(separator: "*")
+        let nameString = String(decArr[0])
+        let sizeString = String(decArr[1])
+        let colorString = String(decArr[2]).split(separator: ",")
+        let opacityString = String(decArr[3])
+        let texNameString = String(decArr[4])
+        let isEraserString = String(decArr[5])
+        
+        self.name = nameString
+        self.size = CGFloat(truncating: NumberFormatter().number(from: sizeString) ?? 10.0)
+        self.color = UIColor(
+            red: CGFloat(truncating: NumberFormatter().number(from: String(colorString[0])) ?? 0.0),
+            green: CGFloat(truncating: NumberFormatter().number(from: String(colorString[1])) ?? 0.0),
+            blue: CGFloat(truncating: NumberFormatter().number(from: String(colorString[2])) ?? 0.0),
+            alpha: CGFloat(truncating: NumberFormatter().number(from: String(colorString[3])) ?? 0.0)
+        )
+        self.opacity = CGFloat(truncating: NumberFormatter().number(from: opacityString) ?? 1.0)
+        self.textureName = texNameString == "" ? nil : texNameString
+        self.isEraser = isEraserString == "true" ? true : false
     }
     
     
@@ -148,18 +159,18 @@ public struct Brush: Codable {
     }
     
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: BrushCodingKeys.self)
-        try container.encode(name, forKey: .name)
-        try container.encode(size, forKey: .size)
-        
+        var container = encoder.unkeyedContainer()
         let c = color.rgba
-        try container.encode([
-            c.red, c.green, c.blue, c.alpha
-        ], forKey: .color)
-        try container.encode(opacity, forKey: .opacity)
         
-        try container.encode(textureName, forKey: .textureID)
-        try container.encode(isEraser, forKey: .isEraser)
+        let nameString = "\(name)"
+        let sizeString = "\(size)"
+        let colorString = "\(c.red),\(c.green),\(c.blue),\(c.alpha)"
+        let opacityString = "\(opacity)"
+        let texNameString = "\(textureName ?? "")"
+        let isEraserString = "\(isEraser)"
+        
+        let encodeString = "\(nameString)*\(sizeString)*\(colorString)*\(opacityString)*\(texNameString)*\(isEraserString)"
+        try container.encode(encodeString)
     }
     
 }

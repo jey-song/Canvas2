@@ -519,13 +519,21 @@ class ViewController: UIViewController, CanvasEvents {
         canvas.undo()
     }
     
+    
+    var data: Data?
+    
     @objc func redo() {
-        canvas.redo()
+//        canvas.redo()
+        
+        let _ = canvas.load(from: data!)
     }
     
     @objc func export() {
-        guard let img = canvas.export() else { return }
-        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
+//        guard let img = canvas.export() else { return }
+//        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
+        
+        guard let d = canvas.exportLayers() else { return }
+        self.data = d
     }
     
     

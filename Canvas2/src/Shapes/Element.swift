@@ -21,8 +21,9 @@ public struct Element: Codable {
     internal var brushName: String
     internal var quads: [Quad]
     
+    internal var C: CGPoint?
+    internal var D: CGPoint?
     internal var nextQuad: Quad?
-    internal var lastQuad: Quad?
     
     internal var canvas: Canvas?
     internal var buffer: MTLBuffer?
@@ -50,10 +51,10 @@ public struct Element: Codable {
     }
     
     public init(from decoder: Decoder) throws {
-        let container = try? decoder.container(keyedBy: ElementCodingKeys.self)
+        var container = try? decoder.unkeyedContainer()
         
-        self.quads = try container?.decodeIfPresent([Quad].self, forKey: .quads) ?? []
-        self.brushName = try container?.decodeIfPresent(String.self, forKey: .brushID) ?? "defaultBrush"
+        self.quads = try container?.decodeIfPresent([Quad].self) ?? []
+        self.brushName = try container?.decodeIfPresent(String.self) ?? "defaultBrush"
     }
     
     
@@ -78,8 +79,9 @@ public struct Element: Codable {
      entirely new element (i.e. lifting the stylus and drawing a new curve). */
     internal mutating func closePath() {
         nextQuad = nil
-        lastQuad = nil
         quads = []
+        C = nil
+        D = nil
     }
     
     /** Ends the last quad that exists on this element. */
@@ -97,17 +99,35 @@ public struct Element: Codable {
                 BrushOption.IsEraser: canvas.currentBrush.isEraser,
             ]
         ) else { return }
-        next.endForce = canvas.forceEnabled ? canvas.force : 1.0
         
         // Call the quad's end method to set the vertices.
-        if let last = lastQuad { next.end(at: point, brush: brush, prevA: last.c, prevB: last.d) }
-        else { next.end(at: point, brush: brush) }
+        if let c = self.C, let d = self.D {
+            let (_c, _d) = next.end(
+                at: point,
+                brush: brush,
+                prevA: c,
+                prevB: d,
+                startForce: 0.0,
+                endForce: canvas.forceEnabled ? canvas.force : 1.0
+            )
+            self.C = _c
+            self.D = _d
+        }
+        else {
+            let (_c, _d) = next.end(
+                at: point,
+                brush: brush,
+                startForce: 0.0,
+                endForce: canvas.forceEnabled ? canvas.force : 1.0
+            )
+            self.C = _c
+            self.D = _d
+        }
         
         // Finally, add the next quad onto this element.
         quads.append(next)
         
         // Make sure to move the pointers.
-        lastQuad = next
         nextQuad = Quad(start: point)
     }
     
@@ -210,10 +230,10 @@ public struct Element: Codable {
     // MARK: Codable
     
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: ElementCodingKeys.self)
+        var container = encoder.unkeyedContainer()
         
-        try container.encode(brushName, forKey: .brushID)
-        try container.encode(quads, forKey: .quads)
+        try container.encode(quads)
+        try container.encode(brushName)
     }
     
 }
