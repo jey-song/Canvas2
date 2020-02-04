@@ -28,6 +28,9 @@ public struct Element: Codable {
     internal var canvas: Canvas?
     internal var buffer: MTLBuffer?
     
+    internal var indices: [UInt16] = []
+    internal var indicesBuffer: MTLBuffer?
+    
     
     // --> Public
     
@@ -59,7 +62,9 @@ public struct Element: Codable {
     
     
     public func copy() -> Element {
-        let e = Element(quads: self.quads, canvas: self.canvas, brushName: self.brushName)
+        var e = Element(quads: self.quads, canvas: self.canvas, brushName: self.brushName)
+        e.indicesBuffer = self.indicesBuffer
+        e.indices = self.indices
         return e
     }
     
@@ -108,7 +113,8 @@ public struct Element: Codable {
                 prevA: c,
                 prevB: d,
                 startForce: 0.0,
-                endForce: canvas.forceEnabled ? canvas.force : 1.0
+                endForce: canvas.forceEnabled ? canvas.force : 1.0,
+                offset: quads.count
             )
             self.C = _c
             self.D = _d
@@ -118,7 +124,8 @@ public struct Element: Codable {
                 at: point,
                 brush: brush,
                 startForce: 0.0,
-                endForce: canvas.forceEnabled ? canvas.force : 1.0
+                endForce: canvas.forceEnabled ? canvas.force : 1.0,
+                offset: quads.count
             )
             self.C = _c
             self.D = _d
@@ -131,8 +138,8 @@ public struct Element: Codable {
         nextQuad = Quad(start: point)
     }
     
-    /**Ends the curve as a rectangle.  */
-    internal mutating func endRectangle(at point: CGPoint) {
+    /**Ends the curve as a particular tool.  */
+    internal mutating func end(at point: CGPoint, as tool: CanvasTool) {
         guard let canvas = canvas else { return }
         guard var next = nextQuad else { return }
         guard let brush = canvas.getBrush(
@@ -146,51 +153,15 @@ public struct Element: Codable {
             ]
         ) else { return }
 
-        // End and display the quad as a rectangle where you currently drag.
-        next.endAsRectangle(at: point, brush: brush)
+        // End and display the quad as the current tool where you currently drag.
+        switch tool {
+            case .rectangle: next.endAsRectangle(at: point, brush: brush); break
+            case .line: next.endAsLine(at: point, brush: brush); break
+            case .ellipse: next.endAsCircle(at: point, brush: brush); break
+            default: next.endAsRectangle(at: point, brush: brush); break
+        }
         quads = [next]
     }
-    
-    /** Ends the curve as a line. */
-    internal mutating func endLine(at point: CGPoint) {
-        guard let canvas = canvas else { return }
-        guard var next = nextQuad else { return }
-        guard let brush = canvas.getBrush(
-            withName: self.brushName,
-            with: [
-                BrushOption.Size: canvas.currentBrush.size,
-                BrushOption.Color: canvas.currentBrush.color,
-                BrushOption.Opacity: canvas.currentBrush.opacity,
-                BrushOption.TextureName: canvas.currentBrush.textureName,
-                BrushOption.IsEraser: canvas.currentBrush.isEraser,
-            ]
-        ) else { return }
-        
-        // End and display the quad as a line where you currently drag.
-        next.endAsLine(at: point, brush: brush)
-        quads = [next]
-    }
-    
-    /** Ends the curve as an ellipse. */
-    internal mutating func endEllipse(at point: CGPoint) {
-        guard let canvas = canvas else { return }
-        guard var next = nextQuad else { return }
-        guard let brush = canvas.getBrush(
-            withName: self.brushName,
-            with: [
-                BrushOption.Size: canvas.currentBrush.size,
-                BrushOption.Color: canvas.currentBrush.color,
-                BrushOption.Opacity: canvas.currentBrush.opacity,
-                BrushOption.TextureName: canvas.currentBrush.textureName,
-                BrushOption.IsEraser: canvas.currentBrush.isEraser,
-            ]
-        ) else { return }
-        
-        // End and display the quad as an ellipse where you currently drag.
-        next.endAsCircle(at: point, brush: brush)
-        quads = [next]
-    }
-    
     
     
     // MARK: Rendering
@@ -198,13 +169,26 @@ public struct Element: Codable {
     /** Rebuilds the buffer. */
     internal mutating func rebuildBuffer() {
         guard let canvas = canvas else { return }
+        
         let vertices = quads.flatMap { $0.vertices }
-        guard vertices.count > 0 else { return }
-        buffer = canvas.device!.makeBuffer(
-            bytes: vertices,
-            length: vertices.count * MemoryLayout<Vertex>.stride,
-            options: []
-        )
+        if vertices.count > 0 {
+            buffer = canvas.device!.makeBuffer(
+                bytes: vertices,
+                length: vertices.count * MemoryLayout<Vertex>.stride,
+                options: []
+            )
+        }
+        
+        indices = quads.enumerated().flatMap({ (offset, quad) -> [UInt16] in
+            return quad.indices.map { $0 + UInt16(offset * MemoryLayout<UInt16>.stride) }
+        })
+        if indices.count > 0 {
+            self.indicesBuffer = canvas.device!.makeBuffer(
+                bytes: indices,
+                length: indices.count * MemoryLayout<UInt16>.stride,
+                options: []
+            )
+        }
     }
     
     /** Renders the element to the screen. */
@@ -222,8 +206,21 @@ public struct Element: Codable {
         }
         encoder.setFragmentSamplerState(canvas.sampleState, index: 0)
         
-        let count = vBuff.length / MemoryLayout<Vertex>.stride
-        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: count)
+        // Draw primitives.
+        if let ibuff = indicesBuffer {
+            encoder.drawIndexedPrimitives(
+                type: .triangle,
+                indexCount: indices.count,
+                indexType: .uint16,
+                indexBuffer: ibuff,
+                indexBufferOffset: 0
+            )
+            print("drew indexed")
+        } else {
+            let count = vBuff.length / MemoryLayout<Vertex>.stride
+            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: count)
+            print("drew regular")
+        }
     }
     
     

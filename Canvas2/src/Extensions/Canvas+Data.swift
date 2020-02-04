@@ -41,7 +41,7 @@ extension Canvas {
     }
     
     /** Exports a single layer's drawing data. */
-    public func exportLayerDrawings(at index: Int) -> Data? {
+    public func exportLayerElements(at index: Int) -> Data? {
         guard index >= 0 && index < canvasLayers.count else { return nil }
         
         do {
@@ -53,9 +53,20 @@ extension Canvas {
         }
     }
     
+    /** Sets layer data given properly formatted element data. */
+    public func load(drawings data: Data, onto layer: Int) -> Bool {
+        guard layer >= 0 && layer < canvasLayers.count else { return false }
+        
+        guard let dec = try? JSONDecoder().decode([Element].self, from: data) else { return false }
+        canvasLayers[layer].elements = dec
+        rebuildBuffer()
+        
+        return true
+    }
+    
     /** Loads layer data onto the canvas, then reloads the canvas. */
     public func load(from layersData: Data) -> Bool {
-        guard var layers = try? JSONDecoder().decode([Layer].self, from: layersData) else {
+        guard let layers = try? JSONDecoder().decode([Layer].self, from: layersData) else {
             return false
         }
         
@@ -64,41 +75,21 @@ extension Canvas {
         mainTexture = nil
         mainBuffer = nil
         
-        // Make sure all canvas references are set.
-        for i in 0..<layers.count {
-            layers[i].canvas = self
-            for j in 0..<layers[i].elements.count {
-                layers[i].elements[j].canvas = self
-                layers[i].elements[j].rebuildBuffer()
-            }
-        }
-        
         canvasLayers = layers
         currentLayer = layers.count > 0 ? 0 : -1
         rebuildBuffer()
-        setNeedsDisplay()
         return true
     }
     
     /** Sets the layers based on whatever you pass in.. */
-    public func load(layers: [Layer]) -> Bool {
+    public func set(layers: [Layer]) -> Bool {
         canvasLayers.removeAll()
         currentLayer = 0
         mainTexture = nil
         mainBuffer = nil
         
-        // Make sure all canvas references are set.
-        var copy = layers
-        for i in 0..<copy.count {
-            copy[i].canvas = self
-            for j in 0..<copy[i].elements.count {
-                copy[i].elements[j].canvas = self
-                copy[i].elements[j].rebuildBuffer()
-            }
-        }
-        
-        canvasLayers = copy
-        currentLayer = copy.count > 0 ? 0 : -1
+        canvasLayers = layers
+        currentLayer = layers.count > 0 ? 0 : -1
         rebuildBuffer()
         return true
     }

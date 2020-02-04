@@ -53,7 +53,7 @@ public struct Rectangle: Tool {
         guard canvas.isOnValidLayer() else { return false }
         
         let point = firstTouch.metalLocation(in: canvas)
-        canvas.currentPath.endRectangle(at: point)
+        canvas.currentPath.end(at: point, as: .rectangle)
         return true
     }
     

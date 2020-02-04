@@ -53,7 +53,7 @@ public struct Ellipse: Tool {
         guard canvas.isOnValidLayer() else { return false }
         
         let point = firstTouch.metalLocation(in: canvas)
-        canvas.currentPath.endEllipse(at: point)
+        canvas.currentPath.end(at: point, as: .ellipse)
         return true
     }
     

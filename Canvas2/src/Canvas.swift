@@ -157,6 +157,8 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         self.clearColor = self.canvasColor.metalClearColor
         self.delegate = self
         self.isOpaque = false
+        self.isPaused = true
+        self.enableSetNeedsDisplay = true
         (self.layer as? CAMetalLayer)?.isOpaque = false
         
         // Configure the pipeline.
@@ -392,17 +394,58 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
                 }
             }
         }
+//        print(canvasLayers[0].elements[0].quads.flatMap { $0.vertices }.count)
+//        print(canvasLayers[0].elements[0].indices.count)
         
-        // Remake the buffer with the newly added element.
-        let elements = canvasLayers.filter { $0.isHidden == false }.flatMap { $0.elements }
-        let verts = elements.flatMap { $0.quads }.flatMap { $0.vertices }
-        let count = verts.count * MemoryLayout<Vertex>.stride
-        let defaultViewCount = viewportVertices.count * MemoryLayout<Vertex>.stride
-        mainBuffer = device!.makeBuffer(
-            bytes: count > 0 ? verts : viewportVertices,
-            length: count > 0 ? count : defaultViewCount,
-            options: []
-        )
+//        var e1 = Element(quads: [], canvas: self, brushName: "basicPencil")
+//        var q = Quad(start: CGPoint(x: 0, y: 0))
+//        var q2 = Quad(start: CGPoint(x: 0, y: 0))
+//        var q3 = Quad(start: CGPoint(x: 0, y: 0))
+//        q.vertices = [
+//            Vertex(position: CGPoint(x: 0, y: 0), color: .black), // tr
+//            Vertex(position: CGPoint(x: -1, y: 0), color: .black), // tl
+//            Vertex(position: CGPoint(x: -1, y: -1), color: .black), // bl
+////            Vertex(position: CGPoint(x: 0, y: -1), color: .black), // br
+//
+//        ]
+////        q.indices = [
+////            0, 1, 2,
+////            0, 2, 3
+////        ]
+//        q2.vertices = [
+//            Vertex(position: CGPoint(x: 0, y: 0), color: .black), // tr
+//            Vertex(position: CGPoint(x: -1, y: -1), color: .black), // bl
+//            Vertex(position: CGPoint(x: 0, y: -1), color: .black), // br
+////            Vertex(position: CGPoint(x: 1, y: 1), color: .black), // tr
+////            Vertex(position: CGPoint(x: 0, y: 1), color: .black), // tl
+////            Vertex(position: CGPoint(x: 0, y: 0), color: .black), // bl
+////            Vertex(position: CGPoint(x: 1, y: 0), color: .black), // br
+//
+//        ]
+////        q2.indices = [
+////            0, 1, 2,
+////            0, 2, 3
+////            ].map { $0 + UInt32(MemoryLayout<UInt32>.size) }
+//        q3.vertices = [
+//            Vertex(position: CGPoint(x: 1, y: 0), color: .black), // tr
+//            Vertex(position: CGPoint(x: 0, y: 0), color: .black), // tl
+//            Vertex(position: CGPoint(x: -1, y: -1), color: .black), // bl
+//            Vertex(position: CGPoint(x: 1, y: -1), color: .black), // br
+//
+//        ]
+////        q3.indices = [
+////            0, 1, 2,
+////            0, 2, 3
+////            ].map { $0 + UInt32(MemoryLayout<UInt32>.size) + UInt32(MemoryLayout<UInt32>.size) }
+//        e1.quads = [q, q2,]
+////        e1.indices.append(contentsOf: q.indices)
+////        e1.indices.append(contentsOf: q2.indices)
+////        e1.indices.append(contentsOf: q3.indices)
+//        e1.rebuildBuffer()
+//        canvasLayers[0].add(element: e1)
+        
+        // Repaint the canvas.
+        setNeedsDisplay()
     }
     
     /** Finish the current drawing path and add it to the canvas. Then repaint the view. Never needs to be called manually. */
@@ -415,20 +458,16 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         guard let rpd = currentRenderPassDescriptor else { return }
         guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
         guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { return }
-
-        // Send the commands to the encoder and redraw the canvas.
-        if let buff = mainBuffer {
-            let vertCount = buff.length / MemoryLayout<Vertex>.stride
-            encoder.setRenderPipelineState(pipeline)
-            encoder.setVertexBuffer(buff, offset: 0, index: 0)
-            encoder.setFragmentTexture(mainTexture, index: 0)
-            encoder.setFragmentSamplerState(sampleState, index: 0)
-            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertCount)
-        }
         
         // Render each layer.
         for i in 0..<canvasLayers.count {
             let layer = canvasLayers[i]
+
+            // Occurs when loading from data.
+            if layer.canvas == nil {
+                canvasLayers[i].canvas = self
+            }
+
             if layer.isHidden == true { continue }
             canvasLayers[i].render(index: i, buffer: commandBuffer, encoder: encoder)
         }

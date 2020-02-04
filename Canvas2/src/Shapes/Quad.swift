@@ -18,6 +18,8 @@ struct Quad: Codable {
 
     var vertices: [Vertex]
     
+    var indices: [UInt16]
+    
     var start: CGPoint
     
     
@@ -26,6 +28,7 @@ struct Quad: Codable {
     
     init(start: CGPoint) {
         self.vertices = []
+        self.indices = []
         self.start = start
     }
     
@@ -34,6 +37,7 @@ struct Quad: Codable {
         
         self.vertices = try container?.decode([Vertex].self) ?? []
         self.start = CGPoint.zero
+        self.indices = []
     }
     
     
@@ -47,9 +51,9 @@ struct Quad: Codable {
         prevA: CGPoint? = nil,
         prevB: CGPoint? = nil,
         startForce: CGFloat = 1.0,
-        endForce: CGFloat = 1.0
-    ) -> (_: CGPoint, _:CGPoint)
-    {
+        endForce: CGFloat = 1.0,
+        offset: Int
+    ) -> (_: CGPoint, _:CGPoint) {
         let size = (((brush.size / 100) * 4) / 2) / 50
         let color = brush.color
         let texture = brush.textureName
@@ -68,17 +72,26 @@ struct Quad: Codable {
         }
         
         // Place the quad points into the vertices array to form two triangles.
+//        self.vertices = [
+//            // Triangle 1
+//            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+//            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
+//            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
+//
+//            // Triangle 2
+//            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+//            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
+//            Vertex(position: D, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
+//        ]
         self.vertices = [
-            // Triangle 1
             Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
             Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
-            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
-
-            // Triangle 2
-            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
             Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
             Vertex(position: D, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
         ]
+
+        let i = [0, 1, 2, 2, 1, 3].map { UInt16($0 + (offset * MemoryLayout<UInt16>.stride )) }
+        self.indices.append(contentsOf: i)
         return (C, D)
     }
     

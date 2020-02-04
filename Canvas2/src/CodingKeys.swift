@@ -10,15 +10,6 @@ import Foundation
 import UIKit
 
 
-internal enum BrushCodingKeys: CodingKey {
-    case name
-    case size
-    case color
-    case opacity
-    case isEraser
-    case textureName
-}
-
 internal enum LayerCodingKeys: CodingKey {
     case elements
     case isLocked

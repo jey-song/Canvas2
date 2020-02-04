@@ -100,6 +100,13 @@ public struct Layer: Codable {
         guard let canvas = self.canvas else { return }
         
         for var element in elements {
+            
+            // Occurs when loading from data.
+            if element.canvas == nil {
+                element.canvas = canvas
+                element.rebuildBuffer()
+            }
+            
             element.render(canvas: canvas, buffer: buffer, encoder: encoder)
         }
         

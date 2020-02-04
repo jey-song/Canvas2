@@ -53,7 +53,7 @@ public struct Line: Tool {
         guard canvas.isOnValidLayer() else { return false }
         
         let point = firstTouch.metalLocation(in: canvas)
-        canvas.currentPath.endLine(at: point)
+        canvas.currentPath.end(at: point, as: .line)
         return true
     }
     

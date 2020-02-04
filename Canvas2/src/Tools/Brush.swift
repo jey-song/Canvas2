@@ -89,7 +89,8 @@ public struct Brush: Codable {
     public init(from decoder: Decoder) throws {
         var container = try? decoder.unkeyedContainer()
         
-        let decArr = (try container?.decodeIfPresent(String.self) ?? "").split(separator: "*")
+        let data = try container?.decodeIfPresent(Data.self) ?? Data()
+        let decArr = (String(data: data, encoding: .utf8) ?? "").split(separator: "*")
         let nameString = String(decArr[0])
         let sizeString = String(decArr[1])
         let colorString = String(decArr[2]).split(separator: ",")
@@ -98,14 +99,14 @@ public struct Brush: Codable {
         let isEraserString = String(decArr[5])
         
         self.name = nameString
-        self.size = CGFloat(truncating: NumberFormatter().number(from: sizeString) ?? 10.0)
+        self.size = CGFloat((sizeString as NSString).floatValue)
         self.color = UIColor(
-            red: CGFloat(truncating: NumberFormatter().number(from: String(colorString[0])) ?? 0.0),
-            green: CGFloat(truncating: NumberFormatter().number(from: String(colorString[1])) ?? 0.0),
-            blue: CGFloat(truncating: NumberFormatter().number(from: String(colorString[2])) ?? 0.0),
-            alpha: CGFloat(truncating: NumberFormatter().number(from: String(colorString[3])) ?? 0.0)
+            red: CGFloat((colorString[0] as NSString).floatValue),
+            green: CGFloat((colorString[1] as NSString).floatValue),
+            blue: CGFloat((colorString[2] as NSString).floatValue),
+            alpha: CGFloat((colorString[3] as NSString).floatValue)
         )
-        self.opacity = CGFloat(truncating: NumberFormatter().number(from: opacityString) ?? 1.0)
+        self.opacity = CGFloat((opacityString as NSString).floatValue)
         self.textureName = texNameString == "" ? nil : texNameString
         self.isEraser = isEraserString == "true" ? true : false
     }
@@ -170,7 +171,8 @@ public struct Brush: Codable {
         let isEraserString = "\(isEraser)"
         
         let encodeString = "\(nameString)*\(sizeString)*\(colorString)*\(opacityString)*\(texNameString)*\(isEraserString)"
-        try container.encode(encodeString)
+        let data = encodeString.data(using: .utf8)
+        try container.encode(data)
     }
     
 }

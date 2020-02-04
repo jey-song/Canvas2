@@ -61,6 +61,7 @@ public extension Canvas {
         
         // Rebuild the buffer.
         rebuildBuffer()
+        setNeedsDisplay()
         
         self.canvasDelegate?.didRemoveLayer(at: index, from: self)
     }
@@ -76,6 +77,7 @@ public extension Canvas {
         canvasLayers.insert(moveLayer, at: destIndex)
         
         rebuildBuffer()
+        setNeedsDisplay()
         
         self.canvasDelegate?.didMoveLayer(from: startIndex, to: destIndex, on: self)
     }
@@ -100,6 +102,7 @@ public extension Canvas {
         guard at >= 0 && at < canvasLayers.count else { return }
         canvasLayers[at].isHidden = true
         rebuildBuffer()
+        setNeedsDisplay()
     }
     
     
@@ -108,6 +111,7 @@ public extension Canvas {
         guard at >= 0 && at < canvasLayers.count else { return }
         canvasLayers[at].isHidden = false
         rebuildBuffer()
+        setNeedsDisplay()
     }
     
     

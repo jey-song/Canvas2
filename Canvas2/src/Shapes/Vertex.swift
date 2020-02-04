@@ -48,7 +48,8 @@ struct Vertex: Codable {
     public init(from decoder: Decoder) throws {
         var container = try? decoder.unkeyedContainer()
         
-        let decString = (try container?.decodeIfPresent(String.self) ?? "0,0,0,1*0,0,0,1*-1,-1*0.0").split(separator: "*")
+        let data = try container?.decodeIfPresent(Data.self) ?? Data()
+        let decString = (String(data: data, encoding: .utf8) ?? "0,0,0,1*0,0,0,1*-1,-1*0.0").split(separator: "*")
         let posString = decString[0]
         let colString = decString[1]
         let texString = decString[2]
@@ -75,7 +76,8 @@ struct Vertex: Codable {
         let eraseString = "\(erase)"
         
         let encodeString = "\(posString)*\(colString)*\(texString)*\(eraseString)"
-        try container.encode(encodeString)
+        let data = encodeString.data(using: .utf8)
+        try container.encode(data)
     }
     
     
