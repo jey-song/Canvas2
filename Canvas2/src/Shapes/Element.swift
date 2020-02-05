@@ -28,8 +28,6 @@ public struct Element: Codable {
     internal var canvas: Canvas?
     internal var buffer: MTLBuffer?
     
-    internal var indices: [UInt16] = []
-    internal var indicesBuffer: MTLBuffer?
     
     
     // --> Public
@@ -62,9 +60,7 @@ public struct Element: Codable {
     
     
     public func copy() -> Element {
-        var e = Element(quads: self.quads, canvas: self.canvas, brushName: self.brushName)
-        e.indicesBuffer = self.indicesBuffer
-        e.indices = self.indices
+        let e = Element(quads: self.quads, canvas: self.canvas, brushName: self.brushName)
         return e
     }
     
@@ -112,9 +108,7 @@ public struct Element: Codable {
                 brush: brush,
                 prevA: c,
                 prevB: d,
-                startForce: 0.0,
-                endForce: canvas.forceEnabled ? canvas.force : 1.0,
-                offset: quads.count
+                endForce: canvas.forceEnabled ? canvas.force : 1.0
             )
             self.C = _c
             self.D = _d
@@ -123,9 +117,7 @@ public struct Element: Codable {
             let (_c, _d) = next.end(
                 at: point,
                 brush: brush,
-                startForce: 0.0,
-                endForce: canvas.forceEnabled ? canvas.force : 1.0,
-                offset: quads.count
+                endForce: canvas.forceEnabled ? canvas.force : 1.0
             )
             self.C = _c
             self.D = _d
@@ -178,17 +170,6 @@ public struct Element: Codable {
                 options: []
             )
         }
-        
-        indices = quads.enumerated().flatMap({ (offset, quad) -> [UInt16] in
-            return quad.indices.map { $0 + UInt16(offset * MemoryLayout<UInt16>.stride) }
-        })
-        if indices.count > 0 {
-            self.indicesBuffer = canvas.device!.makeBuffer(
-                bytes: indices,
-                length: indices.count * MemoryLayout<UInt16>.stride,
-                options: []
-            )
-        }
     }
     
     /** Renders the element to the screen. */
@@ -207,20 +188,8 @@ public struct Element: Codable {
         encoder.setFragmentSamplerState(canvas.sampleState, index: 0)
         
         // Draw primitives.
-        if let ibuff = indicesBuffer {
-            encoder.drawIndexedPrimitives(
-                type: .triangle,
-                indexCount: indices.count,
-                indexType: .uint16,
-                indexBuffer: ibuff,
-                indexBufferOffset: 0
-            )
-            print("drew indexed")
-        } else {
-            let count = vBuff.length / MemoryLayout<Vertex>.stride
-            encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: count)
-            print("drew regular")
-        }
+        let count = vBuff.length / MemoryLayout<Vertex>.stride
+        encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: count)
     }
     
     

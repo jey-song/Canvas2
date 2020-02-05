@@ -394,55 +394,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
                 }
             }
         }
-//        print(canvasLayers[0].elements[0].quads.flatMap { $0.vertices }.count)
-//        print(canvasLayers[0].elements[0].indices.count)
-        
-//        var e1 = Element(quads: [], canvas: self, brushName: "basicPencil")
-//        var q = Quad(start: CGPoint(x: 0, y: 0))
-//        var q2 = Quad(start: CGPoint(x: 0, y: 0))
-//        var q3 = Quad(start: CGPoint(x: 0, y: 0))
-//        q.vertices = [
-//            Vertex(position: CGPoint(x: 0, y: 0), color: .black), // tr
-//            Vertex(position: CGPoint(x: -1, y: 0), color: .black), // tl
-//            Vertex(position: CGPoint(x: -1, y: -1), color: .black), // bl
-////            Vertex(position: CGPoint(x: 0, y: -1), color: .black), // br
-//
-//        ]
-////        q.indices = [
-////            0, 1, 2,
-////            0, 2, 3
-////        ]
-//        q2.vertices = [
-//            Vertex(position: CGPoint(x: 0, y: 0), color: .black), // tr
-//            Vertex(position: CGPoint(x: -1, y: -1), color: .black), // bl
-//            Vertex(position: CGPoint(x: 0, y: -1), color: .black), // br
-////            Vertex(position: CGPoint(x: 1, y: 1), color: .black), // tr
-////            Vertex(position: CGPoint(x: 0, y: 1), color: .black), // tl
-////            Vertex(position: CGPoint(x: 0, y: 0), color: .black), // bl
-////            Vertex(position: CGPoint(x: 1, y: 0), color: .black), // br
-//
-//        ]
-////        q2.indices = [
-////            0, 1, 2,
-////            0, 2, 3
-////            ].map { $0 + UInt32(MemoryLayout<UInt32>.size) }
-//        q3.vertices = [
-//            Vertex(position: CGPoint(x: 1, y: 0), color: .black), // tr
-//            Vertex(position: CGPoint(x: 0, y: 0), color: .black), // tl
-//            Vertex(position: CGPoint(x: -1, y: -1), color: .black), // bl
-//            Vertex(position: CGPoint(x: 1, y: -1), color: .black), // br
-//
-//        ]
-////        q3.indices = [
-////            0, 1, 2,
-////            0, 2, 3
-////            ].map { $0 + UInt32(MemoryLayout<UInt32>.size) + UInt32(MemoryLayout<UInt32>.size) }
-//        e1.quads = [q, q2,]
-////        e1.indices.append(contentsOf: q.indices)
-////        e1.indices.append(contentsOf: q2.indices)
-////        e1.indices.append(contentsOf: q3.indices)
-//        e1.rebuildBuffer()
-//        canvasLayers[0].add(element: e1)
         
         // Repaint the canvas.
         setNeedsDisplay()

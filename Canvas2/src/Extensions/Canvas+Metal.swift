@@ -61,8 +61,8 @@ internal func makeEmptyTexture(device: MTLDevice?, width: CGFloat, height: CGFlo
     guard width * height > 0 else { return nil }
     let textureDescriptor = MTLTextureDescriptor.texture2DDescriptor(
         pixelFormat: format,
-        width: Int(width),
-        height: Int(height),
+        width: width >= 8192 ? 8192 : Int(width),
+        height: height >= 8192 ? 8192 : Int(height),
         mipmapped: false
     )
     textureDescriptor.usage = [.renderTarget, .shaderRead]
