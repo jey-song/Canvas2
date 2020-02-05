@@ -38,12 +38,11 @@ public struct Rectangle: Tool {
     
     public func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard let canvas = self.canvas else { return false }
-        let point = firstTouch.metalLocation(in: canvas)
         guard canvas.isOnValidLayer() else { return false }
+        let point = firstTouch.metalLocation(in: canvas)
         
         // When drawing a rectangle, you only need one quad to work with.
-        let quad = Quad(start: point)
-//        canvas.currentPath.startPath(quad: quad)
+        canvas.currentPath.startPath(point: point, isFreeHand: false)
         return true
     }
     
@@ -61,6 +60,11 @@ public struct Rectangle: Tool {
         guard let canvas = self.canvas else { return false }
         guard canvas.isOnValidLayer() else { return false }
         
+        if let first = touches.first {
+            let p = first.metalLocation(in: canvas)
+            canvas.currentPath!.end(at: p, as: .rectangle)
+        }
+        
         // Clear the current drawing curve.
         canvas.rebuildBuffer()
         canvas.currentPath?.closePath()
@@ -70,6 +74,11 @@ public struct Rectangle: Tool {
     public func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard let canvas = self.canvas else { return false }
         guard canvas.isOnValidLayer() else { return false }
+        
+        if let first = touches.first {
+            let p = first.metalLocation(in: canvas)
+            canvas.currentPath!.end(at: p, as: .rectangle)
+        }
         
         // Clear the current drawing curve.
         canvas.rebuildBuffer()

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5A122D7323CF7E3200979CE8 /* CGPoint+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A122D7223CF7E3200979CE8 /* CGPoint+Extensions.swift */; };
 		5A23DAC023D179B40067EF38 /* Eraser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A23DABF23D179B40067EF38 /* Eraser.swift */; };
+		5A38055423EB54CD00EECC6B /* Element+Shapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A38055323EB54CD00EECC6B /* Element+Shapes.swift */; };
 		5A39413423EA70D000D85ACA /* Smudge.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A39413323EA70D000D85ACA /* Smudge.png */; };
 		5A39413623EA7CB700D85ACA /* Bezier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A39413523EA7CB700D85ACA /* Bezier.swift */; };
 		5A39413823EA897000D85ACA /* brush.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A39413723EA897000D85ACA /* brush.png */; };
@@ -48,6 +49,7 @@
 /* Begin PBXFileReference section */
 		5A122D7223CF7E3200979CE8 /* CGPoint+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGPoint+Extensions.swift"; sourceTree = "<group>"; };
 		5A23DABF23D179B40067EF38 /* Eraser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Eraser.swift; sourceTree = "<group>"; };
+		5A38055323EB54CD00EECC6B /* Element+Shapes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Element+Shapes.swift"; sourceTree = "<group>"; };
 		5A39413323EA70D000D85ACA /* Smudge.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Smudge.png; sourceTree = "<group>"; };
 		5A39413523EA7CB700D85ACA /* Bezier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bezier.swift; sourceTree = "<group>"; };
 		5A39413723EA897000D85ACA /* brush.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = brush.png; sourceTree = "<group>"; };
@@ -180,6 +182,7 @@
 				5A6CA27A237B05930036DF3B /* Canvas+Touch.swift */,
 				5AACBBBD23D376F700ECDA8F /* Canvas+Layers.swift */,
 				5A3C7C0523E4B17700FB760A /* Canvas+Data.swift */,
+				5A38055323EB54CD00EECC6B /* Element+Shapes.swift */,
 				5A6CA278237B030C0036DF3B /* UIColor+RGB.swift */,
 				5A6CA280237B35A20036DF3B /* UITouch+Metal.swift */,
 				5A122D7223CF7E3200979CE8 /* CGPoint+Extensions.swift */,
@@ -284,6 +287,7 @@
 				5AACBBBE23D376F700ECDA8F /* Canvas+Layers.swift in Sources */,
 				5A92EAB823D09D0E00F4A53A /* Pencil.swift in Sources */,
 				5A39413623EA7CB700D85ACA /* Bezier.swift in Sources */,
+				5A38055423EB54CD00EECC6B /* Element+Shapes.swift in Sources */,
 				5A6CA281237B35A20036DF3B /* UITouch+Metal.swift in Sources */,
 				5A92EAB623D09C5E00F4A53A /* Tool.swift in Sources */,
 				5A4C9C5D2374E88C0019ED83 /* AppDelegate.swift in Sources */,

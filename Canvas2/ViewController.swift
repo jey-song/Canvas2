@@ -392,16 +392,10 @@ class ViewController: UIViewController, CanvasEvents {
             BrushOption.Color: UIColor.black,
             BrushOption.TextureName: "paperTexture"
         ])
-        let basicPencilEraser: Brush = Brush(canvas: canvas, name: "basicPencilEraser", config: [
-            BrushOption.Size: CGFloat(40),
-            BrushOption.Opacity: 0.5,
-            BrushOption.IsEraser: true
-        ])
         canvas.addBrush(basicPencil)
         canvas.addBrush(basicInk)
         canvas.addBrush(basicBrush)
-        canvas.addBrush(basicPencilEraser)
-        print("Added the basic pencil, basic ink, and basic paintbrush brushes! Also added an eraser.")
+        print("Added the basic pencil, basic ink, and basic paintbrush brushes!")
         
         // Set the current brush.
         canvas.changeBrush(to: "basicPencil")
@@ -551,12 +545,6 @@ class ViewController: UIViewController, CanvasEvents {
     
     func didChangeTool(to tool: Tool) {
         print("---> Changed Tool: \(tool)")
-        
-        if tool.name == "eraser" {
-            canvas.changeBrush(to: "basicPencilEraser")
-        } else {
-            changeBrush()
-        }
     }
     
     func didUndo(on canvas: Canvas) {

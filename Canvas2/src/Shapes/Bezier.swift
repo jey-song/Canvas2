@@ -10,69 +10,79 @@ import Foundation
 import UIKit
 
 
-class BezierGenerator {
-
-    enum Style {
-        case linear
-        case quadratic  // this is the only style currently supported
-        case cubic
+/** A class used for generating bezier curves. */
+internal class BezierGenerator {
+    
+    // MARK: Variables
+    
+    private static var points: [CGPoint] = []
+    
+    private static var step: Int = 0
+    
+    
+    
+    // MARK: Initialization.
+       
+    
+    
+    // MARK: Functions
+    
+    /** Starts the path with a new point. */
+    static func startPath(with point: CGPoint) {
+        BezierGenerator.step = 0
+        BezierGenerator.points.removeAll()
+        BezierGenerator.points.append(point)
     }
+    
+    /** Adds additional points onto the path between the last point and the current point. */
+    static func add(point: CGPoint) -> [CGPoint] {
+        guard point != BezierGenerator.points.last else { return [] }
+        BezierGenerator.points.append(point)
         
-    init() {
-    }
-    
-    init(beginPoint: CGPoint) {
-        begin(with: beginPoint)
-    }
-    
-    func begin(with point: CGPoint) {
-        step = 0
-        points.removeAll()
-        points.append(point)
-    }
-    
-    func pushPoint(_ point: CGPoint) -> [CGPoint] {
-        if point == points.last {
-            return []
-        }
-        points.append(point)
-        if points.count < style.pointCount {
-            return []
-        }
-        step += 1
-        let result = genericPathPoints()
+        guard BezierGenerator.points.count >= 3 else { return [] }
+        BezierGenerator.step += 1
+        
+        let result = BezierGenerator.intermediatePoints()
         return result
     }
     
-    func finish() {
-        step = 0
-        points.removeAll()
+    /** Closes the bezier path so that it can start again when you draw a new curve. */
+    static func closePath() {
+        BezierGenerator.step = 0
+        BezierGenerator.points.removeAll()
     }
     
-    var points: [CGPoint] = []
-    var style: Style = .quadratic
     
-    private var step = 0
-    private func genericPathPoints() -> [CGPoint] {
-        
-        var begin: CGPoint
-        var control: CGPoint
-        let end = CGPoint.middle(p1: points[step], p2: points[step + 1])
-
+    
+    // MARK: Other
+    
+    /** Generates intermediate points between a set of points. */
+    private static func intermediatePoints() -> [CGPoint] {
+        var begin: CGPoint = .zero
+        var control: CGPoint = .zero
+        let end = CGPoint.middle(
+            p1: BezierGenerator.points[BezierGenerator.step],
+            p2: BezierGenerator.points[BezierGenerator.step + 1]
+        )
         var vertices: [CGPoint] = []
-        if step == 1 {
-            begin = points[0]
-            let middle1 = CGPoint.middle(p1: points[0], p2: points[1])
-            control = CGPoint.middle(p1: middle1, p2: points[1])
+        
+        if BezierGenerator.step == 1 {
+            begin = BezierGenerator.points[0]
+            let middle1 = CGPoint.middle(
+                p1: BezierGenerator.points[0],
+                p2: BezierGenerator.points[1]
+            )
+            control = CGPoint.middle(p1: middle1, p2: BezierGenerator.points[1])
         } else {
-            begin = CGPoint.middle(p1: points[step - 1], p2: points[step])
-            control = points[step]
+            begin = CGPoint.middle(
+                p1: BezierGenerator.points[BezierGenerator.step - 1],
+                p2: BezierGenerator.points[step]
+            )
+            control = BezierGenerator.points[BezierGenerator.step]
         }
         
-        /// segements are based on distance about start and end point
         let dis = begin.distance(to: end)
         let segements = max(Int(dis / 5), 2)
-
         for i in 0 ..< segements {
             let t = CGFloat(i) / CGFloat(segements)
             let x = pow(1 - t, 2) * begin.x + 2.0 * (1 - t) * t * control.x + t * t * end.x
@@ -81,14 +91,5 @@ class BezierGenerator {
         }
         vertices.append(end)
         return vertices
-    }
-}
-
-extension BezierGenerator.Style {
-    var pointCount: Int {
-        switch self {
-        case .quadratic: return 3
-        default: return Int.max
-        }
     }
 }

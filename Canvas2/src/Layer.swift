@@ -62,14 +62,32 @@ public struct Layer: Codable {
     
     /** Erases points from this layer by making them transparent. */
     internal mutating func eraseVertices(point: CGPoint) {
-//        guard let canvas = self.canvas else { return }
-//        let size = (((canvas.currentBrush.size / 100) * 4) / 2) / 50
-//        let opacity = canvas.currentBrush!.opacity * canvas.force
-//
-//        // Go through each element...
-//        for i in 0..<elements.count {
-//            let element = elements[i]
-//
+        guard let canvas = self.canvas else { return }
+        let size = (((canvas.currentBrush.size / 100) * 4) / 2) / 50
+        let opacity = canvas.currentBrush.opacity * canvas.force
+
+        // Go through each element...
+        for i in 0..<elements.count {
+            let element = elements[i]
+            
+            // Go through each vertex.
+            for j in 0..<element.vertices.count {
+                let vert = element.vertices[j]
+                
+                // Remove that point.
+                if CGPoint.inRange(
+                    x: vert.position.x,
+                    y: vert.position.y,
+                    a: Float(point.x),
+                    b: Float(point.y),
+                    size: Float(size))
+                {
+                    if j >= 0 && j < elements[i].vertices.count {
+                        elements[i].vertices[j].color.w -= Float(opacity)
+                    }
+                }
+            }
+
 //            // Then through each quad...
 //            for j in 0..<element.verts.count {
 //                let quad = element.quads[j]
@@ -90,7 +108,7 @@ public struct Layer: Codable {
 //                    }
 //                }
 //            }
-//        }
+        }
     }
     
     
@@ -113,7 +131,7 @@ public struct Layer: Codable {
         // Whatever is current being drawn on the screen, display it immediately.
         if canvas.currentLayer == index {
             if var cp = canvas.currentPath {
-                if cp.verts.count > 0 && isLocked == false {
+                if cp.vertices.count > 0 && isLocked == false {
                     cp.rebuildBuffer()
                     cp.render(canvas: canvas, buffer: buffer, encoder: encoder)
                 }

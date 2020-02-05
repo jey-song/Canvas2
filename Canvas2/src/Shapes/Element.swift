@@ -19,7 +19,10 @@ public struct Element: Codable {
     // --> Internal
     
     internal var brushName: String
-    internal var verts: [Vertex]
+    internal var vertices: [Vertex]
+    internal var start: CGPoint
+    
+    internal var isFreeHand: Bool
     
     internal var canvas: Canvas?
     internal var buffer: MTLBuffer?
@@ -30,30 +33,36 @@ public struct Element: Codable {
     
     /** Returns the number of quad segments that make up this element. */
     public var length: Int {
-        return verts.count
+        return vertices.count
     }
     
     
     
     // MARK: Initialization
     
-    init(verts: [Vertex], canvas: Canvas?, brushName: String) {
-        self.verts = verts
+    init(_ verts: [Vertex], canvas: Canvas?, brushName: String) {
+        self.vertices = verts
         self.canvas = canvas
         self.brushName = brushName
+        self.isFreeHand = true
+        self.start = CGPoint()
         
     }
     
     public init(from decoder: Decoder) throws {
         var container = try? decoder.unkeyedContainer()
         
-        self.verts = try container?.decodeIfPresent([Vertex].self) ?? []
+        self.vertices = try container?.decodeIfPresent([Vertex].self) ?? []
         self.brushName = try container?.decodeIfPresent(String.self) ?? "defaultBrush"
+        self.isFreeHand = try container?.decodeIfPresent(Bool.self) ?? true
+        self.start = try container?.decodeIfPresent(CGPoint.self) ?? .zero
     }
     
     
     public func copy() -> Element {
-        let e = Element(verts: self.verts, canvas: self.canvas, brushName: self.brushName)
+        var e = Element(self.vertices, canvas: self.canvas, brushName: self.brushName)
+        e.start = self.start
+        e.isFreeHand = self.isFreeHand
         return e
     }
     
@@ -62,17 +71,40 @@ public struct Element: Codable {
     // MARK: Functions
     
     /** Starts a new path using this element. */
-    internal mutating func startPath(vert: Vertex) {
+    internal mutating func startPath(point: CGPoint, isFreeHand: Bool = true) {
         guard let canvas = canvas else { return }
         self.brushName = canvas.currentBrush.name
-        self.verts = [vert]
+        guard let brush = canvas.getBrush(
+            withName: self.brushName,
+            with: [
+                // TODO: Brush size is not working
+                BrushOption.Size: canvas.currentBrush.size,
+                BrushOption.Color: canvas.currentBrush.color,
+                BrushOption.Opacity: canvas.currentBrush.opacity,
+                BrushOption.TextureName: canvas.currentBrush.textureName,
+                BrushOption.IsEraser: canvas.currentBrush.isEraser,
+            ]
+        ) else { return }
+        
+        // Configure the element.
+        self.start = point
+        self.isFreeHand = isFreeHand
+        
+        // Add the first vertex.
+        let vert = Vertex(
+            position: point,
+            size: 0,
+            color: brush.color.withAlphaComponent(brush.opacity)
+        )
+        self.vertices = [vert]
+        BezierGenerator.startPath(with: point)
     }
     
     /** Finishes this element so that no more quads can be added to it without starting an
      entirely new element (i.e. lifting the stylus and drawing a new curve). */
     internal mutating func closePath() {
-        verts = []
-        canvas?.bezier.finish()
+        vertices = []
+        BezierGenerator.closePath()
     }
     
     /** Ends the last quad that exists on this element. */
@@ -90,68 +122,48 @@ public struct Element: Codable {
             ]
         ) else { return }
         
-        let pts = canvas.bezier.pushPoint(point).map {
-            return Vertex(
+        // Generate the vertices to the next point.
+        let verts = BezierGenerator.add(point: point).map {
+            Vertex(
                 position: $0,
                 size: brush.size * canvas.force,
-                color: brush.color.withAlphaComponent(brush.opacity),
-                texture: (brush.textureName != nil) ? SIMD2<Float>(x: 0, y: 0) : nil
+                color: brush.color.withAlphaComponent(brush.opacity)
             )
         }
-        verts.append(contentsOf: pts)
-        
-        // Call the quad's end method to set the vertices.
-//        if let c = self.C, let d = self.D {
-//            let (_c, _d) = next.end(
-//                at: point,
-//                brush: brush,
-//                prevA: c,
-//                prevB: d,
-//                endForce: canvas.forceEnabled ? canvas.force : 1.0
-//            )
-//            self.C = _c
-//            self.D = _d
-//        }
-//        else {
-//            let (_c, _d) = next.end(
-//                at: point,
-//                brush: brush,
-//                endForce: canvas.forceEnabled ? canvas.force : 1.0
-//            )
-//            self.C = _c
-//            self.D = _d
-//        }
-//
-//        // Finally, add the next quad onto this element.
-//        quads.append(next)
-//
-//        // Make sure to move the pointers.
-//        nextQuad = Quad(start: point)
+        vertices.append(contentsOf: verts)
     }
     
     /**Ends the curve as a particular tool.  */
     internal mutating func end(at point: CGPoint, as tool: CanvasTool) {
-//        guard let canvas = canvas else { return }
-//        guard var next = nextQuad else { return }
-//        guard let brush = canvas.getBrush(
-//            withName: self.brushName,
-//            with: [
-//                BrushOption.Size: canvas.currentBrush.size,
-//                BrushOption.Color: canvas.currentBrush.color,
-//                BrushOption.Opacity: canvas.currentBrush.opacity,
-//                BrushOption.TextureName: canvas.currentBrush.textureName,
-//                BrushOption.IsEraser: canvas.currentBrush.isEraser,
-//            ]
-//        ) else { return }
-//
-//        // End and display the quad as the current tool where you currently drag.
-//        switch tool {
-//            case .rectangle: next.endAsRectangle(at: point, brush: brush); break
-//            case .line: next.endAsLine(at: point, brush: brush); break
-//            case .ellipse: next.endAsCircle(at: point, brush: brush); break
-//            default: next.endAsRectangle(at: point, brush: brush); break
-//        }
-//        quads = [next]
+        guard let canvas = canvas else { return }
+        guard let brush = canvas.getBrush(
+            withName: self.brushName,
+            with: [
+                BrushOption.Size: canvas.currentBrush.size,
+                BrushOption.Color: canvas.currentBrush.color,
+                BrushOption.Opacity: canvas.currentBrush.opacity,
+                BrushOption.TextureName: canvas.currentBrush.textureName,
+                BrushOption.IsEraser: canvas.currentBrush.isEraser,
+            ]
+        ) else { return }
+
+        // End and display the quad as the current tool where you currently drag.
+        switch tool {
+            case .rectangle:
+                let verts = endRectangle(start: self.start, end: point, brush: brush)
+                self.vertices = verts
+                break
+            case .line:
+                let verts = endLine(start: self.start, end: point, brush: brush)
+                self.vertices = verts
+                break
+            case .ellipse:
+                let verts = endEllipse(start: self.start, end: point, brush: brush)
+                self.vertices = verts
+                break
+            default:
+                break
+        }
     }
     
     
@@ -161,11 +173,10 @@ public struct Element: Codable {
     internal mutating func rebuildBuffer() {
         guard let canvas = canvas else { return }
         
-//        let vertices = quads.flatMap { $0.vertices }
-        if verts.count > 0 {
+        if vertices.count > 0 {
             buffer = canvas.device!.makeBuffer(
-                bytes: verts,
-                length: verts.count * MemoryLayout<Vertex>.stride,
+                bytes: vertices,
+                length: vertices.count * MemoryLayout<Vertex>.stride,
                 options: []
             )
         }
@@ -173,7 +184,7 @@ public struct Element: Codable {
     
     /** Renders the element to the screen. */
     internal mutating func render(canvas: Canvas, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
-        guard verts.count > 0 else { return }
+        guard vertices.count > 0 else { return }
         guard let vBuff = self.buffer else { return }
         guard let brush = canvas.getBrush(withName: self.brushName) else { return }
         
@@ -181,14 +192,14 @@ public struct Element: Codable {
         encoder.setRenderPipelineState(brush.pipeline)
         encoder.setVertexBuffer(vBuff, offset: 0, index: 0)
         
-        if let txrID = brush.textureName, let txr = canvas.getTexture(withName: txrID) {
+        if let texName = brush.textureName, let txr = canvas.getTexture(withName: texName) {
             encoder.setFragmentTexture(txr, index: 0)
         }
         encoder.setFragmentSamplerState(canvas.sampleState, index: 0)
         
         // Draw primitives.
         let count = vBuff.length / MemoryLayout<Vertex>.stride
-        encoder.drawPrimitives(type: .point, vertexStart: 0, vertexCount: count)
+        encoder.drawPrimitives(type: isFreeHand == true ? .point : .triangle, vertexStart: 0, vertexCount: count)
     }
     
     
@@ -197,8 +208,10 @@ public struct Element: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         
-        try container.encode(verts)
+        try container.encode(vertices)
         try container.encode(brushName)
+        try container.encode(start)
+        try container.encode(isFreeHand)
     }
     
 }

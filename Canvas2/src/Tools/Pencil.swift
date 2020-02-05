@@ -45,15 +45,7 @@ public struct Pencil: Tool {
         canvas.setForce(value: firstTouch.force)
         
         // Start a new quad when a touch is down.
-//        let quad = Quad(start: point)
-        let v = Vertex(
-            position: point,
-            size: 0,
-            color: canvas.currentBrush.color.withAlphaComponent(canvas.currentBrush.opacity),
-            texture: canvas.currentBrush.textureName != nil ? SIMD2<Float>(x: 0, y: 0) : nil
-        )
-        canvas.currentPath.startPath(vert: v)
-        canvas.bezier.begin(with: point)
+        canvas.currentPath.startPath(point: point)
         return true
     }
     
@@ -83,7 +75,6 @@ public struct Pencil: Tool {
         guard let canvas = self.canvas else { return false }
         guard canvas.isOnValidLayer() else { return false }
         
-        
         if let first = touches.first {
             let p = first.metalLocation(in: canvas)
             canvas.currentPath!.endPencil(at: p)
@@ -98,7 +89,6 @@ public struct Pencil: Tool {
     public func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard let canvas = self.canvas else { return false }
         guard canvas.isOnValidLayer() else { return false }
-        
         
         if let first = touches.first {
             let p = first.metalLocation(in: canvas)

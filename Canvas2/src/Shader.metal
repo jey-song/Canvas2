@@ -14,14 +14,12 @@ struct Vertex {
     float2 position;
     float point_size [[point_size]];
     float4 color;
-    float2 texture [[attribute(2)]];
 };
 
 struct VertexOut {
     float4 position [[position]];
     float point_size [[point_size]];
     float4 color;
-    float2 texture [[attribute(2)]];
 };
 
 
@@ -32,7 +30,6 @@ vertex VertexOut main_vertex(const device Vertex* vertices [[ buffer(0) ]], unsi
     output.position = float4(vertices[vid].position, 0, 1);
     output.point_size = vertices[vid].point_size;
     output.color = vertices[vid].color;
-    output.texture = vertices[vid].texture;
     
     return output;
 };
@@ -51,6 +48,10 @@ float2 transformPointCoord(float2 pointCoord, float2 anchor) {
 fragment half4 textured_fragment(Vertex vert [[stage_in]], sampler sampler2D,
                                  texture2d<float> texture [[texture(0)]],
                                  float2 pointCoord [[point_coord]]) {
+    if(vert.point_size == 0) {
+        return half4(0);
+    }
+    
     float2 text_coord = transformPointCoord(pointCoord, float2(0.5));
     float4 color = float4(texture.sample(sampler2D, text_coord));
     float4 ret = float4(vert.color.rgb, color.a * vert.color.a * vert.color.a);

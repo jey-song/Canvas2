@@ -30,7 +30,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     internal var canvasLayers: [Layer]
     internal var currentPath: Element!
-    internal var bezier: BezierGenerator = BezierGenerator()
     internal var undoRedoManager: UndoRedoManager
     
     internal var force: CGFloat
@@ -180,7 +179,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
             BrushOption.Color: UIColor.black
         ])
         self.currentTool = self.pencilTool // Default tool
-        self.currentPath = Element(verts: [], canvas: self, brushName: "defaultBrush") // Used for drawing temporary paths
+        self.currentPath = Element([], canvas: self, brushName: "defaultBrush") // Used for drawing temporary paths
         self.viewportVertices = [
             Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor),
             Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor),
@@ -375,7 +374,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         // If you were in the process of drawing a curve and are on a valid
         // layer, add that finished element to the layer.
         if var copy = currentPath?.copy() {
-            if isOnValidLayer() && copy.verts.count > 0 {
+            if isOnValidLayer() && copy.vertices.count > 0 {
                 // Add the newly drawn element to the layer.
                 copy.rebuildBuffer()
                 canvasLayers[currentLayer].add(element: copy)

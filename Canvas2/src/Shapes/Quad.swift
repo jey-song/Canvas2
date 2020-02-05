@@ -68,7 +68,7 @@ struct Quad: Codable {
         
         // Place the quad points into the vertices array to form two triangles.
         self.vertices = [
-            Vertex(position: end, size: 20.0, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil)
+            Vertex(position: end, size: 20.0, color: color)
 //            // Triangle 1
 //            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
 //            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
@@ -130,15 +130,15 @@ struct Quad: Codable {
         
         // Apply the corners to the vertices array to form two triangles,
         // which will come together to form one rectangle on the screen.
-        self.vertices = [
-            Vertex(position: end, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
-            Vertex(position: corner2, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
-            Vertex(position: self.start, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
-
-            Vertex(position: self.start, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
-            Vertex(position: end, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
-            Vertex(position: corner1, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
-        ]
+//        self.vertices = [
+//            Vertex(position: end, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+//            Vertex(position: corner2, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
+//            Vertex(position: self.start, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
+//
+//            Vertex(position: self.start, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+//            Vertex(position: end, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
+//            Vertex(position: corner1, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
+//        ]
     }
     
     
@@ -216,14 +216,14 @@ struct Quad: Codable {
         // Set the vertices of the line quad.
         self.vertices = [
             // Triangle 1
-            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
-            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
-            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
-
-            // Triangle 2
-            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
-            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
-            Vertex(position: D, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
+//            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+//            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
+//            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
+//
+//            // Triangle 2
+//            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+//            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
+//            Vertex(position: D, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
         ]
     }
     
@@ -264,7 +264,7 @@ struct Quad: Codable {
             let _x = cos(rads(forDegree: i)) * abs(end.x - self.start.x)
             let _y = sin(rads(forDegree: i)) * abs(end.y - self.start.y)
             let pos: CGPoint = CGPoint(x: self.start.x + _x, y: self.start.y + _y)
-            verts.append(Vertex(position: pos, color: color, texture: texture != nil ? SIMD2<Float>(x: poses[pose].x, y: poses[pose].y) : nil))
+//            verts.append(Vertex(position: pos, color: color, texture: texture != nil ? SIMD2<Float>(x: poses[pose].x, y: poses[pose].y) : nil))
             
             // Update the pose.
             pose = (pose == poses.count - 1) ? 0 : pose + 1

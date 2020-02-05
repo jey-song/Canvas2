@@ -23,12 +23,11 @@ struct Vertex: Codable {
     
     var color: SIMD4<Float>
     
-    var texture: SIMD2<Float>
     
     
     // MARK: Initialization
     
-    init(position: CGPoint, size: CGFloat = 10.0, color: UIColor, texture: SIMD2<Float>? = nil) {
+    init(position: CGPoint, size: CGFloat = 10.0, color: UIColor) {
         let x = Float(position.x)
         let y = Float(position.y)
         let rgba = color.rgba
@@ -39,7 +38,6 @@ struct Vertex: Codable {
         self.position = SIMD2<Float>(x: x, y: y)
         self.point_size = Float(size)
         self.color = SIMD4<Float>(x: toFloat[0], y: toFloat[1], z: toFloat[2], w: toFloat[3])
-        self.texture = texture ?? SIMD2<Float>(x: -1, y: -1)
     }
     
     
@@ -49,19 +47,17 @@ struct Vertex: Codable {
         var container = try? decoder.unkeyedContainer()
         
         let data = try container?.decodeIfPresent(Data.self) ?? Data()
-        let decString = (String(data: data, encoding: .utf8) ?? "0,0,0,1*0,0,0,1*-1,-1*0.0").split(separator: "*")
+        let decString = (String(data: data, encoding: .utf8) ?? "0,0,0,1*0,0,0,1").split(separator: "*")
         let posString = decString[0]
-        let colString = decString[1]
-        let texString = decString[2]
+        let sizeString = decString[1]
+        let colString = decString[2]
         
         let posArr = posString.split(separator: ",")
         let colArr = colString.split(separator: ",")
-        let texArr = texString.split(separator: ",")
         
         self.position = SIMD2<Float>(x: Float(posArr[0]) ?? 0.0, y: Float(posArr[1]) ?? 0.0)
-        self.point_size = 10.0
+        self.point_size = (sizeString as NSString).floatValue
         self.color = SIMD4<Float>(x: Float(colArr[0]) ?? 0.0, y: Float(colArr[1]) ?? 0.0, z: Float(colArr[2]) ?? 0.0, w: Float(colArr[3]) ?? 0.0)
-        self.texture = SIMD2<Float>(x: Float(texArr[0]) ?? 0.0, y: Float(texArr[1]) ?? 0.0)
     }
     
     
@@ -70,10 +66,10 @@ struct Vertex: Codable {
         var container = encoder.unkeyedContainer()
         
         let posString = "\(position.x),\(position.y)"
+        let sizeString = "\(point_size)"
         let colString = "\(color.x),\(color.y),\(color.z),\(color.w)"
-        let texString = "\(texture.x),\(texture.y)"
         
-        let encodeString = "\(posString)*\(colString)*\(texString)"
+        let encodeString = "\(posString)*\(sizeString)*\(colString)"
         let data = encodeString.data(using: .utf8)
         try container.encode(data)
     }

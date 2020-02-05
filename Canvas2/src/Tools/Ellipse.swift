@@ -42,8 +42,7 @@ public struct Ellipse: Tool {
         let point = firstTouch.metalLocation(in: canvas)
 
         // When drawing an ellipse, you only need one quad to work with.
-        let quad = Quad(start: point)
-//        canvas.currentPath.startPath(quad: quad)
+        canvas.currentPath.startPath(point: point, isFreeHand: false)
         return true
     }
     
@@ -61,6 +60,11 @@ public struct Ellipse: Tool {
         guard let canvas = self.canvas else { return false }
         guard canvas.isOnValidLayer() else { return false }
         
+        if let first = touches.first {
+            let p = first.metalLocation(in: canvas)
+            canvas.currentPath!.end(at: p, as: .ellipse)
+        }
+        
         // Clear the current drawing curve.
         canvas.rebuildBuffer()
         canvas.currentPath?.closePath()
@@ -70,6 +74,11 @@ public struct Ellipse: Tool {
     public func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard let canvas = self.canvas else { return false }
         guard canvas.isOnValidLayer() else { return false }
+        
+        if let first = touches.first {
+            let p = first.metalLocation(in: canvas)
+            canvas.currentPath!.end(at: p, as: .ellipse)
+        }
         
         // Clear the current drawing curve.
         canvas.rebuildBuffer()
