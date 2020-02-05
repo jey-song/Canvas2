@@ -36,6 +36,14 @@ extension CGPoint: Comparable {
         return sqrt(p)
     }
     
+    func angel(to other: CGPoint = .zero) -> CGFloat {
+        let point = self - other
+        if y == 0 {
+            return x >= 0 ? 0 : CGFloat.pi
+        }
+        return -CGFloat(atan2f(Float(point.y), Float(point.x)))
+    }
+    
     private func norm() -> CGFloat {
         return sqrt(pow(x, 2) + pow(y, 2))
     }

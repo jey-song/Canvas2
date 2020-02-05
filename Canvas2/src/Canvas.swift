@@ -123,10 +123,10 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
             // viewport vertices, which is the a clear color screen.
             mainTexture = makeEmptyTexture(device: self.device, width: frame.width, height: frame.height)
             self.viewportVertices = [
-                Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor),
-                Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor),
-                Vertex(position: CGPoint(x: 0, y: frame.height), color: canvasColor),
-                Vertex(position: CGPoint(x: frame.width, y: frame.height), color: canvasColor)
+                Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor, rotation: 0),
+                Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor, rotation: 0),
+                Vertex(position: CGPoint(x: 0, y: frame.height), color: canvasColor, rotation: 0),
+                Vertex(position: CGPoint(x: frame.width, y: frame.height), color: canvasColor, rotation: 0)
             ]
             repaint()
         }
@@ -181,10 +181,10 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         self.currentTool = self.pencilTool // Default tool
         self.currentPath = Element([], canvas: self, brushName: "defaultBrush") // Used for drawing temporary paths
         self.viewportVertices = [
-            Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor),
-            Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor),
-            Vertex(position: CGPoint(x: 0, y: frame.height), color: canvasColor),
-            Vertex(position: CGPoint(x: frame.width, y: frame.height), color: canvasColor)
+            Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor, rotation: 0),
+            Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor, rotation: 0),
+            Vertex(position: CGPoint(x: 0, y: frame.height), color: canvasColor, rotation: 0),
+            Vertex(position: CGPoint(x: frame.width, y: frame.height), color: canvasColor, rotation: 0)
         ]
     }
     

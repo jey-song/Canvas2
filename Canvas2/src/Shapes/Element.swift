@@ -94,7 +94,8 @@ public struct Element: Codable {
         let vert = Vertex(
             position: point,
             size: 0,
-            color: brush.color.withAlphaComponent(brush.opacity)
+            color: brush.color.withAlphaComponent(brush.opacity),
+            rotation: 0
         )
         self.vertices = [vert]
         BezierGenerator.startPath(with: point)
@@ -127,7 +128,8 @@ public struct Element: Codable {
             Vertex(
                 position: $0,
                 size: brush.size * canvas.force,
-                color: brush.color.withAlphaComponent(brush.opacity)
+                color: brush.color.withAlphaComponent(brush.opacity),
+                rotation: point.angel(to: self.start)
             )
         }
         vertices.append(contentsOf: verts)

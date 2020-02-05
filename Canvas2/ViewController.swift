@@ -362,43 +362,23 @@ class ViewController: UIViewController, CanvasEvents {
         canvas.canvasDelegate = self
         
         // Load some textures.
-        if let img = UIImage(named: "brush.png") {
-            canvas.addTexture(img, forName: "pencilTexture")
-            print("Added the pencil texture!")
-        }
-        if let img = UIImage(named: "InkTexture.jpg") {
-            canvas.addTexture(img, forName: "inkTexture")
-            print("Added the ink texture!")
-        }
-        if let img = UIImage(named: "Paper.jpg") {
-            canvas.addTexture(img, forName: "paperTexture")
-            print("Added the paper texture!")
+        if let img = UIImage(named: "Smudge.png") {
+            canvas.addTexture(img, forName: "paintTexture")
+            print("Added the paint texture!")
         }
         
         // Load a brush.
-        let basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", config: [
+        let basicPaint: Brush = Brush(canvas: canvas, name: "basicPaintBrush", config: [
             BrushOption.Size: CGFloat(50),
             BrushOption.Opacity: CGFloat(0.3),
             BrushOption.Color: UIColor.black,
-            BrushOption.TextureName: "pencilTexture"
+            BrushOption.TextureName: "paintTexture"
         ])
-        let basicInk: Brush = Brush(canvas: canvas, name: "basicInk", config: [
-            BrushOption.Size: CGFloat(30),
-            BrushOption.Color: UIColor.black,
-            BrushOption.TextureName: "inkTexture"
-        ])
-        let basicBrush: Brush = Brush(canvas: canvas, name: "basicBrush", config: [
-            BrushOption.Size: CGFloat(80),
-            BrushOption.Color: UIColor.black,
-            BrushOption.TextureName: "paperTexture"
-        ])
-        canvas.addBrush(basicPencil)
-        canvas.addBrush(basicInk)
-        canvas.addBrush(basicBrush)
-        print("Added the basic pencil, basic ink, and basic paintbrush brushes!")
+        canvas.addBrush(basicPaint)
+        print("Added brushes!")
         
         // Set the current brush.
-        canvas.changeBrush(to: "basicPencil")
+        canvas.changeBrush(to: "basicPaintBrush")
         
         // Gestures.
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(zoom))

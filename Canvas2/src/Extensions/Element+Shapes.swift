@@ -16,6 +16,7 @@ extension Element {
     func endRectangle(start: CGPoint, end: CGPoint, brush: Brush) -> [Vertex] {
         let size = brush.size
         let color = brush.color.withAlphaComponent(brush.opacity)
+        let rotation = end.angel(to: start)
         
         // Compute the rectangle from the starting point to the end point.
         // Remember that the end coordinates can be behind the start.
@@ -54,13 +55,13 @@ extension Element {
         // Apply the corners to the vertices array to form two triangles,
         // which will come together to form one rectangle on the screen.
         return [
-            Vertex(position: end, size: size, color: color),
-            Vertex(position: corner2, size: size, color: color),
-            Vertex(position: start, size: size, color: color),
+            Vertex(position: end, size: size, color: color, rotation: rotation),
+            Vertex(position: corner2, size: size, color: color, rotation: rotation),
+            Vertex(position: start, size: size, color: color, rotation: rotation),
 
-            Vertex(position: start, size: size, color: color),
-            Vertex(position: end, size: size, color: color),
-            Vertex(position: corner1, size: size, color: color),
+            Vertex(position: start, size: size, color: color, rotation: rotation),
+            Vertex(position: end, size: size, color: color, rotation: rotation),
+            Vertex(position: corner1, size: size, color: color, rotation: rotation)
         ]
     }
     
@@ -69,6 +70,7 @@ extension Element {
     func endLine(start: CGPoint, end: CGPoint, brush: Brush) -> [Vertex] {
         let size = brush.size
         let color = brush.color.withAlphaComponent(brush.opacity)
+        let rotation = end.angel(to: start)
         
         let perpendicular = start.perpendicular(other: end).normalize()
         var A: CGPoint = start
@@ -137,14 +139,14 @@ extension Element {
         // Set the vertices of the line quad.
         return [
             // Triangle 1
-            Vertex(position: A, size: size, color: color),
-            Vertex(position: B, size: size, color: color),
-            Vertex(position: C, size: size, color: color),
+            Vertex(position: A, size: size, color: color, rotation: rotation),
+            Vertex(position: B, size: size, color: color, rotation: rotation),
+            Vertex(position: C, size: size, color: color, rotation: rotation),
 
             // Triangle 2
-            Vertex(position: A, size: size, color: color),
-            Vertex(position: C, size: size, color: color),
-            Vertex(position: D, size: size, color: color),
+            Vertex(position: A, size: size, color: color, rotation: rotation),
+            Vertex(position: C, size: size, color: color, rotation: rotation),
+            Vertex(position: D, size: size, color: color, rotation: rotation),
         ]
     }
     
@@ -153,9 +155,10 @@ extension Element {
     func endEllipse(start: CGPoint, end: CGPoint, brush: Brush) -> [Vertex] {
         let size = brush.size
         let color = brush.color.withAlphaComponent(brush.opacity)
+        let rotation = end.angel(to: start)
         
         var verts: [Vertex] = [
-            Vertex(position: self.start, color: color)
+            Vertex(position: self.start, color: color, rotation: rotation)
         ]
                 
         /** Creates points around a circle. It's just a formula for degrees to radians. */
@@ -188,7 +191,7 @@ extension Element {
             let _x = cos(rads(forDegree: i)) * abs(end.x - self.start.x)
             let _y = sin(rads(forDegree: i)) * abs(end.y - self.start.y)
             let pos: CGPoint = CGPoint(x: self.start.x + _x, y: self.start.y + _y)
-            let vert: Vertex = Vertex(position: pos, size: size, color: color)
+            let vert: Vertex = Vertex(position: pos, size: size, color: color, rotation: rotation)
             verts.append(vert)
             
             // Update the pose.

@@ -68,7 +68,7 @@ struct Quad: Codable {
         
         // Place the quad points into the vertices array to form two triangles.
         self.vertices = [
-            Vertex(position: end, size: 20.0, color: color)
+            Vertex(position: end, size: 20.0, color: color, rotation: 0)
 //            // Triangle 1
 //            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
 //            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
@@ -232,7 +232,7 @@ struct Quad: Codable {
     mutating func endAsCircle(at end: CGPoint, brush: Brush) {
         let color = brush.color
         let texture = brush.textureName
-        var verts: [Vertex] = [Vertex(position: self.start, color: color)]
+        var verts: [Vertex] = [Vertex(position: self.start, color: color, rotation: 0)]
         
         /** Creates points around a circle. It's just a formula for degrees to radians. */
         func rads(forDegree d: Int) -> CGFloat {
