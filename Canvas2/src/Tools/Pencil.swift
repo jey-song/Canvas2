@@ -46,7 +46,12 @@ public struct Pencil: Tool {
         
         // Start a new quad when a touch is down.
 //        let quad = Quad(start: point)
-        let v = Vertex(position: point, size: 0, color: canvas.currentBrush.color, texture: canvas.currentBrush.textureName != nil ? SIMD2<Float>(x: 0, y: 0) : nil)
+        let v = Vertex(
+            position: point,
+            size: 0,
+            color: canvas.currentBrush.color.withAlphaComponent(canvas.currentBrush.opacity),
+            texture: canvas.currentBrush.textureName != nil ? SIMD2<Float>(x: 0, y: 0) : nil
+        )
         canvas.currentPath.startPath(vert: v)
         canvas.bezier.begin(with: point)
         return true

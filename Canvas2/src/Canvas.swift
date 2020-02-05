@@ -243,8 +243,8 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     /** Tells the canvas to keep track of another texture, which can be used later on for different brush strokes. */
     public func addTexture(_ image: UIImage, forName name: String) {
-        guard let data = image.pngData() else { return }
-        let texture = try! self.textureLoader.newTexture(data: data, options: [
+        guard let cg = image.cgImage else { return }
+        let texture = try! self.textureLoader.newTexture(cgImage: cg, options: [
             MTKTextureLoader.Option.SRGB : false
         ])
         self.registeredTextures[name] = texture

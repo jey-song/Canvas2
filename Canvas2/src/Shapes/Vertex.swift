@@ -28,7 +28,7 @@ struct Vertex: Codable {
     
     // MARK: Initialization
     
-    init(position: CGPoint, size: CGFloat = 20.0, color: UIColor, texture: SIMD2<Float>? = nil) {
+    init(position: CGPoint, size: CGFloat = 10.0, color: UIColor, texture: SIMD2<Float>? = nil) {
         let x = Float(position.x)
         let y = Float(position.y)
         let rgba = color.rgba

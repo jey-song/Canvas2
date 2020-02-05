@@ -378,21 +378,22 @@ class ViewController: UIViewController, CanvasEvents {
         // Load a brush.
         let basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", config: [
             BrushOption.Size: CGFloat(50),
+            BrushOption.Opacity: CGFloat(0.3),
             BrushOption.Color: UIColor.black,
             BrushOption.TextureName: "pencilTexture"
         ])
         let basicInk: Brush = Brush(canvas: canvas, name: "basicInk", config: [
-            BrushOption.Size: 30,
+            BrushOption.Size: CGFloat(30),
             BrushOption.Color: UIColor.black,
             BrushOption.TextureName: "inkTexture"
         ])
         let basicBrush: Brush = Brush(canvas: canvas, name: "basicBrush", config: [
-            BrushOption.Size: 50,
+            BrushOption.Size: CGFloat(80),
             BrushOption.Color: UIColor.black,
             BrushOption.TextureName: "paperTexture"
         ])
         let basicPencilEraser: Brush = Brush(canvas: canvas, name: "basicPencilEraser", config: [
-            BrushOption.Size: 20,
+            BrushOption.Size: CGFloat(40),
             BrushOption.Opacity: 0.5,
             BrushOption.IsEraser: true
         ])
@@ -485,17 +486,11 @@ class ViewController: UIViewController, CanvasEvents {
         }
         
         if self.currentBrush == 0 {
-            canvas.changeBrush(to: "basicPencil", with: [
-                BrushOption.Size: CGFloat(10)
-            ])
+            canvas.changeBrush(to: "basicPencil")
         } else if currentBrush == 1{
-            canvas.changeBrush(to: "basicInk", with: [
-                BrushOption.Size: CGFloat(20)
-            ])
+            canvas.changeBrush(to: "basicInk")
         } else {
-            canvas.changeBrush(to: "basicBrush", with: [
-                BrushOption.Size: CGFloat(30)
-            ])
+            canvas.changeBrush(to: "basicBrush")
         }
     }
     

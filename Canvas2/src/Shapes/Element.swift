@@ -91,7 +91,12 @@ public struct Element: Codable {
         ) else { return }
         
         let pts = canvas.bezier.pushPoint(point).map {
-            return Vertex(position: $0, size: brush.size * canvas.force, color: brush.color.withAlphaComponent(brush.opacity), texture: (brush.textureName != nil) ? SIMD2<Float>(x: 0, y: 0) : nil)
+            return Vertex(
+                position: $0,
+                size: brush.size * canvas.force,
+                color: brush.color.withAlphaComponent(brush.opacity),
+                texture: (brush.textureName != nil) ? SIMD2<Float>(x: 0, y: 0) : nil
+            )
         }
         verts.append(contentsOf: pts)
         
