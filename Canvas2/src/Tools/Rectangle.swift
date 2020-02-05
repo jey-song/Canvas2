@@ -43,7 +43,7 @@ public struct Rectangle: Tool {
         
         // When drawing a rectangle, you only need one quad to work with.
         let quad = Quad(start: point)
-        canvas.currentPath.startPath(quad: quad)
+//        canvas.currentPath.startPath(quad: quad)
         return true
     }
     

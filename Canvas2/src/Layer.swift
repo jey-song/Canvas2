@@ -62,35 +62,35 @@ public struct Layer: Codable {
     
     /** Erases points from this layer by making them transparent. */
     internal mutating func eraseVertices(point: CGPoint) {
-        guard let canvas = self.canvas else { return }
-        let size = (((canvas.currentBrush.size / 100) * 4) / 2) / 50
-        let opacity = canvas.currentBrush!.opacity * canvas.force
-        
-        // Go through each element...
-        for i in 0..<elements.count {
-            let element = elements[i]
-            
-            // Then through each quad...
-            for j in 0..<element.quads.count {
-                let quad = element.quads[j]
-                
-                // Then through the vertices.
-                for k in 0..<quad.vertices.count {
-                    let vert = quad.vertices[k]
-                    
-                    // Tell the vertex to add on to its erase variable.
-                    if CGPoint.inRange(
-                        x: vert.position.x,
-                        y: vert.position.y,
-                        a: Float(point.x),
-                        b: Float(point.y),
-                        size: Float(size))
-                    {
-                        elements[i].quads[j].vertices[k].erase += Float(opacity)
-                    }
-                }
-            }
-        }
+//        guard let canvas = self.canvas else { return }
+//        let size = (((canvas.currentBrush.size / 100) * 4) / 2) / 50
+//        let opacity = canvas.currentBrush!.opacity * canvas.force
+//
+//        // Go through each element...
+//        for i in 0..<elements.count {
+//            let element = elements[i]
+//
+//            // Then through each quad...
+//            for j in 0..<element.verts.count {
+//                let quad = element.quads[j]
+//
+//                // Then through the vertices.
+//                for k in 0..<quad.vertices.count {
+//                    let vert = quad.vertices[k]
+//
+//                    // Tell the vertex to add on to its erase variable.
+//                    if CGPoint.inRange(
+//                        x: vert.position.x,
+//                        y: vert.position.y,
+//                        a: Float(point.x),
+//                        b: Float(point.y),
+//                        size: Float(size))
+//                    {
+//                        elements[i].quads[j].vertices[k].erase += Float(opacity)
+//                    }
+//                }
+//            }
+//        }
     }
     
     
@@ -113,7 +113,7 @@ public struct Layer: Codable {
         // Whatever is current being drawn on the screen, display it immediately.
         if canvas.currentLayer == index {
             if var cp = canvas.currentPath {
-                if cp.quads.count > 0 && isLocked == false {
+                if cp.verts.count > 0 && isLocked == false {
                     cp.rebuildBuffer()
                     cp.render(canvas: canvas, buffer: buffer, encoder: encoder)
                 }

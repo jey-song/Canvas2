@@ -45,8 +45,10 @@ public struct Pencil: Tool {
         canvas.setForce(value: firstTouch.force)
         
         // Start a new quad when a touch is down.
-        let quad = Quad(start: point)
-        canvas.currentPath.startPath(quad: quad)
+//        let quad = Quad(start: point)
+        let v = Vertex(position: point, size: 0, color: canvas.currentBrush.color, texture: canvas.currentBrush.textureName != nil ? SIMD2<Float>(x: 0, y: 0) : nil)
+        canvas.currentPath.startPath(vert: v)
+        canvas.bezier.begin(with: point)
         return true
     }
     
@@ -57,12 +59,15 @@ public struct Pencil: Tool {
         
         // All important touches for apple pencil.
         guard let coalesced = event?.coalescedTouches(for: firstTouch) else { return false }
+        guard let pred = event?.predictedTouches(for: firstTouch) else { return false }
         
         // Get the force from the user input.
         canvas.setForce(value: firstTouch.force)
         
         // NOTE: Run the following code for all of the touches.
-        for touch in coalesced {
+        var total = coalesced
+        total.append(contentsOf: pred)
+        for touch in total {
             let point = touch.metalLocation(in: canvas)
             canvas.currentPath!.endPencil(at: point)
         }
@@ -73,6 +78,12 @@ public struct Pencil: Tool {
         guard let canvas = self.canvas else { return false }
         guard canvas.isOnValidLayer() else { return false }
         
+        
+        if let first = touches.first {
+            let p = first.metalLocation(in: canvas)
+            canvas.currentPath!.endPencil(at: p)
+        }
+        
         // Clear the current drawing curve.
         canvas.rebuildBuffer()
         canvas.currentPath?.closePath()
@@ -82,6 +93,12 @@ public struct Pencil: Tool {
     public func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard let canvas = self.canvas else { return false }
         guard canvas.isOnValidLayer() else { return false }
+        
+        
+        if let first = touches.first {
+            let p = first.metalLocation(in: canvas)
+            canvas.currentPath!.endPencil(at: p)
+        }
         
         // Clear the current drawing curve.
         canvas.rebuildBuffer()

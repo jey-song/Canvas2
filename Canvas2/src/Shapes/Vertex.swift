@@ -17,18 +17,18 @@ struct Vertex: Codable {
     
     // MARK: Variables (IMPORTANT: DO NOT change the order of these variables)
     
-    var position: SIMD4<Float>
+    var position: SIMD2<Float>
+    
+    var point_size: Float
     
     var color: SIMD4<Float>
     
     var texture: SIMD2<Float>
     
-    var erase: Float
-    
     
     // MARK: Initialization
     
-    init(position: CGPoint, color: UIColor, texture: SIMD2<Float>? = nil) {
+    init(position: CGPoint, size: CGFloat = 20.0, color: UIColor, texture: SIMD2<Float>? = nil) {
         let x = Float(position.x)
         let y = Float(position.y)
         let rgba = color.rgba
@@ -36,10 +36,10 @@ struct Vertex: Codable {
             return Float(a)
         }
         
-        self.position = SIMD4<Float>(x: x, y: y, z: 0, w: 1)
+        self.position = SIMD2<Float>(x: x, y: y)
+        self.point_size = Float(size)
         self.color = SIMD4<Float>(x: toFloat[0], y: toFloat[1], z: toFloat[2], w: toFloat[3])
         self.texture = texture ?? SIMD2<Float>(x: -1, y: -1)
-        self.erase = Float(0.0)
     }
     
     
@@ -53,16 +53,15 @@ struct Vertex: Codable {
         let posString = decString[0]
         let colString = decString[1]
         let texString = decString[2]
-        let eraseString = decString[3]
         
         let posArr = posString.split(separator: ",")
         let colArr = colString.split(separator: ",")
         let texArr = texString.split(separator: ",")
         
-        self.position = SIMD4<Float>(x: Float(posArr[0]) ?? 0.0, y: Float(posArr[1]) ?? 0.0, z:0, w: 1)
+        self.position = SIMD2<Float>(x: Float(posArr[0]) ?? 0.0, y: Float(posArr[1]) ?? 0.0)
+        self.point_size = 10.0
         self.color = SIMD4<Float>(x: Float(colArr[0]) ?? 0.0, y: Float(colArr[1]) ?? 0.0, z: Float(colArr[2]) ?? 0.0, w: Float(colArr[3]) ?? 0.0)
         self.texture = SIMD2<Float>(x: Float(texArr[0]) ?? 0.0, y: Float(texArr[1]) ?? 0.0)
-        self.erase = Float(eraseString) ?? 0.0
     }
     
     
@@ -73,9 +72,8 @@ struct Vertex: Codable {
         let posString = "\(position.x),\(position.y)"
         let colString = "\(color.x),\(color.y),\(color.z),\(color.w)"
         let texString = "\(texture.x),\(texture.y)"
-        let eraseString = "\(erase)"
         
-        let encodeString = "\(posString)*\(colString)*\(texString)*\(eraseString)"
+        let encodeString = "\(posString)*\(colString)*\(texString)"
         let data = encodeString.data(using: .utf8)
         try container.encode(data)
     }

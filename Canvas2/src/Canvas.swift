@@ -30,6 +30,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     internal var canvasLayers: [Layer]
     internal var currentPath: Element!
+    internal var bezier: BezierGenerator = BezierGenerator()
     internal var undoRedoManager: UndoRedoManager
     
     internal var force: CGFloat
@@ -179,7 +180,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
             BrushOption.Color: UIColor.black
         ])
         self.currentTool = self.pencilTool // Default tool
-        self.currentPath = Element(quads: [], canvas: self, brushName: "defaultBrush") // Used for drawing temporary paths
+        self.currentPath = Element(verts: [], canvas: self, brushName: "defaultBrush") // Used for drawing temporary paths
         self.viewportVertices = [
             Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor),
             Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor),
@@ -242,11 +243,9 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     /** Tells the canvas to keep track of another texture, which can be used later on for different brush strokes. */
     public func addTexture(_ image: UIImage, forName name: String) {
-        guard let cg = image.cgImage else { return }
-        let texture = try! self.textureLoader.newTexture(cgImage: cg, options: [
-            MTKTextureLoader.Option.SRGB : false,
-            MTKTextureLoader.Option.allocateMipmaps: false,
-            MTKTextureLoader.Option.generateMipmaps: false,
+        guard let data = image.pngData() else { return }
+        let texture = try! self.textureLoader.newTexture(data: data, options: [
+            MTKTextureLoader.Option.SRGB : false
         ])
         self.registeredTextures[name] = texture
     }
@@ -376,7 +375,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         // If you were in the process of drawing a curve and are on a valid
         // layer, add that finished element to the layer.
         if var copy = currentPath?.copy() {
-            if isOnValidLayer() && copy.quads.count > 0 {
+            if isOnValidLayer() && copy.verts.count > 0 {
                 // Add the newly drawn element to the layer.
                 copy.rebuildBuffer()
                 canvasLayers[currentLayer].add(element: copy)

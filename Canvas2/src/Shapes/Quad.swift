@@ -68,15 +68,16 @@ struct Quad: Codable {
         
         // Place the quad points into the vertices array to form two triangles.
         self.vertices = [
-            // Triangle 1
-            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
-            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
-            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
-
-            // Triangle 2
-            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
-            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
-            Vertex(position: D, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
+            Vertex(position: end, size: 20.0, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil)
+//            // Triangle 1
+//            Vertex(position: A, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+//            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: -0.5) : nil),
+//            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: 0.5, y: 0) : nil),
+//
+//            // Triangle 2
+//            Vertex(position: B, color: color, texture: texture != nil ? SIMD2<Float>(x: 0, y: 0) : nil),
+//            Vertex(position: C, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: -0.5) : nil),
+//            Vertex(position: D, color: color, texture: texture != nil ? SIMD2<Float>(x: -0.5, y: 0) : nil),
         ]
         
         // TODO: Construct a better box so that you only need to work with 4 vertices.

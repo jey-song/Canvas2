@@ -30,7 +30,7 @@ internal func buildRenderPipeline(device: MTLDevice?, vertProg: MTLFunction?, fr
     descriptor.colorAttachments[0].isBlendingEnabled = true
     descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperation.add
     descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperation.add
-    descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactor.one
+    descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactor.sourceAlpha
     descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactor.one
     descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
     descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactor.oneMinusSourceAlpha
@@ -53,6 +53,19 @@ internal func buildSampleState(device: MTLDevice?) -> MTLSamplerState? {
         return nil
     }
     return sampleState
+}
+
+
+/** Builds a depth stencil descriptor for the canvas. */
+internal func buildDepthStencilState(device: MTLDevice?) -> MTLDepthStencilState? {
+    let depthStencilDesc = MTLDepthStencilDescriptor()
+    depthStencilDesc.depthCompareFunction = .always
+    depthStencilDesc.isDepthWriteEnabled = false
+    
+    guard let state = device?.makeDepthStencilState(descriptor: depthStencilDesc) else {
+        return nil
+    }
+    return state
 }
 
 

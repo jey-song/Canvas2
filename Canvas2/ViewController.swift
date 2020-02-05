@@ -362,7 +362,7 @@ class ViewController: UIViewController, CanvasEvents {
         canvas.canvasDelegate = self
         
         // Load some textures.
-        if let img = UIImage(named: "PencilTexture.jpg") {
+        if let img = UIImage(named: "brush.png") {
             canvas.addTexture(img, forName: "pencilTexture")
             print("Added the pencil texture!")
         }
@@ -377,7 +377,7 @@ class ViewController: UIViewController, CanvasEvents {
         
         // Load a brush.
         let basicPencil: Brush = Brush(canvas: canvas, name: "basicPencil", config: [
-            BrushOption.Size: 20,
+            BrushOption.Size: CGFloat(50),
             BrushOption.Color: UIColor.black,
             BrushOption.TextureName: "pencilTexture"
         ])

@@ -15,6 +15,9 @@ extension CGPoint: Comparable {
         return lhs.x < rhs.x && lhs.y < rhs.y
     }
     
+    static func middle(p1: CGPoint, p2: CGPoint) -> CGPoint {
+        return CGPoint(x: (p1.x + p2.x) * 0.5, y: (p1.y + p2.y) * 0.5)
+    }
     
     func direction(to other: CGPoint) -> CGFloat {
         let dX = abs(other.x - self.x)
