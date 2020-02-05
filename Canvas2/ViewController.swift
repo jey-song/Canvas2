@@ -366,15 +366,24 @@ class ViewController: UIViewController, CanvasEvents {
             canvas.addTexture(img, forName: "paintTexture")
             print("Added the paint texture!")
         }
+        if let img = UIImage(named: "Paper.png") {
+            canvas.addTexture(img, forName: "paperTexture")
+            print("Added the paper texture!")
+        }
         
         // Load a brush.
         let basicPaint: Brush = Brush(canvas: canvas, name: "basicPaintBrush", config: [
             BrushOption.Size: CGFloat(50),
-            BrushOption.Opacity: CGFloat(0.3),
             BrushOption.Color: UIColor.black,
             BrushOption.TextureName: "paintTexture"
         ])
+        let shapeBrush: Brush = Brush(canvas: canvas, name: "shapeBrush", config: [
+            BrushOption.Size: CGFloat(50),
+            BrushOption.Color: UIColor.black,
+            BrushOption.TextureName: "paperTexture"
+        ])
         canvas.addBrush(basicPaint)
+        canvas.addBrush(shapeBrush)
         print("Added brushes!")
         
         // Set the current brush.
@@ -451,20 +460,12 @@ class ViewController: UIViewController, CanvasEvents {
     }
     
     @objc func changeBrush() {
-        if currentBrush == 0 {
-            currentBrush = 1
-        } else if currentBrush == 1 {
-            currentBrush = 2
-        } else {
-            currentBrush = 0
-        }
+        currentBrush = currentBrush == 0 ? 1 : 0
         
         if self.currentBrush == 0 {
-            canvas.changeBrush(to: "basicPencil")
-        } else if currentBrush == 1{
-            canvas.changeBrush(to: "basicInk")
-        } else {
-            canvas.changeBrush(to: "basicBrush")
+            canvas.changeBrush(to: "basicPaintBrush")
+        } else if currentBrush == 1 {
+            canvas.changeBrush(to: "shapeBrush")
         }
     }
     

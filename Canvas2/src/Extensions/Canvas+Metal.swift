@@ -46,9 +46,9 @@ internal func buildSampleState(device: MTLDevice?) -> MTLSamplerState? {
     sd.magFilter = .linear
     sd.minFilter = .nearest
     sd.mipFilter = .linear
-    sd.rAddressMode = .mirrorRepeat
-    sd.sAddressMode = .mirrorRepeat
-    sd.tAddressMode = .mirrorRepeat
+    sd.rAddressMode = .clampToZero
+    sd.sAddressMode = .clampToZero
+    sd.tAddressMode = .clampToZero
     guard let sampleState = device?.makeSamplerState(descriptor: sd) else {
         return nil
     }

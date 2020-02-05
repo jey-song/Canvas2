@@ -16,7 +16,7 @@ extension Element {
     func endRectangle(start: CGPoint, end: CGPoint, brush: Brush) -> [Vertex] {
         let size = brush.size
         let color = brush.color.withAlphaComponent(brush.opacity)
-        let rotation = end.angel(to: start)
+        let rotation = CGFloat(-1)
         
         // Compute the rectangle from the starting point to the end point.
         // Remember that the end coordinates can be behind the start.
@@ -70,7 +70,7 @@ extension Element {
     func endLine(start: CGPoint, end: CGPoint, brush: Brush) -> [Vertex] {
         let size = brush.size
         let color = brush.color.withAlphaComponent(brush.opacity)
-        let rotation = end.angel(to: start)
+        let rotation = CGFloat(-1)
         
         let perpendicular = start.perpendicular(other: end).normalize()
         var A: CGPoint = start
@@ -155,7 +155,7 @@ extension Element {
     func endEllipse(start: CGPoint, end: CGPoint, brush: Brush) -> [Vertex] {
         let size = brush.size
         let color = brush.color.withAlphaComponent(brush.opacity)
-        let rotation = end.angel(to: start)
+        let rotation = CGFloat(-1)
         
         var verts: [Vertex] = [
             Vertex(position: self.start, color: color, rotation: rotation)

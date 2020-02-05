@@ -52,6 +52,11 @@ fragment half4 textured_fragment(Vertex vert [[stage_in]], sampler sampler2D,
                                  texture2d<float> texture [[texture(0)]],
                                  float2 pointCoord [[point_coord]]) {
     
+    // TODO: This is just a temporary fix for drawing shapes, since they for some reason don't show up with textures.
+    if(vert.rotation == -1) {
+        return half4(vert.color);
+    }
+    
     float2 text_coord = transformPointCoord(pointCoord, vert.rotation, float2(0.5));
     float4 color = float4(texture.sample(sampler2D, text_coord));
     float4 ret = float4(vert.color.rgb, color.a * vert.color.a * vert.color.a);

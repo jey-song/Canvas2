@@ -164,6 +164,8 @@ public struct Element: Codable {
                 self.vertices = verts
                 break
             default:
+                let verts = endRectangle(start: self.start, end: point, brush: brush)
+                self.vertices = verts
                 break
         }
     }
