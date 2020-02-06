@@ -20,7 +20,7 @@
 - **Codable**: Canvas implements the Codable protocol, which makes saving and loading your canvas data easy.
 
 ## In Progress
-- **Selection/Eyedropper/Fill**: Tools to move elements around the canvas, pick colors from a given pixel, and fill a particular area with color.
+- **Selection**: Move entire layers, or selected pixels around the screen.
 <br></br>
 
 # Installation

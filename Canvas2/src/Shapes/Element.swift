@@ -124,12 +124,14 @@ public struct Element: Codable {
         ) else { return }
         
         // Generate the vertices to the next point.
+        let prevPoint = vertices.count > 0 ?
+            CGPoint(x: CGFloat(vertices.last!.position.x), y: CGFloat(vertices.last!.position.y)) : self.start
         let verts = BezierGenerator.add(point: point).map {
             Vertex(
                 position: $0,
                 size: brush.size * canvas.force,
                 color: brush.color.withAlphaComponent(brush.opacity),
-                rotation: point.angel(to: self.start)
+                rotation: point.angel(to: prevPoint)
             )
         }
         vertices.append(contentsOf: verts)

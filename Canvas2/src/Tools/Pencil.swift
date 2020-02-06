@@ -64,6 +64,12 @@ public struct Pencil: Tool {
         // NOTE: Run the following code for all of the touches.
         var total = coalesced
         total.append(contentsOf: pred)
+        total.sort { (t1, t2) -> Bool in
+            let p1 = t1.metalLocation(in: canvas)
+            let p2 = t2.metalLocation(in: canvas)
+            return p1 < p2
+        }
+        
         for touch in total {
             let point = touch.metalLocation(in: canvas)
             canvas.currentPath!.endPencil(at: point)
