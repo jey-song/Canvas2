@@ -16,14 +16,11 @@ public struct Pencil: Tool {
     
     public var name: String
     
-    public var canvas: Canvas?
-    
     
     
     // MARK: Initialization
     
-    public init(canvas: Canvas) {
-        self.canvas = canvas
+    public init() {
         self.name = "pencil"
     }
     
@@ -36,8 +33,7 @@ public struct Pencil: Tool {
     
     // MARK: Functions
     
-    public func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func beginTouch(canvas: Canvas, _ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.isOnValidLayer() else { return false }
         let point = firstTouch.metalLocation(in: canvas)
         
@@ -45,12 +41,11 @@ public struct Pencil: Tool {
         canvas.setForce(value: firstTouch.force)
         
         // Start a new quad when a touch is down.
-        canvas.currentPath.startPath(point: point)
+        canvas.currentPath.startPath(point: point, canvas: canvas)
         return true
     }
     
-    public func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func moveTouch(canvas: Canvas, _ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.currentPath != nil else { return false }
         guard canvas.isOnValidLayer() else { return false }
         
@@ -72,18 +67,17 @@ public struct Pencil: Tool {
         
         for touch in total {
             let point = touch.metalLocation(in: canvas)
-            canvas.currentPath!.endPencil(at: point)
+            canvas.currentPath!.endPencil(at: point, canvas: canvas)
         }
         return true
     }
     
-    public func endTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func endTouch(canvas: Canvas, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.isOnValidLayer() else { return false }
         
         if let first = touches.first {
             let p = first.metalLocation(in: canvas)
-            canvas.currentPath!.endPencil(at: p)
+            canvas.currentPath!.endPencil(at: p, canvas: canvas)
         }
         
         // Clear the current drawing curve.
@@ -92,13 +86,12 @@ public struct Pencil: Tool {
         return true
     }
     
-    public func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func cancelTouch(canvas: Canvas, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.isOnValidLayer() else { return false }
         
         if let first = touches.first {
             let p = first.metalLocation(in: canvas)
-            canvas.currentPath!.endPencil(at: p)
+            canvas.currentPath!.endPencil(at: p, canvas: canvas)
         }
         
         // Clear the current drawing curve.

@@ -45,8 +45,6 @@ public struct Brush: Codable {
     
     // MARK: Variables
     
-    internal var canvas: Canvas?
-    
     internal var name: String
     
     public var size: CGFloat
@@ -69,16 +67,14 @@ public struct Brush: Codable {
     
     // MARK: Initialization
     
-    public init(canvas: Canvas?, name: String, config: [BrushOption : Any?] = defaultConfig) {
-        self.canvas = canvas
-        self.name = name
-        
+    public init(name: String, config: [BrushOption : Any?] = defaultConfig) {
         let size = config[BrushOption.Size] as? CGFloat ?? defaultConfig[BrushOption.Size] as! CGFloat
         let color = config[BrushOption.Color] as? UIColor ?? defaultConfig[BrushOption.Color] as! UIColor
         let opacity = config[BrushOption.Opacity] as? CGFloat ?? defaultConfig[BrushOption.Opacity] as! CGFloat
         let textureName = config[BrushOption.TextureName] as? String ?? defaultConfig[BrushOption.TextureName] as? String
         let isEraser = config[BrushOption.IsEraser] as? Bool ?? defaultConfig[BrushOption.IsEraser] as! Bool
         
+        self.name = name
         self.size = size
         self.color = color
         self.opacity = opacity
@@ -117,8 +113,8 @@ public struct Brush: Codable {
     // MARK: Functions
     
     /** Sets up the pipeline for this brush. */
-    internal mutating func setupPipeline() {
-        guard let device = canvas?.device else { return }
+    internal mutating func setupPipeline(canvas: Canvas) {
+        guard let device = canvas.device else { return }
         guard let lib = getLibrary(device: device) else { return }
         guard let vertProg = lib.makeFunction(name: "main_vertex") else { return }
         guard let fragProg = lib.makeFunction(name: "textured_fragment") else { return }
@@ -134,7 +130,7 @@ public struct Brush: Codable {
             BrushOption.TextureName: self.textureName,
             BrushOption.IsEraser: self.isEraser,
         ]
-        var b: Brush = Brush(canvas: self.canvas, name: self.name, config: config)
+        var b: Brush = Brush(name: self.name, config: config)
         b.pipeline = self.pipeline
         return b
     }

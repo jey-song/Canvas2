@@ -17,14 +17,11 @@ public struct Eraser: Tool {
     
     public var name: String
     
-    public var canvas: Canvas?
-    
     
     
     // MARK: Initialization
     
-    public init(canvas: Canvas) {
-        self.canvas = canvas
+    public init() {
         self.name = "eraser"
     }
     
@@ -36,8 +33,7 @@ public struct Eraser: Tool {
     
     // MARK: Functions
     
-    public func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func beginTouch(canvas: Canvas, _ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.isOnValidLayer() else { return false }
         
         // Get the force from the user input.
@@ -45,8 +41,7 @@ public struct Eraser: Tool {
         return true
     }
     
-    public func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func moveTouch(canvas: Canvas, _ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.currentPath != nil else { return false }
         guard canvas.isOnValidLayer() else { return false }
         if canvas.canvasLayers[canvas.currentLayer].isLocked == true { return false }
@@ -66,8 +61,7 @@ public struct Eraser: Tool {
         return true
     }
     
-    public func endTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func endTouch(canvas: Canvas, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.isOnValidLayer() else { return false }
         
         // Clear the current drawing curve.
@@ -76,8 +70,7 @@ public struct Eraser: Tool {
         return true
     }
     
-    public func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func cancelTouch(canvas: Canvas, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.isOnValidLayer() else { return false }
         
         // Clear the current drawing curve.

@@ -35,7 +35,7 @@ public extension Canvas {
     func addLayer(at index: Int) {
         // Adding a layer does not require a rebuild of the buffer
         // because that will happen when the user draws again.
-        let newLayer = Layer(canvas: self)
+        let newLayer = Layer()
         if self.canvasLayers.count == 0 {
             self.canvasLayers.append(newLayer)
             self.currentLayer = 0

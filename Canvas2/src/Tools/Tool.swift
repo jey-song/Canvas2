@@ -25,12 +25,10 @@ public protocol Tool: Codable {
     
     var name: String { get set }
     
-    var canvas: Canvas? { get set }
-    
     
     // MARK: Initialization
     
-    init(canvas: Canvas)
+    init()
     
     init(from decoder: Decoder) throws
     
@@ -39,16 +37,16 @@ public protocol Tool: Codable {
     // MARK: Functions
     
     /** Called when this tool first hits the canvas. */
-    func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool
+    func beginTouch(canvas: Canvas, _ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool
     
     /** Called when this tool starts to move. */
-    func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool
+    func moveTouch(canvas: Canvas, _ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool
     
     /** Called when this tool is no longer touching the canvas. */
-    func endTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool
+    func endTouch(canvas: Canvas, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool
     
     /** Called when this tool stops touching the canvas w/o help from the user. */
-    func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool
+    func cancelTouch(canvas: Canvas, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool
     
     
     // MARK: Codable

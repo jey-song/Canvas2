@@ -12,26 +12,24 @@ import MetalKit
 
 
 /** An element is a manager for a group of quads on a layer of the canvas. */
-public struct Element: Codable {
+public class Element: Codable {
     
     // MARK: Variables
     
     // --> Internal
     
-    internal var brushName: String
-    internal var vertices: [Vertex]
-    internal var start: CGPoint
-    
-    internal var isFreeHand: Bool
-    
-    internal var canvas: Canvas?
     internal var buffer: MTLBuffer?
+    internal var vertices: [Vertex]
+    
+    internal var brushName: String
+    internal var start: CGPoint
+    internal var isFreeHand: Bool
     
     
     
     // --> Public
     
-    /** Returns the number of quad segments that make up this element. */
+    /** Returns the number of vertices that make up this element. */
     public var length: Int {
         return vertices.count
     }
@@ -40,27 +38,28 @@ public struct Element: Codable {
     
     // MARK: Initialization
     
-    init(_ verts: [Vertex], canvas: Canvas?, brushName: String) {
+    init(_ verts: [Vertex], brushName: String) {
         self.vertices = verts
-        self.canvas = canvas
         self.brushName = brushName
         self.isFreeHand = true
         self.start = CGPoint()
         
     }
     
-    public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try? decoder.container(keyedBy: ElementCodingKeys.self)
         
         self.vertices = try container?.decodeIfPresent([Vertex].self, forKey: .vertices) ?? []
         self.brushName = try container?.decodeIfPresent(String.self, forKey: .brushName) ?? "defaultBrush"
         self.isFreeHand = try container?.decodeIfPresent(Bool.self, forKey: .isFreeHand) ?? true
-        self.start = try container?.decodeIfPresent(CGPoint.self, forKey: .start) ?? .zero
+        
+        let _start = try container?.decodeIfPresent([CGFloat].self, forKey: .start) ?? [0,0]
+        self.start = CGPoint(x: _start[0], y: _start[1])
     }
     
     
     public func copy() -> Element {
-        var e = Element(self.vertices, canvas: self.canvas, brushName: self.brushName)
+        let e = Element(self.vertices, brushName: self.brushName)
         e.start = self.start
         e.isFreeHand = self.isFreeHand
         return e
@@ -71,8 +70,7 @@ public struct Element: Codable {
     // MARK: Functions
     
     /** Starts a new path using this element. */
-    internal mutating func startPath(point: CGPoint, isFreeHand: Bool = true) {
-        guard let canvas = canvas else { return }
+    internal func startPath(point: CGPoint, canvas: Canvas, isFreeHand: Bool = true) {
         self.brushName = canvas.currentBrush.name
         guard let brush = canvas.getBrush(
             withName: self.brushName,
@@ -103,14 +101,13 @@ public struct Element: Codable {
     
     /** Finishes this element so that no more quads can be added to it without starting an
      entirely new element (i.e. lifting the stylus and drawing a new curve). */
-    internal mutating func closePath() {
+    internal func closePath() {
         vertices = []
         BezierGenerator.closePath()
     }
     
     /** Ends the last quad that exists on this element. */
-    internal mutating func endPencil(at point: CGPoint) {
-        guard let canvas = canvas else { return }
+    internal func endPencil(at point: CGPoint, canvas: Canvas) {
         guard let brush = canvas.getBrush(
             withName: self.brushName,
             with: [
@@ -138,8 +135,7 @@ public struct Element: Codable {
     }
     
     /**Ends the curve as a particular tool.  */
-    internal mutating func end(at point: CGPoint, as tool: CanvasTool) {
-        guard let canvas = canvas else { return }
+    internal func end(at point: CGPoint, canvas: Canvas, as tool: CanvasTool) {
         guard let brush = canvas.getBrush(
             withName: self.brushName,
             with: [
@@ -176,16 +172,11 @@ public struct Element: Codable {
     // MARK: Rendering
     
     /** Rebuilds the buffer. */
-    internal mutating func rebuildBuffer() {
-        guard let canvas = canvas else {
-            buffer = nil
-            return
-        }
-        
+    internal func rebuildBuffer(canvas: Canvas) {
         if vertices.count > 0 {
             buffer = canvas.device!.makeBuffer(
                 bytes: vertices,
-                length: vertices.count * MemoryLayout<Vertex>.stride,
+                length: length * MemoryLayout<Vertex>.stride,
                 options: []
             )
         } else {
@@ -194,7 +185,7 @@ public struct Element: Codable {
     }
     
     /** Renders the element to the screen. */
-    internal mutating func render(canvas: Canvas, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
+    internal func render(canvas: Canvas, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
         guard vertices.count > 0 else { return }
         guard let vBuff = self.buffer else { return }
         guard let brush = canvas.getBrush(withName: self.brushName) else { return }
@@ -221,7 +212,7 @@ public struct Element: Codable {
         
         try container.encode(vertices, forKey: .vertices)
         try container.encode(brushName, forKey: .brushName)
-        try container.encode(start, forKey: .start)
+        try container.encode([start.x, start.y], forKey: .start)
         try container.encode(isFreeHand, forKey: .isFreeHand)
     }
     

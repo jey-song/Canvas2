@@ -21,7 +21,7 @@ public extension Canvas {
         }
         
         // Let the current tool handle manipulating point and quad/vertex data.
-        if self.currentTool.beginTouch(touch, touches, with: event) {
+        if self.currentTool.beginTouch(canvas: self, touch, touches, with: event) {
             self.canvasDelegate?.isDrawing(element: currentPath, on: self)
             setNeedsDisplay()
         }
@@ -36,7 +36,7 @@ public extension Canvas {
         }
         
         // Allow the current tool to handle movement across the screen.
-        if self.currentTool.moveTouch(touch, touches, with: event) {
+        if self.currentTool.moveTouch(canvas: self, touch, touches, with: event) {
             self.canvasDelegate?.isDrawing(element: currentPath, on: self)
             setNeedsDisplay()
         }
@@ -50,7 +50,7 @@ public extension Canvas {
             return
         }
         
-        if self.currentTool.endTouch(touches, with: event) {
+        if self.currentTool.endTouch(canvas: self, touches, with: event) {
             self.canvasDelegate?.stoppedDrawing(element: currentPath, on: self)
             setNeedsDisplay()
         }
@@ -64,7 +64,7 @@ public extension Canvas {
             return
         }
         
-        if self.currentTool.cancelTouch(touches, with: event) {
+        if self.currentTool.cancelTouch(canvas: self, touches, with: event) {
             self.canvasDelegate?.stoppedDrawing(element: currentPath, on: self)
             setNeedsDisplay()
         }

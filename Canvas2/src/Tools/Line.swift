@@ -17,14 +17,11 @@ public struct Line: Tool {
     
     public var name: String
     
-    public var canvas: Canvas?
-    
     
     
     // MARK: Initialization
     
-    public init(canvas: Canvas) {
-        self.canvas = canvas
+    public init() {
         self.name = "line"
     }
     
@@ -36,34 +33,31 @@ public struct Line: Tool {
     
     // MARK: Functions
     
-    public func beginTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func beginTouch(canvas: Canvas, _ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.isOnValidLayer() else { return false }
         let point = firstTouch.metalLocation(in: canvas)
 
         // When drawing a line, you only need one quad to work with.
 //        let quad = Quad(start: point)
-        canvas.currentPath.startPath(point: point, isFreeHand: false)
+        canvas.currentPath.startPath(point: point, canvas: canvas, isFreeHand: false)
         return true
     }
     
-    public func moveTouch(_ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func moveTouch(canvas: Canvas, _ firstTouch: UITouch, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.currentPath != nil else { return false }
         guard canvas.isOnValidLayer() else { return false }
         
         let point = firstTouch.metalLocation(in: canvas)
-        canvas.currentPath.end(at: point, as: .line)
+        canvas.currentPath.end(at: point, canvas: canvas, as: .line)
         return true
     }
     
-    public func endTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func endTouch(canvas: Canvas, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.isOnValidLayer() else { return false }
         
         if let first = touches.first {
             let p = first.metalLocation(in: canvas)
-            canvas.currentPath!.end(at: p, as: .line)
+            canvas.currentPath!.end(at: p, canvas: canvas, as: .line)
         }
         
         // Clear the current drawing curve.
@@ -72,13 +66,12 @@ public struct Line: Tool {
         return true
     }
     
-    public func cancelTouch(_ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
-        guard let canvas = self.canvas else { return false }
+    public func cancelTouch(canvas: Canvas, _ touches: Set<UITouch>, with event: UIEvent?) -> Bool {
         guard canvas.isOnValidLayer() else { return false }
         
         if let first = touches.first {
             let p = first.metalLocation(in: canvas)
-            canvas.currentPath!.end(at: p, as: .line)
+            canvas.currentPath!.end(at: p, canvas: canvas, as: .line)
         }
         
         // Clear the current drawing curve.

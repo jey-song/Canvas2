@@ -25,8 +25,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     internal var sampleState: MTLSamplerState!
     
     internal var viewportVertices: [Vertex]
-    internal var mainBuffer: MTLBuffer?
-    internal var mainTexture: MTLTexture?
     
     internal var canvasLayers: [Layer]
     internal var currentPath: Element!
@@ -89,27 +87,27 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     /** A very basic pencil tool for freehand drawing. */
     lazy internal var pencilTool: Pencil = {
-        return Pencil(canvas: self)
+        return Pencil()
     }()
     
     /** A basic tool for creating perfect rectangles. */
     lazy internal var rectangleTool: Rectangle = {
-        return Rectangle(canvas: self)
+        return Rectangle()
     }()
     
     /** A basic line tool for drawing straight lines. */
     lazy internal var lineTool: Line = {
-        return Line(canvas: self)
+        return Line()
     }()
     
     /** A basic circle tool for drawing straight lines. */
     lazy internal var ellipseTool: Ellipse = {
-        return Ellipse(canvas: self)
+        return Ellipse()
     }()
     
     /** A simple eraser. */
     lazy internal var eraserTool: Eraser = {
-        return Eraser(canvas: self)
+        return Eraser()
     }()
     
     
@@ -121,7 +119,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
             
             // Basically, every time you change the view size, clear the canvas using the
             // viewport vertices, which is the a clear color screen.
-            mainTexture = makeEmptyTexture(device: self.device, width: frame.width, height: frame.height)
             self.viewportVertices = [
                 Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor, rotation: 0),
                 Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor, rotation: 0),
@@ -174,12 +171,12 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         self.commandQueue = device?.makeCommandQueue()
         self.sampleState = buildSampleState(device: device)
         self.pipeline = buildRenderPipeline(device: device, vertProg: vertProg, fragProg: fragProg)
-        self.currentBrush = Brush(canvas: self, name: "defaultBrush", config: [
+        self.currentBrush = Brush(name: "defaultBrush", config: [
             BrushOption.Size: 10.0,
             BrushOption.Color: UIColor.black
         ])
         self.currentTool = self.pencilTool // Default tool
-        self.currentPath = Element([], canvas: self, brushName: "defaultBrush") // Used for drawing temporary paths
+        self.currentPath = Element([], brushName: "defaultBrush") // Used for drawing temporary paths
         self.viewportVertices = [
             Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor, rotation: 0),
             Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor, rotation: 0),
@@ -220,7 +217,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     /** Registers a new brush that can be used on this canvas. */
     public func addBrush(_ brush: Brush) {
         var cpy = brush.copy()
-        cpy.setupPipeline()
+        cpy.setupPipeline(canvas: self)
         self.registeredBrushes[brush.name] = cpy
     }
     
@@ -373,10 +370,10 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     internal func rebuildBuffer() {
         // If you were in the process of drawing a curve and are on a valid
         // layer, add that finished element to the layer.
-        if var copy = currentPath?.copy() {
+        if let copy = currentPath?.copy() {
             if isOnValidLayer() && copy.vertices.count > 0 {
                 // Add the newly drawn element to the layer.
-                copy.rebuildBuffer()
+                copy.rebuildBuffer(canvas: self)
                 canvasLayers[currentLayer].add(element: copy)
                 
                 // Add an undo action.
@@ -386,7 +383,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
                     self.canvasLayers[self.currentLayer].remove(at: index)
                     return nil
                 }) { () -> Any? in
-                    copy.rebuildBuffer()
+                    copy.rebuildBuffer(canvas: self)
                     self.canvasLayers[self.currentLayer].add(element: copy)
                     return nil
                 }
@@ -399,11 +396,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     /** Finish the current drawing path and add it to the canvas. Then repaint the view. Never needs to be called manually. */
     internal func repaint() {
-        // Clear the canvas of whatever was already there.
-        mainTexture = makeEmptyTexture(device: device, width: frame.width, height: frame.height)
-        
-        // Recompute the main buffer.
-        guard let drawable = currentDrawable else { return }
+        // Get a reference to a command buffer and render encoder.
         guard let rpd = currentRenderPassDescriptor else { return }
         guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
         guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { return }
@@ -411,19 +404,20 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         // Render each layer.
         for i in 0..<canvasLayers.count {
             let layer = canvasLayers[i]
-
-            // Occurs when loading from data.
-            if layer.canvas == nil {
-                canvasLayers[i].canvas = self
-            }
-
             if layer.isHidden == true { continue }
-            canvasLayers[i].render(index: i, buffer: commandBuffer, encoder: encoder)
+            layer.render(
+                canvas: self,
+                index: i,
+                buffer: commandBuffer,
+                encoder: encoder
+            )
         }
 
         // Finishing main encoding and present drawable.
         encoder.endEncoding()
-        commandBuffer.present(drawable)
+        if let drawable = currentDrawable {
+            commandBuffer.present(drawable)
+        }
         commandBuffer.commit()
     }
     

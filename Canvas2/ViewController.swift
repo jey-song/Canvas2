@@ -38,6 +38,7 @@ class ViewController: UIViewController, CanvasEvents {
         a.currentBrush.size = 20
         a.maximumForce = 1.0
         a.canvasColor = .white
+        a.addLayer(at: 0)
         
         return a
     }()
@@ -372,12 +373,12 @@ class ViewController: UIViewController, CanvasEvents {
         }
         
         // Load a brush.
-        let basicPaint: Brush = Brush(canvas: canvas, name: "basicPaintBrush", config: [
+        let basicPaint: Brush = Brush(name: "basicPaintBrush", config: [
             BrushOption.Size: CGFloat(50),
             BrushOption.Color: UIColor.black,
             BrushOption.TextureName: "paintTexture"
         ])
-        let shapeBrush: Brush = Brush(canvas: canvas, name: "shapeBrush", config: [
+        let shapeBrush: Brush = Brush(name: "shapeBrush", config: [
             BrushOption.Size: CGFloat(50),
             BrushOption.Color: UIColor.black,
             BrushOption.TextureName: "paperTexture"
@@ -490,12 +491,14 @@ class ViewController: UIViewController, CanvasEvents {
     }
     
     @objc func redo() {
-        canvas.redo()
+//        canvas.redo()
+        canvas.load(elements: d, onto: 0)
     }
-    
+    var d = [Element]()
     @objc func export() {
-        guard let img = canvas.export() else { return }
-        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
+//        guard let img = canvas.export() else { return }
+//        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
+        d = canvas.exportDrawings(from: 0)
     }
     
     
