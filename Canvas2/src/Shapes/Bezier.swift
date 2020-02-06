@@ -21,7 +21,7 @@ internal class BezierGenerator {
     
     
     
-    // MARK: Initialization.
+    // MARK: Initialization
        
     
     

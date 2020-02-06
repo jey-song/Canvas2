@@ -491,20 +491,20 @@ class ViewController: UIViewController, CanvasEvents {
     }
     
     
-    var data: Data?
+    var data: [Element] = []
     
     @objc func redo() {
 //        canvas.redo()
         
 //        let _ = canvas.load(from: data!)
-        let _ = canvas.load(drawings: data!, onto: 0)
+        canvas.load(elements: data, onto: 0)
     }
     
     @objc func export() {
 //        guard let img = canvas.export() else { return }
 //        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
         
-        guard let d = canvas.exportLayerElements(at: 0) else { return }
+        let d = canvas.exportDrawings(from: 0)
         self.data = d
     }
     

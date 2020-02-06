@@ -20,7 +20,7 @@ extension Canvas {
     }
     
     /** Exports the canvas, all of its layers, brush data, etc. into codable data. */
-    public func exportData() -> Data? {
+    public func exportCanvas() -> Data? {
         do {
             let data: Data = try JSONEncoder().encode(self)
             return data
@@ -29,69 +29,30 @@ extension Canvas {
         }
     }
     
-    /** Exports just the drawing layers so they can be reconstructed later on. */
-    public func exportLayers() -> Data? {
-        do {
-            let layers: [Layer] = canvasLayers
-            let data: Data = try JSONEncoder().encode(layers)
-            return data
-        } catch {
-            return nil
-        }
+    /** Returns all of the layers. */
+    public func exportLayers() -> [Layer] {
+        return canvasLayers
     }
     
-    /** Exports a single layer's drawing data. */
-    public func exportLayerElements(at index: Int) -> Data? {
-        guard index >= 0 && index < canvasLayers.count else { return nil }
-        
-        do {
-            let layer = canvasLayers[index]
-            let data: Data = try JSONEncoder().encode(layer.elements)
-            return data
-        } catch {
-            return nil
-        }
+    /** Exports just the drawing data from a given element. */
+    public func exportDrawings(from index: Int) -> [Element] {
+        guard index >= 0 && index < canvasLayers.count else { return [] }
+        return canvasLayers[index].elements
     }
     
-    /** Sets layer data given properly formatted element data. */
-    public func load(drawings data: Data, onto layer: Int) -> Bool {
-        guard layer >= 0 && layer < canvasLayers.count else { return false }
-        
-        guard let dec = try? JSONDecoder().decode([Element].self, from: data) else { return false }
-        canvasLayers[layer].elements = dec
-        rebuildBuffer()
-        
-        return true
-    }
-    
-    /** Loads layer data onto the canvas, then reloads the canvas. */
-    public func load(from layersData: Data) -> Bool {
-        guard let layers = try? JSONDecoder().decode([Layer].self, from: layersData) else {
-            return false
-        }
-        
-        canvasLayers.removeAll()
-        currentLayer = 0
-        mainTexture = nil
-        mainBuffer = nil
-        
+    /** Sets the canvas layers to the input and repaints the screen. */
+    public func load(layers: [Layer]) {
         canvasLayers = layers
         currentLayer = layers.count > 0 ? 0 : -1
-        rebuildBuffer()
-        return true
+        setNeedsDisplay()
     }
     
-    /** Sets the layers based on whatever you pass in.. */
-    public func set(layers: [Layer]) -> Bool {
-        canvasLayers.removeAll()
-        currentLayer = 0
-        mainTexture = nil
-        mainBuffer = nil
-        
-        canvasLayers = layers
-        currentLayer = layers.count > 0 ? 0 : -1
-        rebuildBuffer()
-        return true
+    /** Loads canvas elements onto a particular layer. */
+    public func load(elements: [Element], onto layer: Int) {
+        guard layer >= 0 && layer < canvasLayers.count else { return }
+        canvasLayers[layer].elements.removeAll()
+        canvasLayers[layer].elements.append(contentsOf: elements)
+        setNeedsDisplay()
     }
     
 }

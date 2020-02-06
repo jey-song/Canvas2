@@ -43,6 +43,7 @@ fragment half4 main_fragment(Vertex vert [[stage_in]]) {
 
 
 float2 transformPointCoord(float2 pointCoord, float rotation, float2 anchor) {
+    // TODO: Make changes to this to try better stretching.
     float2 point = pointCoord - anchor;
     float x = point.x * cos(rotation) - point.y * sin(rotation);
     float y = point.x * sin(rotation) + point.y * cos(rotation);

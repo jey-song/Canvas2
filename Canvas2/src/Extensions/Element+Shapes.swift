@@ -72,6 +72,7 @@ extension Element {
         let color = brush.color.withAlphaComponent(brush.opacity)
         let rotation = CGFloat(-1)
         
+        // TODO: Maybe just use distance to the end point to compute the line coordinates.
         let perpendicular = start.perpendicular(other: end).normalize()
         var A: CGPoint = start
         var B: CGPoint = end

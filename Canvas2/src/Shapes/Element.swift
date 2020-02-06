@@ -175,7 +175,10 @@ public struct Element: Codable {
     
     /** Rebuilds the buffer. */
     internal mutating func rebuildBuffer() {
-        guard let canvas = canvas else { return }
+        guard let canvas = canvas else {
+            buffer = nil
+            return
+        }
         
         if vertices.count > 0 {
             buffer = canvas.device!.makeBuffer(
@@ -183,6 +186,8 @@ public struct Element: Codable {
                 length: vertices.count * MemoryLayout<Vertex>.stride,
                 options: []
             )
+        } else {
+            buffer = nil
         }
     }
     
