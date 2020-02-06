@@ -16,6 +16,13 @@ internal enum LayerCodingKeys: CodingKey {
     case isHidden
 }
 
+internal enum ElementCodingKeys: CodingKey {
+    case vertices
+    case brushName
+    case start
+    case isFreeHand
+}
+
 internal enum ToolCodingKeys: CodingKey {
     case name
 }

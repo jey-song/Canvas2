@@ -50,12 +50,12 @@ public struct Element: Codable {
     }
     
     public init(from decoder: Decoder) throws {
-        var container = try? decoder.unkeyedContainer()
+        let container = try? decoder.container(keyedBy: ElementCodingKeys.self)
         
-        self.vertices = try container?.decodeIfPresent([Vertex].self) ?? []
-        self.brushName = try container?.decodeIfPresent(String.self) ?? "defaultBrush"
-        self.isFreeHand = try container?.decodeIfPresent(Bool.self) ?? true
-        self.start = try container?.decodeIfPresent(CGPoint.self) ?? .zero
+        self.vertices = try container?.decodeIfPresent([Vertex].self, forKey: .vertices) ?? []
+        self.brushName = try container?.decodeIfPresent(String.self, forKey: .brushName) ?? "defaultBrush"
+        self.isFreeHand = try container?.decodeIfPresent(Bool.self, forKey: .isFreeHand) ?? true
+        self.start = try container?.decodeIfPresent(CGPoint.self, forKey: .start) ?? .zero
     }
     
     
@@ -217,12 +217,12 @@ public struct Element: Codable {
     // MARK: Codable
     
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.unkeyedContainer()
+        var container = encoder.container(keyedBy: ElementCodingKeys.self)
         
-        try container.encode(vertices)
-        try container.encode(brushName)
-        try container.encode(start)
-        try container.encode(isFreeHand)
+        try container.encode(vertices, forKey: .vertices)
+        try container.encode(brushName, forKey: .brushName)
+        try container.encode(start, forKey: .start)
+        try container.encode(isFreeHand, forKey: .isFreeHand)
     }
     
 }
