@@ -182,7 +182,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     /** Registers a new brush that can be used on this canvas. */
     public func addBrush(_ brush: Brush) {
-        var cpy = brush.copy()
+        let cpy = brush.copy()
         cpy.setupPipeline(canvas: self)
         self.registeredBrushes[brush.name] = cpy
     }

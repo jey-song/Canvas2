@@ -119,7 +119,7 @@ public class Brush: Codable { // TODO: Come back and make sure the class works.
             BrushOption.TextureName: self.textureName,
             BrushOption.IsEraser: self.isEraser,
         ]
-        var b: Brush = Brush(name: self.name, config: config)
+        let b: Brush = Brush(name: self.name, config: config)
         b.pipeline = self.pipeline
         return b
     }
@@ -134,7 +134,7 @@ public class Brush: Codable { // TODO: Come back and make sure the class works.
         let textureName = config[BrushOption.TextureName] as? String
         let isEraser = config[BrushOption.IsEraser] as? Bool
         
-        var brush = copy()
+        let brush = copy()
         if s != nil { brush.size = s! }
         if color != nil { brush.color = color! }
         if textureName != nil { brush.textureName = textureName! }
