@@ -124,7 +124,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         // Configure the metal view.
         super.init(frame: frame, device: MTLCreateSystemDefaultDevice())
         self.colorPixelFormat = CANVAS_PIXEL_FORMAT
-        self.framebufferOnly = true
+        self.framebufferOnly = false
         self.delegate = self
         self.isOpaque = true
         self.isPaused = true
@@ -250,6 +250,9 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     /** Clears the entire canvas. */
     public func clear() {
+        for i in 0..<canvasLayers.count {
+            canvasLayers[i].elements = []
+        }
         rebuildBuffer()
         canvasDelegate?.didClear(canvas: self)
     }
@@ -258,7 +261,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     public func clear(layer at: Int) {
         guard at >= 0 && at < canvasLayers.count else { return }
         
-        canvasLayers[at].elements.removeAll()
+        canvasLayers[at].elements = []
         rebuildBuffer()
         canvasDelegate?.didClear(layer: at, on: self)
     }
@@ -290,7 +293,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     internal func rebuildBuffer() {
         // If you were in the process of drawing a curve and are on a valid
         // layer, add that finished element to the layer.
-        if let copy = currentPath?.copy() {
+        if var copy = currentPath?.copy() {
             if isOnValidLayer() && copy.vertices.count > 0 {
                 // Add the newly drawn element to the layer.
                 copy.rebuildBuffer(canvas: self)

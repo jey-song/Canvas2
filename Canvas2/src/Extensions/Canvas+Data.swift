@@ -50,8 +50,7 @@ extension Canvas {
     /** Loads canvas elements onto a particular layer. */
     public func load(elements: [Element], onto layer: Int) {
         guard layer >= 0 && layer < canvasLayers.count else { return }
-        canvasLayers[layer].elements.removeAll()
-        canvasLayers[layer].elements.append(contentsOf: elements)
+        canvasLayers[layer].elements = elements
         setNeedsDisplay()
     }
     

@@ -12,7 +12,7 @@ import MetalKit
 
 
 /** A layer on the canvas. */
-public class Layer: Codable {
+public struct Layer: Codable {
     
     // MARK: Variables
     
@@ -34,7 +34,7 @@ public class Layer: Codable {
         self.isHidden = false
     }
     
-    public required init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try? decoder.container(keyedBy: LayerCodingKeys.self)
         
         self.elements = try container?.decodeIfPresent([Element].self, forKey: .elements) ?? []
@@ -47,23 +47,23 @@ public class Layer: Codable {
     // MARK: Functions
     
     /** Makes sure that this layer understands that a new element was added on it. */
-    internal func add(element: Element) {
+    internal mutating func add(element: Element) {
         self.elements.append(element)
     }
     
     /** Removes an element from this layer. */
-    internal func remove(at: Int) {
+    internal mutating func remove(at: Int) {
         guard at >= 0 && at < elements.count else { return }
         elements.remove(at: at)
     }
     
     /** Erases points from this layer by making them transparent. */
-    internal func eraseVertices(canvas: Canvas, point: CGPoint) {
+    internal mutating func eraseVertices(canvas: Canvas, point: CGPoint) {
         let a = canvas.currentBrush.size * canvas.force
         let size = (((a / 100) * 4) / 2) / 50
         
-        for element in elements {
-            element.vertices.removeAll { vert -> Bool in
+        for i in 0..<elements.count {
+            elements[i].vertices.removeAll { vert -> Bool in
                 CGPoint.inRange(
                     x: vert.position.x,
                     y: vert.position.y,
@@ -72,7 +72,7 @@ public class Layer: Codable {
                     size: Float(size)
                 )
             }
-            element.rebuildBuffer(canvas: canvas)
+            elements[i].rebuildBuffer(canvas: canvas)
         }
     }
     
@@ -87,7 +87,7 @@ public class Layer: Codable {
         
         // Whatever is current being drawn on the screen, display it immediately.
         if canvas.currentLayer == index {
-            if let cp = canvas.currentPath {
+            if var cp = canvas.currentPath {
                 if cp.vertices.count > 0 && isLocked == false {
                     cp.rebuildBuffer(canvas: canvas)
                     cp.render(canvas: canvas, buffer: buffer, encoder: encoder)
