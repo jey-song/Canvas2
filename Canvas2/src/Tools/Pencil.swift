@@ -57,7 +57,9 @@ public struct Pencil: Tool {
         canvas.setForce(value: firstTouch.force)
         
         // NOTE: Run the following code for all of the touches.
-        var total = coalesced
+        var total = [UITouch]()
+        total.append(contentsOf: touches)
+        total.append(contentsOf: coalesced)
         total.append(contentsOf: pred)
         total.sort { (t1, t2) -> Bool in
             let p1 = t1.metalLocation(in: canvas)

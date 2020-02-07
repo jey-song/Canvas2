@@ -54,19 +54,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     /** Only allow styluses such as the Apple Pencil to be used for drawing. */
     public var stylusOnly: Bool
     
-    /** The color to use to clear the canvas, which also serves as the background color. */
-    public var canvasColor: UIColor {
-        didSet {
-            let rgba = self.canvasColor.rgba
-            self.clearColor = MTLClearColor(
-                red: Double(rgba.red),
-                green: Double(rgba.green),
-                blue: Double(rgba.blue),
-                alpha: Double(rgba.alpha)
-            )
-        }
-    }
-    
     /** The index of the current layer. */
     public internal(set) var currentLayer: Int
     
@@ -112,6 +99,12 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         }
     }
     
+    public override var backgroundColor: UIColor? {
+        didSet {
+            self.clearColor = (self.backgroundColor ?? UIColor.white).metalClearColor
+        }
+    }
+    
     
     
     
@@ -126,19 +119,17 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         self.currentLayer = -1
         self.registeredTextures = [:]
         self.registeredBrushes = [:]
-        self.canvasColor = UIColor.clear
         self.undoRedoManager = UndoRedoManager()
         
         // Configure the metal view.
         super.init(frame: frame, device: MTLCreateSystemDefaultDevice())
         self.colorPixelFormat = CANVAS_PIXEL_FORMAT
-        self.framebufferOnly = false
-        self.clearColor = self.canvasColor.metalClearColor
+        self.framebufferOnly = true
         self.delegate = self
-        self.isOpaque = true // TODO: Come back and see if this still works.
+        self.isOpaque = true
         self.isPaused = true
         self.enableSetNeedsDisplay = true
-        (self.layer as? CAMetalLayer)?.isOpaque = true // TODO: Come back and see if this still works.
+        (self.layer as? CAMetalLayer)?.isOpaque = true
         
         self.textureLoader = MTKTextureLoader(device: device!)
         self.commandQueue = device?.makeCommandQueue()
@@ -164,9 +155,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         
         registeredBrushes = try container?.decodeIfPresent([String : Brush].self, forKey: .registeredBrushes) ?? [:]
         stylusOnly = try container?.decodeIfPresent(Bool.self, forKey: .stylusOnly) ?? false
-        
-        let c = try container?.decodeIfPresent([CGFloat].self, forKey: .canvasColor) ?? [0,0,0,1]
-        canvasColor = UIColor(red: c[0], green: c[1], blue: c[2], alpha: c[3])
     }
     
     required init(coder: NSCoder) {
@@ -207,7 +195,8 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     public func addTexture(_ image: UIImage, forName name: String) {
         guard let cg = image.cgImage else { return }
         let texture = try! self.textureLoader.newTexture(cgImage: cg, options: [
-            MTKTextureLoader.Option.SRGB : false
+            MTKTextureLoader.Option.SRGB : false,
+            MTKTextureLoader.Option.textureStorageMode: MTLStorageMode.shared.rawValue
         ])
         self.registeredTextures[name] = texture
     }
@@ -372,9 +361,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         try container.encode(currentBrush, forKey: .currentBrush)
         try container.encode(maximumForce, forKey: .maximumForce)
         try container.encode(stylusOnly, forKey: .stylusOnly)
-        
-        let c = canvasColor.rgba
-        try container.encode([c.red, c.green, c.blue, c.alpha], forKey: .canvasColor)
         try container.encode(currentLayer, forKey: .currentLayer)
     }
     

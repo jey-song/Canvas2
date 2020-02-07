@@ -33,11 +33,11 @@ class ViewController: UIViewController, CanvasEvents {
     lazy var canvas: Canvas = {
         let a = Canvas()
         a.translatesAutoresizingMaskIntoConstraints = false
+        a.backgroundColor = .white
         a.forceEnabled = UIDevice.isSimulator() ? false : true
         a.stylusOnly = UIDevice.isSimulator() ? false : true
         a.currentBrush.size = 20
         a.maximumForce = 1.0
-        a.canvasColor = .white
         a.addLayer(at: 0)
         
         return a
@@ -491,14 +491,12 @@ class ViewController: UIViewController, CanvasEvents {
     }
     
     @objc func redo() {
-//        canvas.redo()
-        canvas.load(elements: d, onto: 0)
+        canvas.redo()
     }
     var d = [Element]()
     @objc func export() {
-//        guard let img = canvas.export() else { return }
-//        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
-        d = canvas.exportDrawings(from: 0)
+        guard let img = canvas.export() else { return }
+        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
     }
     
     

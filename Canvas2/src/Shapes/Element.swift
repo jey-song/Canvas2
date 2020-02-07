@@ -174,7 +174,7 @@ public class Element: Codable {
             buffer = canvas.device!.makeBuffer(
                 bytes: vertices,
                 length: length * MemoryLayout<Vertex>.stride,
-                options: []
+                options: .cpuCacheModeWriteCombined
             )
         } else {
             buffer = nil
@@ -197,8 +197,7 @@ public class Element: Codable {
         encoder.setFragmentSamplerState(canvas.sampleState, index: 0)
         
         // Draw primitives.
-        let count = vBuff.length / MemoryLayout<Vertex>.stride
-        encoder.drawPrimitives(type: isFreeHand == true ? .point : .triangle, vertexStart: 0, vertexCount: count)
+        encoder.drawPrimitives(type: isFreeHand == true ? .point : .triangle, vertexStart: 0, vertexCount: vertices.count)
     }
     
     
