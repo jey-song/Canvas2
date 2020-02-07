@@ -78,7 +78,6 @@ public class Element: Codable {
                 // TODO: Brush size is not working
                 BrushOption.Size: canvas.currentBrush.size,
                 BrushOption.Color: canvas.currentBrush.color,
-                BrushOption.Opacity: canvas.currentBrush.opacity,
                 BrushOption.TextureName: canvas.currentBrush.textureName,
                 BrushOption.IsEraser: canvas.currentBrush.isEraser,
             ]
@@ -92,7 +91,7 @@ public class Element: Codable {
         let vert = Vertex(
             position: point,
             size: 0,
-            color: brush.color.withAlphaComponent(brush.opacity),
+            color: brush.color,
             rotation: 0
         )
         self.vertices = [vert]
@@ -114,7 +113,6 @@ public class Element: Codable {
                 // TODO: Brush size is not working
                 BrushOption.Size: canvas.currentBrush.size,
                 BrushOption.Color: canvas.currentBrush.color,
-                BrushOption.Opacity: canvas.currentBrush.opacity,
                 BrushOption.TextureName: canvas.currentBrush.textureName,
                 BrushOption.IsEraser: canvas.currentBrush.isEraser,
             ]
@@ -127,7 +125,7 @@ public class Element: Codable {
             Vertex(
                 position: $0,
                 size: brush.size * canvas.force,
-                color: brush.color.withAlphaComponent(brush.opacity),
+                color: brush.color,
                 rotation: point.angel(to: prevPoint)
             )
         }
@@ -141,7 +139,6 @@ public class Element: Codable {
             with: [
                 BrushOption.Size: canvas.currentBrush.size,
                 BrushOption.Color: canvas.currentBrush.color,
-                BrushOption.Opacity: canvas.currentBrush.opacity,
                 BrushOption.TextureName: canvas.currentBrush.textureName,
                 BrushOption.IsEraser: canvas.currentBrush.isEraser,
             ]

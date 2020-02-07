@@ -21,7 +21,7 @@ internal func getLibrary(device: MTLDevice?) -> MTLLibrary? {
 }
 
 /** Builds a render pipeline. */
-internal func buildRenderPipeline(device: MTLDevice?, vertProg: MTLFunction?, fragProg: MTLFunction?) -> MTLRenderPipelineState? {
+internal func buildRenderPipeline(device: MTLDevice?, vertProg: MTLFunction?, fragProg: MTLFunction?, _ isEraser: Bool = false) -> MTLRenderPipelineState? {
     // Make a descriptor for the pipeline.
     let descriptor = MTLRenderPipelineDescriptor()
     descriptor.vertexFunction = vertProg

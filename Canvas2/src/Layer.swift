@@ -58,14 +58,29 @@ public class Layer: Codable {
     }
     
     /** Erases points from this layer by making them transparent. */
-    internal func eraseVertices(point: CGPoint) {
+    internal func eraseVertices(canvas: Canvas, point: CGPoint) {
+        let a = canvas.currentBrush.size * canvas.force
+        let size = (((a / 100) * 4) / 2) / 50
         
+        for element in elements {
+            element.vertices.removeAll { vert -> Bool in
+                CGPoint.inRange(
+                    x: vert.position.x,
+                    y: vert.position.y,
+                    a: Float(point.x),
+                    b: Float(point.y),
+                    size: Float(size)
+                )
+            }
+            element.rebuildBuffer(canvas: canvas)
+        }
     }
     
     
     // MARK: Rendering
     
     internal func render(canvas: Canvas, index: Int, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
+        // Render each element on this layer.
         for element in elements {
             element.render(canvas: canvas, buffer: buffer, encoder: encoder)
         }

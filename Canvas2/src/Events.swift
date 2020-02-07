@@ -24,7 +24,7 @@ public protocol CanvasEvents {
     func didChangeBrush(to brush: Brush)
     
     /** Called when you change the tool. */
-    func didChangeTool(to tool: Tool)
+    func didChangeTool(to tool: CanvasTool)
     
     /** Called when an action has been undone. */
     func didUndo(on canvas: Canvas)

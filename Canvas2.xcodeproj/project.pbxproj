@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		5A122D7323CF7E3200979CE8 /* CGPoint+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A122D7223CF7E3200979CE8 /* CGPoint+Extensions.swift */; };
-		5A16AE2823EB71380076EDA7 /* Paper.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A16AE2723EB71380076EDA7 /* Paper.png */; };
 		5A23DAC023D179B40067EF38 /* Eraser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A23DABF23D179B40067EF38 /* Eraser.swift */; };
 		5A38055423EB54CD00EECC6B /* Element+Shapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A38055323EB54CD00EECC6B /* Element+Shapes.swift */; };
 		5A39413423EA70D000D85ACA /* Smudge.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A39413323EA70D000D85ACA /* Smudge.png */; };
@@ -39,12 +38,12 @@
 		5AC96B7923D2D03C00AC5066 /* UIImage+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC96B7823D2D03C00AC5066 /* UIImage+Extensions.swift */; };
 		5ADC3E2B23D0D34100265C41 /* Line.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADC3E2A23D0D34100265C41 /* Line.swift */; };
 		5ADC3E2D23D0F8AF00265C41 /* Ellipse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADC3E2C23D0F8AF00265C41 /* Ellipse.swift */; };
+		5AEC358023ED23B6001B9D7D /* Splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 5AEC357F23ED23B6001B9D7D /* Splash.png */; };
 		5AF77BE123D5406F000444FE /* Element.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AF77BE023D5406F000444FE /* Element.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		5A122D7223CF7E3200979CE8 /* CGPoint+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGPoint+Extensions.swift"; sourceTree = "<group>"; };
-		5A16AE2723EB71380076EDA7 /* Paper.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Paper.png; sourceTree = "<group>"; };
 		5A23DABF23D179B40067EF38 /* Eraser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Eraser.swift; sourceTree = "<group>"; };
 		5A38055323EB54CD00EECC6B /* Element+Shapes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Element+Shapes.swift"; sourceTree = "<group>"; };
 		5A39413323EA70D000D85ACA /* Smudge.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Smudge.png; sourceTree = "<group>"; };
@@ -77,6 +76,7 @@
 		5AC96B7823D2D03C00AC5066 /* UIImage+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extensions.swift"; sourceTree = "<group>"; };
 		5ADC3E2A23D0D34100265C41 /* Line.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
 		5ADC3E2C23D0F8AF00265C41 /* Ellipse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ellipse.swift; sourceTree = "<group>"; };
+		5AEC357F23ED23B6001B9D7D /* Splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Splash.png; sourceTree = "<group>"; };
 		5AF77BE023D5406F000444FE /* Element.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Element.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -114,7 +114,7 @@
 				5A4C9C5E2374E88C0019ED83 /* SceneDelegate.swift */,
 				5A4C9C602374E88C0019ED83 /* ViewController.swift */,
 				5A39413323EA70D000D85ACA /* Smudge.png */,
-				5A16AE2723EB71380076EDA7 /* Paper.png */,
+				5AEC357F23ED23B6001B9D7D /* Splash.png */,
 				5A4C9C702374E9DA0019ED83 /* src */,
 				5A4C9C652374E88E0019ED83 /* Assets.xcassets */,
 				5A4C9C672374E88E0019ED83 /* LaunchScreen.storyboard */,
@@ -238,8 +238,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5A16AE2823EB71380076EDA7 /* Paper.png in Resources */,
 				5A39413423EA70D000D85ACA /* Smudge.png in Resources */,
+				5AEC358023ED23B6001B9D7D /* Splash.png in Resources */,
 				5A4C9C692374E88E0019ED83 /* LaunchScreen.storyboard in Resources */,
 				5A4C9C662374E88E0019ED83 /* Assets.xcassets in Resources */,
 			);

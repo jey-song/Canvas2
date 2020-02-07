@@ -367,9 +367,9 @@ class ViewController: UIViewController, CanvasEvents {
             canvas.addTexture(img, forName: "paintTexture")
             print("Added the paint texture!")
         }
-        if let img = UIImage(named: "Paper.png") {
-            canvas.addTexture(img, forName: "paperTexture")
-            print("Added the paper texture!")
+        if let img = UIImage(named: "Splash.png") {
+            canvas.addTexture(img, forName: "splashTexture")
+            print("Added the splash texture!")
         }
         
         // Load a brush.
@@ -380,8 +380,8 @@ class ViewController: UIViewController, CanvasEvents {
         ])
         let shapeBrush: Brush = Brush(name: "shapeBrush", config: [
             BrushOption.Size: CGFloat(50),
-            BrushOption.Color: UIColor.black,
-            BrushOption.TextureName: "paperTexture"
+            BrushOption.Color: UIColor.black.withAlphaComponent(0.2),
+            BrushOption.TextureName: "splashTexture"
         ])
         canvas.addBrush(basicPaint)
         canvas.addBrush(shapeBrush)
@@ -517,7 +517,7 @@ class ViewController: UIViewController, CanvasEvents {
         print("---> Changed Brush: \(brush.name)")
     }
     
-    func didChangeTool(to tool: Tool) {
+    func didChangeTool(to tool: CanvasTool) {
         print("---> Changed Tool: \(tool)")
     }
     

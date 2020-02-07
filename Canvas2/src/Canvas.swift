@@ -19,13 +19,10 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
 
     // ---> Internal
     
-    internal var pipeline: MTLRenderPipelineState!
     internal var commandQueue: MTLCommandQueue!
     internal var textureLoader: MTKTextureLoader!
     internal var sampleState: MTLSamplerState!
-    
-    internal var viewportVertices: [Vertex]
-    
+        
     internal var canvasLayers: [Layer]
     internal var currentPath: Element!
     internal var undoRedoManager: UndoRedoManager
@@ -42,11 +39,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     public var currentBrush: Brush!
     
     /** The tool that is currently used to add objects to the canvas. */
-    public var currentTool: Tool! {
-        didSet {
-            self.canvasDelegate?.didChangeTool(to: self.currentTool)
-        }
-    }
+    public internal(set) var currentTool: Tool!
     
     /** Whether or not the canvas should respond to force as a way to draw curves. */
     public var forceEnabled: Bool
@@ -115,16 +108,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     public override var frame: CGRect {
         didSet {
-            if device == nil { return }
-            
-            // Basically, every time you change the view size, clear the canvas using the
-            // viewport vertices, which is the a clear color screen.
-            self.viewportVertices = [
-                Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor, rotation: 0),
-                Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor, rotation: 0),
-                Vertex(position: CGPoint(x: 0, y: frame.height), color: canvasColor, rotation: 0),
-                Vertex(position: CGPoint(x: frame.width, y: frame.height), color: canvasColor, rotation: 0)
-            ]
             repaint()
         }
     }
@@ -143,7 +126,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         self.currentLayer = -1
         self.registeredTextures = [:]
         self.registeredBrushes = [:]
-        self.viewportVertices = []
         self.canvasColor = UIColor.clear
         self.undoRedoManager = UndoRedoManager()
         
@@ -153,36 +135,20 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         self.framebufferOnly = false
         self.clearColor = self.canvasColor.metalClearColor
         self.delegate = self
-        self.isOpaque = false
+        self.isOpaque = true // TODO: Come back and see if this still works.
         self.isPaused = true
         self.enableSetNeedsDisplay = true
-        (self.layer as? CAMetalLayer)?.isOpaque = false
-        
-        // Configure the pipeline.
-        let lib = getLibrary(device: device)
-        let vertProg = lib?.makeFunction(name: "main_vertex")
-        let fragProg = lib?.makeFunction(name: "textured_fragment")
-        
-        if lib == nil {
-            print("--> Canvas2 Error: Canvas2 cannot be used in the iOS simulator. Please test on a real device.")
-        }
+        (self.layer as? CAMetalLayer)?.isOpaque = true // TODO: Come back and see if this still works.
         
         self.textureLoader = MTKTextureLoader(device: device!)
         self.commandQueue = device?.makeCommandQueue()
         self.sampleState = buildSampleState(device: device)
-        self.pipeline = buildRenderPipeline(device: device, vertProg: vertProg, fragProg: fragProg)
         self.currentBrush = Brush(name: "defaultBrush", config: [
             BrushOption.Size: 10.0,
             BrushOption.Color: UIColor.black
         ])
         self.currentTool = self.pencilTool // Default tool
         self.currentPath = Element([], brushName: "defaultBrush") // Used for drawing temporary paths
-        self.viewportVertices = [
-            Vertex(position: CGPoint(x: 0, y: 0), color: canvasColor, rotation: 0),
-            Vertex(position: CGPoint(x: frame.width, y: 0), color: canvasColor, rotation: 0),
-            Vertex(position: CGPoint(x: 0, y: frame.height), color: canvasColor, rotation: 0),
-            Vertex(position: CGPoint(x: frame.width, y: frame.height), color: canvasColor, rotation: 0)
-        ]
     }
     
     public required convenience init(from decoder: Decoder) throws {
@@ -271,6 +237,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
             self.currentTool = self.eraserTool
             break
         }
+        canvasDelegate?.didChangeTool(to: tool)
     }
     
     /** Allows the user to add custom undo/redo actions to their app. */
@@ -294,53 +261,17 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     /** Clears the entire canvas. */
     public func clear() {
-        var copies = [[Element]]()
-        
-        for i in 0..<canvasLayers.count {
-            copies.append(canvasLayers[i].elements)
-            canvasLayers[i].elements.removeAll()
-        }
         rebuildBuffer()
         canvasDelegate?.didClear(canvas: self)
-        
-        // Undo action.
-        undoRedoManager.clearRedos()
-        undoRedoManager.add(onUndo: { () -> Any? in
-            for i in 0..<copies.count {
-                self.canvasLayers[i].elements = copies[i]
-            }
-            self.rebuildBuffer()
-            return nil
-        }) { () -> Any? in
-            for i in 0..<self.canvasLayers.count {
-                copies.append(self.canvasLayers[i].elements)
-                self.canvasLayers[i].elements.removeAll()
-            }
-            return nil
-        }
     }
     
     /** Clears the drawings on the specified layer. */
     public func clear(layer at: Int) {
         guard at >= 0 && at < canvasLayers.count else { return }
         
-        let cpy = canvasLayers[at].elements
-        
         canvasLayers[at].elements.removeAll()
         rebuildBuffer()
         canvasDelegate?.didClear(layer: at, on: self)
-        
-        // Undo action.
-        undoRedoManager.clearRedos()
-        undoRedoManager.add(onUndo: { () -> Any? in
-            self.canvasLayers[at].elements = cpy
-            self.rebuildBuffer()
-            return nil
-        }) { () -> Any? in
-            self.canvasLayers[at].elements.removeAll()
-            self.rebuildBuffer()
-            return nil
-        }
     }
     
     
@@ -405,12 +336,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         for i in 0..<canvasLayers.count {
             let layer = canvasLayers[i]
             if layer.isHidden == true { continue }
-            layer.render(
-                canvas: self,
-                index: i,
-                buffer: commandBuffer,
-                encoder: encoder
-            )
+            layer.render(canvas: self, index: i, buffer: commandBuffer, encoder: encoder)
         }
 
         // Finishing main encoding and present drawable.

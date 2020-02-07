@@ -56,7 +56,7 @@ public struct Eraser: Tool {
         canvas.setForce(value: firstTouch.force)
         
         // Go through the vertices on the layer and have them "erased."
-        canvas.canvasLayers[canvas.currentLayer].eraseVertices(point: point)
+        canvas.canvasLayers[canvas.currentLayer].eraseVertices(canvas: canvas, point: point)
         canvas.rebuildBuffer()
         return true
     }

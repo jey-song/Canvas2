@@ -15,7 +15,7 @@ extension Element {
     /** Returns an array of vertices that map to a rectangle (two triangles). */
     func endRectangle(start: CGPoint, end: CGPoint, brush: Brush) -> [Vertex] {
         let size = brush.size
-        let color = brush.color.withAlphaComponent(brush.opacity)
+        let color = brush.color
         let rotation = CGFloat(-1)
         
         // Compute the rectangle from the starting point to the end point.
@@ -69,7 +69,7 @@ extension Element {
     /** Returns an array of vertices that map to a straight line. */
     func endLine(start: CGPoint, end: CGPoint, brush: Brush) -> [Vertex] {
         let size = brush.size
-        let color = brush.color.withAlphaComponent(brush.opacity)
+        let color = brush.color
         let rotation = CGFloat(-1)
         
         // TODO: Maybe just use distance to the end point to compute the line coordinates.
@@ -155,7 +155,7 @@ extension Element {
     /** Returns an array of vertices that map to an ellipse. */
     func endEllipse(start: CGPoint, end: CGPoint, brush: Brush) -> [Vertex] {
         let size = brush.size
-        let color = brush.color.withAlphaComponent(brush.opacity)
+        let color = brush.color
         let rotation = CGFloat(-1)
         
         var verts: [Vertex] = [
