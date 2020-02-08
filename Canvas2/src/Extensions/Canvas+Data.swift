@@ -50,7 +50,10 @@ extension Canvas {
     /** Loads canvas elements onto a particular layer. */
     public func load(elements: [Element], onto layer: Int) {
         guard layer >= 0 && layer < canvasLayers.count else { return }
-        canvasLayers[layer].elements = elements
+        
+        var copy = elements
+        for i in 0..<elements.count { copy[i].rebuildBuffer(canvas: self) }
+        canvasLayers[layer].elements = copy
         setNeedsDisplay()
     }
     
