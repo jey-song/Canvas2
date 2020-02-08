@@ -16,11 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "Canvas2"
-<<<<<<< HEAD
-  spec.version      = "1.1.8"
-=======
   spec.version      = "1.1.9"
->>>>>>> dev
   spec.summary      = "A Metal accelerated canvas for drawing and painting in iOS apps!"
 
   # This description is used to generate tags and improve search results.
