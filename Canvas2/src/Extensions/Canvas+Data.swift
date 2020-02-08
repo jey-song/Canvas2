@@ -12,11 +12,12 @@ import UIKit
 extension Canvas {
     
     /** Exports the canvas as a UIImage. */
-    public func export() -> UIImage? {
+    public func export(size s: CGSize? = nil) -> UIImage? {
         guard let drawable = currentDrawable else { return nil }
-        guard let cg = drawable.texture.toCGImage2() else { return nil }
-        let image = UIImage(cgImage: cg)
-        return image
+        
+        let size = s ?? CGSize(width: drawable.texture.width, height: drawable.texture.height)
+        guard let img = makeImage(for: drawable.texture, size: size) else { return nil };
+        return UIImage(cgImage: img)
     }
     
     /** Exports the canvas, all of its layers, brush data, etc. into codable data. */
