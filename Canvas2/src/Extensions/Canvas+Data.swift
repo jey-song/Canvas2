@@ -51,7 +51,7 @@ extension Canvas {
     public func load(elements: [Element], onto layer: Int) {
         guard layer >= 0 && layer < canvasLayers.count else { return }
         
-        var copy = elements
+        let copy = elements.map { $0.copy() }
         for i in 0..<elements.count { copy[i].rebuildBuffer(canvas: self) }
         canvasLayers[layer].elements = copy
         setNeedsDisplay()
