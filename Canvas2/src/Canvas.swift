@@ -293,7 +293,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     internal func rebuildBuffer() {
         // If you were in the process of drawing a curve and are on a valid
         // layer, add that finished element to the layer.
-        if var copy = currentPath?.copy() {
+        if let copy = currentPath?.copy() {
             if isOnValidLayer() && copy.vertices.count > 0 {
                 // Add the newly drawn element to the layer.
                 copy.rebuildBuffer(canvas: self)

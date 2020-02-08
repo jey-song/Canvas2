@@ -87,7 +87,7 @@ public struct Layer: Codable {
         
         // Whatever is current being drawn on the screen, display it immediately.
         if canvas.currentLayer == index {
-            if var cp = canvas.currentPath {
+            if let cp = canvas.currentPath {
                 if cp.vertices.count > 0 && isLocked == false {
                     cp.rebuildBuffer(canvas: canvas)
                     cp.render(canvas: canvas, buffer: buffer, encoder: encoder)

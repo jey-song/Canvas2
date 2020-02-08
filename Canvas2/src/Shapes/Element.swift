@@ -12,7 +12,7 @@ import MetalKit
 
 
 /** An element is a manager for a group of quads on a layer of the canvas. */
-public struct Element: Codable {
+public class Element: Codable {
     
     // MARK: Variables
     
@@ -45,7 +45,7 @@ public struct Element: Codable {
         self.start = CGPoint()
     }
     
-    public init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try? decoder.container(keyedBy: ElementCodingKeys.self)
         
         self.vertices = try container?.decodeIfPresent([Vertex].self, forKey: .vertices) ?? []
@@ -58,7 +58,7 @@ public struct Element: Codable {
     
     
     public func copy() -> Element {
-        var e = Element(self.vertices, brushName: self.brushName)
+        let e = Element(self.vertices, brushName: self.brushName)
         e.start = self.start
         e.isFreeHand = self.isFreeHand
         return e
@@ -69,7 +69,7 @@ public struct Element: Codable {
     // MARK: Functions
     
     /** Starts a new path using this element. */
-    internal mutating func startPath(point: CGPoint, canvas: Canvas, isFreeHand: Bool = true) {
+    internal func startPath(point: CGPoint, canvas: Canvas, isFreeHand: Bool = true) {
         self.brushName = canvas.currentBrush.name
         guard let brush = canvas.getBrush(
             withName: self.brushName,
@@ -99,13 +99,13 @@ public struct Element: Codable {
     
     /** Finishes this element so that no more quads can be added to it without starting an
      entirely new element (i.e. lifting the stylus and drawing a new curve). */
-    internal mutating func closePath() {
+    internal func closePath() {
         vertices = []
         BezierGenerator.closePath()
     }
     
     /** Ends the last quad that exists on this element. */
-    internal mutating func endPencil(at point: CGPoint, canvas: Canvas) {
+    internal func endPencil(at point: CGPoint, canvas: Canvas) {
         guard let brush = canvas.getBrush(
             withName: self.brushName,
             with: [
@@ -132,7 +132,7 @@ public struct Element: Codable {
     }
     
     /**Ends the curve as a particular tool.  */
-    internal mutating func end(at point: CGPoint, canvas: Canvas, as tool: CanvasTool) {
+    internal func end(at point: CGPoint, canvas: Canvas, as tool: CanvasTool) {
         guard let brush = canvas.getBrush(
             withName: self.brushName,
             with: [
@@ -168,7 +168,7 @@ public struct Element: Codable {
     // MARK: Rendering
     
     /** Rebuilds the buffer. */
-    internal mutating func rebuildBuffer(canvas: Canvas) {
+    internal func rebuildBuffer(canvas: Canvas) {
         if vertices.count > 0 {
             buffer = canvas.device!.makeBuffer(
                 bytes: vertices,
