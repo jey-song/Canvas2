@@ -62,7 +62,18 @@ public struct Layer: Codable {
         let a = canvas.currentBrush.size * canvas.force
         let size = (((a / 100) * 4) / 2) / 50
         
-        for i in 0..<elements.count {
+        for var i in 0..<elements.count {
+            // If it is a shape (circle, rectangle, line) just
+            // remove the whole thing, don't bother removing vertices.
+            if elements[i].isFreeHand == false {
+                if i >= 0 && i < elements.count {
+                    elements.remove(at: i)
+                    i -= 1
+                    continue
+                }
+            }
+            
+            // If it's free hand, just remove specific vertices.
             elements[i].vertices.removeAll { vert -> Bool in
                 CGPoint.inRange(
                     x: vert.position.x,

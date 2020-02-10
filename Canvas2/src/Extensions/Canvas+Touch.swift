@@ -16,8 +16,10 @@ public extension Canvas {
         guard let touch = touches.first else { return }
         
         // Check for stylus only touches.
-        if self.stylusOnly == true && touch.type != .pencil && touch.type != .stylus {
-            return
+        if self.stylusOnly == true {
+            if touch.type != .pencil && touch.type != .stylus {
+                return
+            }
         }
         
         // Let the current tool handle manipulating point and quad/vertex data.
@@ -31,8 +33,10 @@ public extension Canvas {
         guard let touch = touches.first else { return }
         
         // Check for stylus only touches.
-        if self.stylusOnly == true && touch.type != .pencil && touch.type != .stylus {
-            return
+        if self.stylusOnly == true {
+            if touch.type != .pencil && touch.type != .stylus {
+                return
+            }
         }
         
         // Allow the current tool to handle movement across the screen.
@@ -46,8 +50,10 @@ public extension Canvas {
         guard let touch = touches.first else { return }
         
         // Check for stylus only touches.
-        if self.stylusOnly == true && touch.type != .pencil && touch.type != .stylus {
-            return
+        if self.stylusOnly == true {
+            if touch.type != .pencil && touch.type != .stylus {
+                return
+            }
         }
         
         if self.currentTool.endTouch(canvas: self, touches, with: event) {
@@ -60,8 +66,10 @@ public extension Canvas {
         guard let touch = touches.first else { return }
         
         // Check for stylus only touches.
-        if self.stylusOnly == true && touch.type != .pencil && touch.type != .stylus {
-            return
+        if self.stylusOnly == true {
+            if touch.type != .pencil && touch.type != .stylus {
+                return
+            }
         }
         
         if self.currentTool.cancelTouch(canvas: self, touches, with: event) {

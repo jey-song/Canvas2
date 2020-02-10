@@ -51,15 +51,12 @@ public class Element: Codable {
         self.vertices = try container?.decodeIfPresent([Vertex].self, forKey: .vertices) ?? []
         self.brushName = try container?.decodeIfPresent(String.self, forKey: .brushName) ?? "defaultBrush"
         self.isFreeHand = try container?.decodeIfPresent(Bool.self, forKey: .isFreeHand) ?? true
-        
-        let _start = try container?.decodeIfPresent([CGFloat].self, forKey: .start) ?? [0,0]
-        self.start = CGPoint(x: _start[0], y: _start[1])
+        self.start = CGPoint()
     }
     
     
     public func copy() -> Element {
         let e = Element(self.vertices, brushName: self.brushName)
-        e.start = self.start
         e.isFreeHand = self.isFreeHand
         return e
     }
@@ -207,7 +204,6 @@ public class Element: Codable {
         
         try container.encode(vertices, forKey: .vertices)
         try container.encode(brushName, forKey: .brushName)
-        try container.encode([start.x, start.y], forKey: .start)
         try container.encode(isFreeHand, forKey: .isFreeHand)
     }
     
