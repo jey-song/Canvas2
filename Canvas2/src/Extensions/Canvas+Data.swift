@@ -35,6 +35,12 @@ extension Canvas {
         return canvasLayers
     }
     
+    /** Exports just the drawings from each layer. */
+    public func exportLayerDrawings() -> [[Element]] {
+        let ret = canvasLayers.map { $0.elements }
+        return ret
+    }
+    
     /** Exports just the drawing data from a given element. */
     public func exportDrawings(from index: Int) -> [Element] {
         guard index >= 0 && index < canvasLayers.count else { return [] }
@@ -48,12 +54,20 @@ extension Canvas {
         setNeedsDisplay()
     }
     
+    /** Loads the drawings from each layer. */
+    public func load(layerElements: [[Element]]) {
+        for i in 0..<canvasLayers.count {
+            let copy = layerElements[i].map { $0.copy() }
+            canvasLayers[i].elements = copy
+        }
+        setNeedsDisplay()
+    }
+    
     /** Loads canvas elements onto a particular layer. */
     public func load(elements: [Element], onto layer: Int) {
         guard layer >= 0 && layer < canvasLayers.count else { return }
         
         let copy = elements.map { $0.copy() }
-        for i in 0..<elements.count { copy[i].rebuildBuffer(canvas: self) }
         canvasLayers[layer].elements = copy
         setNeedsDisplay()
     }

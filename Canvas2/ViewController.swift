@@ -397,7 +397,7 @@ class ViewController: UIViewController, CanvasEvents {
         
         // Load a brush.
         let basicPaint: Brush = Brush(name: "basicPaintBrush", config: [
-            BrushOption.Size: CGFloat(50),
+            BrushOption.Size: CGFloat(20),
             BrushOption.Color: UIColor.black,
             BrushOption.TextureName: "paintTexture"
         ])
@@ -514,15 +514,12 @@ class ViewController: UIViewController, CanvasEvents {
     }
     
     @objc func redo() {
-//        canvas.redo()
-        canvas.load(elements: d, onto: 0)
+        canvas.redo()
     }
     
-    var d = [Element]()
     @objc func export() {
-//        guard let img = canvas.export() else { return }
-//        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
-        d = canvas.exportDrawings(from: 0)
+        guard let img = canvas.export() else { return }
+        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
     }
     
     @objc func clear() {

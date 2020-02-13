@@ -93,17 +93,8 @@ public struct Layer: Codable {
     internal func render(canvas: Canvas, index: Int, buffer: MTLCommandBuffer, encoder: MTLRenderCommandEncoder) {
         // Render each element on this layer.
         for element in elements {
+            if element.buffer == nil { element.rebuildBuffer(canvas: canvas) }
             element.render(canvas: canvas, buffer: buffer, encoder: encoder)
-        }
-        
-        // Whatever is current being drawn on the screen, display it immediately.
-        if canvas.currentLayer == index {
-            if let cp = canvas.currentPath {
-                if cp.vertices.count > 0 && isLocked == false {
-                    cp.rebuildBuffer(canvas: canvas)
-                    cp.render(canvas: canvas, buffer: buffer, encoder: encoder)
-                }
-            }
         }
     }
     

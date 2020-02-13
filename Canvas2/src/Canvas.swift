@@ -22,7 +22,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     internal var commandQueue: MTLCommandQueue!
     internal var textureLoader: MTKTextureLoader!
     internal var sampleState: MTLSamplerState!
-    internal var mainTexture: MTLTexture?
         
     internal var canvasLayers: [Layer]
     internal var currentPath: Element!
@@ -141,7 +140,6 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
         ])
         self.currentTool = self.pencilTool // Default tool
         self.currentPath = Element([], brushName: "defaultBrush") // Used for drawing temporary paths
-        self.mainTexture = makeEmptyTexture(device: device!, width: frame.width, height: frame.height)
     }
     
     public required convenience init(from decoder: Decoder) throws {
@@ -321,44 +319,36 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     /** Finish the current drawing path and add it to the canvas. Then repaint the view. Never needs to be called manually. */
     internal func repaint() {
-        self.mainTexture = makeEmptyTexture(device: device!, width: frame.width, height: frame.height)
-        
-        // Get a reference to a command buffer and render encoder.
-        
-        guard let rpd = currentRenderPassDescriptor else { return }
-//        rpd.colorAttachments[0].texture = drawable.texture
-        rpd.colorAttachments[0].loadAction = .load
-//        rpd.colorAttachments[0].storeAction = .store
-//        rpd.colorAttachments[0].clearColor = (self.backgroundColor ?? UIColor.white).metalClearColor
-//        let rpd = MTLRenderPassDescriptor()
-//        rpd.colorAttachments[0].texture = currentDrawable?.texture
-//        rpd.colorAttachments[0].loadAction = .clear
-//        rpd.colorAttachments[0].storeAction = .store
-//        rpd.colorAttachments[0].clearColor = (self.backgroundColor ?? UIColor.white).metalClearColor
-        
-        guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
-        guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { return }
-        
-        // Render each layer.
-//        for i in 0..<canvasLayers.count {
-//            let layer = canvasLayers[i]
-//            if layer.isHidden == true { continue }
-//            layer.render(canvas: self, index: i, buffer: commandBuffer, encoder: encoder)
-//        }
-        
-        if let cp = currentPath {
-            if cp.vertices.count > 0 && canvasLayers[currentLayer].isLocked == false {
-                cp.rebuildBuffer(canvas: self)
-                cp.render(canvas: self, buffer: commandBuffer, encoder: encoder)
-            }
-        }
+        autoreleasepool {
+            // Get a reference to a command buffer and render encoder.
+            guard let rpd = currentRenderPassDescriptor else { return }
+            guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
+            guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: rpd) else { return }
+            
+            // Render each layer.
+            for i in 0..<canvasLayers.count {
+                let layer = canvasLayers[i]
+                if layer.isHidden == true { continue }
+                layer.render(canvas: self, index: i, buffer: commandBuffer, encoder: encoder)
+                
 
-        // Finishing main encoding and present drawable.
-        encoder.endEncoding()
-        if let drawable = currentDrawable {
-            commandBuffer.present(drawable)
+                if i == currentLayer {
+                    if let cp = currentPath {
+                        if cp.vertices.count > 0 && canvasLayers[currentLayer].isLocked == false {
+                            cp.rebuildBuffer(canvas: self)
+                            cp.render(canvas: self, buffer: commandBuffer, encoder: encoder)
+                        }
+                    }
+                }
+            }
+
+            // Finishing main encoding and present drawable.
+            encoder.endEncoding()
+            if let drawable = currentDrawable {
+                commandBuffer.present(drawable)
+            }
+            commandBuffer.commit()
         }
-        commandBuffer.commit()
     }
     
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
@@ -366,9 +356,7 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     }
     
     public func draw(in view: MTKView) {
-        autoreleasepool {
-            repaint()
-        }
+        repaint()
     }
     
     
