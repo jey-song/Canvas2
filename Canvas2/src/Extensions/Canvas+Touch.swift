@@ -17,7 +17,7 @@ public extension Canvas {
         
         // Check for stylus only touches.
         if self.stylusOnly == true {
-            if touch.type != .pencil && touch.type != .stylus {
+            if !self.isEffective(touch: touch) {
                 return
             }
         }
@@ -34,7 +34,7 @@ public extension Canvas {
         
         // Check for stylus only touches.
         if self.stylusOnly == true {
-            if touch.type != .pencil && touch.type != .stylus {
+            if !self.isEffective(touch: touch) {
                 return
             }
         }
@@ -51,7 +51,7 @@ public extension Canvas {
         
         // Check for stylus only touches.
         if self.stylusOnly == true {
-            if touch.type != .pencil && touch.type != .stylus {
+            if !self.isEffective(touch: touch) {
                 return
             }
         }
@@ -67,7 +67,7 @@ public extension Canvas {
         
         // Check for stylus only touches.
         if self.stylusOnly == true {
-            if touch.type != .pencil && touch.type != .stylus {
+            if !self.isEffective(touch: touch) {
                 return
             }
         }
@@ -76,5 +76,13 @@ public extension Canvas {
             self.canvasDelegate?.stoppedDrawing(element: currentPath, on: self)
             setNeedsDisplay()
         }
+    }
+    
+    private func isEffective(touch: UITouch) -> Bool {
+        // pencil
+//        if touch.type != .pencil && touch.type != .stylus {
+//            return false
+//        }
+        return true
     }
 }

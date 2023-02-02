@@ -10,7 +10,7 @@ import UIKit
 
 public extension UIDevice {
     static func isSimulator() -> Bool {
-        #if arch(i386) || arch(x86_64)
+        #if targetEnvironment(simulator)
             return true
         #else
             return false
@@ -531,7 +531,7 @@ class ViewController: UIViewController, CanvasEvents {
     // MARK: CanvasEvents
     
     func isDrawing(element: Element, on canvas: Canvas) {
-        
+        print("---> isDrawing ")
     }
     
     func stoppedDrawing(element: Element, on canvas: Canvas) {
