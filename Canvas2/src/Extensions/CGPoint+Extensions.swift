@@ -50,17 +50,16 @@ extension CGPoint: Comparable {
     
     func normalize() -> CGPoint {
         let n = norm()
-        let out = CGPoint(x: x / n, y: y / n)
+        let out = CGPoint(x: abs(x) / n, y: abs(y) / n)
         return out
     }
     
     func perpendicular(other: CGPoint) -> CGPoint {
-        var diff = CGPoint(x: other.x - self.x, y: other.y - self.x)
+        var diff = CGPoint(x: other.x - self.x, y: other.y - self.y)
         let length = hypot(diff.x, diff.y)
         diff.x /= length
         diff.y /= length
-        let perp = CGPoint(x: -diff.y, y: diff.x)
-        return perp
+        return diff
     }
     
     /** Checks if a vertex lies within the range of another vertex by the amount of the brush size. */

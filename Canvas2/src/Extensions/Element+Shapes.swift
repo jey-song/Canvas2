@@ -68,7 +68,7 @@ extension Element {
     
     /** Returns an array of vertices that map to a straight line. */
     func endLine(start: CGPoint, end: CGPoint, brush: Brush) -> [Vertex] {
-        let size = brush.size
+        var size = 0.01 // brush.size
         let color = brush.color
         let rotation = CGFloat(-1)
         
@@ -81,63 +81,64 @@ extension Element {
         
         // Based on the rotation, compute the four corners of the quad.
         // Condition 1: Bottom left to top right.
-        if start.x < end.x && start.y < end.y {
-            A.x -= (perpendicular * size).x
+        if start.x <= end.x && start.y <= end.y {
+            A.x -= (perpendicular * size).y
             A.y += (perpendicular * size).x
             
-            B.x -= (perpendicular * size).x
+            B.x -= (perpendicular * size).y
             B.y += (perpendicular * size).x
             
-            C.x += (perpendicular * size).x
+            C.x += (perpendicular * size).y
             C.y -= (perpendicular * size).x
             
-            D.x += (perpendicular * size).x
+            D.x += (perpendicular * size).y
             D.y -= (perpendicular * size).x
         }
         // Condition 2: Top left to bottom right.
-        else if start.x < end.x && start.y > end.y {
-            A.x += (perpendicular * size).x
+        else if start.x <= end.x && start.y > end.y {
+            A.x += (perpendicular * size).y
             A.y += (perpendicular * size).x
             
-            B.x += (perpendicular * size).x
+            B.x += (perpendicular * size).y
             B.y += (perpendicular * size).x
             
-            C.x -= (perpendicular * size).x
+            C.x -= (perpendicular * size).y
             C.y -= (perpendicular * size).x
             
-            D.x -= (perpendicular * size).x
+            D.x -= (perpendicular * size).y
             D.y -= (perpendicular * size).x
         }
         // Condition 3: Top right to bottom left.
         else if start.x > end.x && start.y > end.y {
-            A.x += (perpendicular * size).x
+            A.x += (perpendicular * size).y
             A.y -= (perpendicular * size).x
             
-            B.x += (perpendicular * size).x
+            B.x += (perpendicular * size).y
             B.y -= (perpendicular * size).x
             
-            C.x -= (perpendicular * size).x
+            C.x -= (perpendicular * size).y
             C.y += (perpendicular * size).x
             
-            D.x -= (perpendicular * size).x
+            D.x -= (perpendicular * size).y
             D.y += (perpendicular * size).x
         }
         // Condition 4: Bottom right to top left.
-        else if start.x > end.x && start.y < end.y {
-            A.x -= (perpendicular * size).x
+        else if start.x > end.x && start.y <= end.y {
+            A.x -= (perpendicular * size).y
             A.y -= (perpendicular * size).x
             
-            B.x -= (perpendicular * size).x
+            B.x -= (perpendicular * size).y
             B.y -= (perpendicular * size).x
             
-            C.x += (perpendicular * size).x
+            C.x += (perpendicular * size).y
             C.y += (perpendicular * size).x
             
-            D.x += (perpendicular * size).x
+            D.x += (perpendicular * size).y
             D.y += (perpendicular * size).x
         }
         
         // Set the vertices of the line quad.
+        size = brush.size
         return [
             // Triangle 1
             Vertex(position: A, size: size, color: color, rotation: rotation),
