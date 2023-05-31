@@ -50,7 +50,7 @@ struct Vertex: Codable {
         var container = try? decoder.unkeyedContainer()
         
         let data = try container?.decodeIfPresent(Data.self) ?? Data()
-        let decString = (String(data: data, encoding: .utf8) ?? "0,1*10*0,0,0,1*0").split(separator: "*")
+        let decString = (String(data: data, encoding: .utf8) ?? "0,0,0,1*10*0,0,0,1*0").split(separator: "*")
         let posString = decString[0]
         let sizeString = decString[1]
         let colString = decString[2]
