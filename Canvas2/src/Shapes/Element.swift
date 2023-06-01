@@ -24,6 +24,7 @@ public class Element: Codable {
     internal var brushName: String
     internal var start: CGPoint
     internal var isFreeHand: Bool
+    internal var id: String // = UUID().uuidString
     
     
     
@@ -42,6 +43,7 @@ public class Element: Codable {
         self.vertices = verts
         self.brushName = brushName
         self.isFreeHand = true
+        self.id = UUID().uuidString
         self.start = CGPoint()
     }
     
@@ -51,6 +53,7 @@ public class Element: Codable {
         self.vertices = try container?.decodeIfPresent([Vertex].self, forKey: .vertices) ?? []
         self.brushName = try container?.decodeIfPresent(String.self, forKey: .brushName) ?? "defaultBrush"
         self.isFreeHand = try container?.decodeIfPresent(Bool.self, forKey: .isFreeHand) ?? true
+        self.id = try container?.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
         self.start = CGPoint()
     }
     
@@ -205,6 +208,7 @@ public class Element: Codable {
         try container.encode(vertices, forKey: .vertices)
         try container.encode(brushName, forKey: .brushName)
         try container.encode(isFreeHand, forKey: .isFreeHand)
+        try container.encode(id, forKey: .id)
     }
     
 }

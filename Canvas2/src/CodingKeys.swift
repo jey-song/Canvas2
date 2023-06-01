@@ -21,6 +21,7 @@ internal enum ElementCodingKeys: CodingKey {
     case brushName
     case start
     case isFreeHand
+    case id
 }
 
 internal enum ToolCodingKeys: CodingKey {

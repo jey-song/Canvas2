@@ -168,6 +168,11 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     
     // ---> Public
     
+    public func add(element: Element) {
+        self.rebuildBuffer(element)
+        element.closePath()
+    }
+    
     /** Registers a new brush that can be used on this canvas. */
     public func addBrush(_ brush: Brush) {
         let cpy = brush.copy()
@@ -290,10 +295,11 @@ public class Canvas: MTKView, MTKViewDelegate, Codable {
     // ---> Rendering
     
     /** Ends the curve that is currently being drawn if there is one, then rebuilds the main buffer. */
-    internal func rebuildBuffer() {
+    internal func rebuildBuffer(_ butter: Element? = nil) {
         // If you were in the process of drawing a curve and are on a valid
         // layer, add that finished element to the layer.
-        if let copy = currentPath?.copy() {
+        let path = butter ?? currentPath
+        if let copy = path?.copy() {
             if isOnValidLayer() && copy.vertices.count > 0 {
                 // Add the newly drawn element to the layer.
                 copy.rebuildBuffer(canvas: self)

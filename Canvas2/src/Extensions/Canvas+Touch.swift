@@ -56,8 +56,9 @@ public extension Canvas {
             }
         }
         
-        if self.currentTool.endTouch(canvas: self, touches, with: event) {
-            self.canvasDelegate?.stoppedDrawing(element: currentPath, on: self)
+        if let path = currentPath?.copy(),
+           self.currentTool.endTouch(canvas: self, touches, with: event) {
+            self.canvasDelegate?.stoppedDrawing(element: path, on: self)
             setNeedsDisplay()
         }
     }
