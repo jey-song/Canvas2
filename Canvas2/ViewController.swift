@@ -290,7 +290,6 @@ class ViewController: UIViewController, CanvasEvents {
         self.setupCanvas()
         
         // Setup the view.
-        self.view.addSubview(canvas)
         self.view.addSubview(toolButton)
         self.view.addSubview(colorButton)
         self.view.addSubview(addLayerButton)
@@ -306,32 +305,41 @@ class ViewController: UIViewController, CanvasEvents {
         self.view.addSubview(exportButton)
         self.view.addSubview(clearButton)
         
-        canvas.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        canvas.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        canvas.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        canvas.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.7).isActive = true
+        let scrollView = UIScrollView()
+        self.view.addSubview(scrollView)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -200).isActive = true
         
-        toolButton.topAnchor.constraint(equalTo: canvas.bottomAnchor, constant: 10).isActive = true
+        scrollView.addSubview(canvas)
+        canvas.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor).isActive = true
+        canvas.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor).isActive = true
+        canvas.widthAnchor.constraint(equalToConstant: 1000).isActive = true
+        canvas.heightAnchor.constraint(equalToConstant: 1000).isActive = true
+        
+        toolButton.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: 10).isActive = true
         toolButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
         toolButton.widthAnchor.constraint(equalToConstant: 150).isActive = true
         toolButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        colorButton.topAnchor.constraint(equalTo: canvas.bottomAnchor, constant: 10).isActive = true
+        colorButton.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: 10).isActive = true
         colorButton.leadingAnchor.constraint(equalTo: toolButton.trailingAnchor, constant: 10).isActive = true
         colorButton.widthAnchor.constraint(equalToConstant: 150).isActive = true
         colorButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        addLayerButton.topAnchor.constraint(equalTo: canvas.bottomAnchor, constant: 10).isActive = true
+        addLayerButton.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: 10).isActive = true
         addLayerButton.leadingAnchor.constraint(equalTo: colorButton.trailingAnchor, constant: 10).isActive = true
         addLayerButton.widthAnchor.constraint(equalToConstant: 170).isActive = true
         addLayerButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        addLayerButton2.topAnchor.constraint(equalTo: canvas.bottomAnchor, constant: 10).isActive = true
+        addLayerButton2.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: 10).isActive = true
         addLayerButton2.leadingAnchor.constraint(equalTo: addLayerButton.trailingAnchor, constant: 10).isActive = true
         addLayerButton2.widthAnchor.constraint(equalToConstant: 170).isActive = true
         addLayerButton2.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        switchLayerButton.topAnchor.constraint(equalTo: canvas.bottomAnchor, constant: 10).isActive = true
+        switchLayerButton.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: 10).isActive = true
         switchLayerButton.leadingAnchor.constraint(equalTo: addLayerButton2.trailingAnchor, constant: 10).isActive = true
         switchLayerButton.widthAnchor.constraint(equalToConstant: 150).isActive = true
         switchLayerButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
@@ -414,8 +422,8 @@ class ViewController: UIViewController, CanvasEvents {
         canvas.changeBrush(to: "basicPaintBrush")
         
         // Gestures.
-        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(zoom))
-        canvas.addGestureRecognizer(pinch)
+        // let pinch = UIPinchGestureRecognizer(target: self, action: #selector(zoom))
+        // canvas.addGestureRecognizer(pinch)
     }
     
     @objc func zoom(gesture: UIPinchGestureRecognizer) {
