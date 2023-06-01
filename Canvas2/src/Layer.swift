@@ -59,13 +59,16 @@ public struct Layer: Codable {
     
     /** Erases points from this layer by making them transparent. */
     internal mutating func eraseVertices(canvas: Canvas, point: CGPoint) {
+        guard !elements.isEmpty else { return }
         let a = canvas.currentBrush.size * canvas.force
         let size = (((a / 100) * 4) / 2) / 50
         
-        for var i in 0..<elements.count {
+        let maxIndex = elements.count - 1
+        for var i in 0...maxIndex {
             // If it is a shape (circle, rectangle, line) just
             // remove the whole thing, don't bother removing vertices.
-            if elements[i].isFreeHand == false {
+            let index = maxIndex - i
+            if elements[index].isFreeHand == false {
                 if i >= 0 && i < elements.count {
                     elements.remove(at: i)
                     i -= 1
@@ -74,7 +77,7 @@ public struct Layer: Codable {
             }
             
             // If it's free hand, just remove specific vertices.
-            elements[i].vertices.removeAll { vert -> Bool in
+            elements[index].vertices.removeAll { vert -> Bool in
                 CGPoint.inRange(
                     x: vert.position.x,
                     y: vert.position.y,
@@ -83,7 +86,7 @@ public struct Layer: Codable {
                     size: Float(size)
                 )
             }
-            elements[i].rebuildBuffer(canvas: canvas)
+            elements[index].rebuildBuffer(canvas: canvas)
         }
     }
     

@@ -129,16 +129,19 @@ public class Brush: Codable { // TODO: Come back and make sure the class works.
     
     /** Changes the brush to match the current options. */
     internal func load(from config: [BrushOption : Any?]) -> Brush {
-        let s = config[BrushOption.Size] as? CGFloat
-        let color = config[BrushOption.Color] as? UIColor
-        let textureName = config[BrushOption.TextureName] as? String
-        let isEraser = config[BrushOption.IsEraser] as? Bool
-        
         let brush = copy()
-        if s != nil { brush.size = s! }
-        if color != nil { brush.color = color! }
-        if textureName != nil { brush.textureName = textureName! }
-        if isEraser != nil { brush.isEraser = isEraser! }
+        if let s = config[BrushOption.Size] as? CGFloat {
+            brush.size = s
+        }
+        if let color = config[BrushOption.Color] as? UIColor {
+            brush.color = color
+        }
+        if let textureName = config[BrushOption.TextureName] as? String {
+            brush.textureName = textureName
+        }
+        if let isEraser = config[BrushOption.IsEraser] as? Bool {
+            brush.isEraser = isEraser
+        }
         return brush
     }
     

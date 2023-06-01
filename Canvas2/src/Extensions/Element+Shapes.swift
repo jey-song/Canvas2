@@ -68,11 +68,11 @@ extension Element {
     
     /** Returns an array of vertices that map to a straight line. */
     func endLine(start: CGPoint, end: CGPoint, brush: Brush) -> [Vertex] {
+        // TODO: Line size is not brush size
         var size = 0.01 // brush.size
         let color = brush.color
         let rotation = CGFloat(-1)
         
-        // TODO: Maybe just use distance to the end point to compute the line coordinates.
         let perpendicular = start.perpendicular(other: end).normalize()
         var A: CGPoint = start
         var B: CGPoint = end
