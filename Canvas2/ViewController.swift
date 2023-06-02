@@ -34,8 +34,8 @@ class ViewController: UIViewController, CanvasEvents {
         let a = Canvas()
         a.translatesAutoresizingMaskIntoConstraints = false
         a.backgroundColor = .white
-        a.forceEnabled = UIDevice.isSimulator() ? false : true
-        a.stylusOnly = UIDevice.isSimulator() ? false : true
+        a.forceEnabled = false
+        a.stylusOnly = false
         a.currentBrush.size = 20
         a.maximumForce = 1.0
         a.addLayer(at: 0)

@@ -81,9 +81,9 @@ public extension Canvas {
     
     private func isEffective(touch: UITouch) -> Bool {
         // pencil
-//        if touch.type != .pencil && touch.type != .stylus {
-//            return false
-//        }
+        if touch.type != .pencil && touch.type != .stylus {
+            return false
+        }
         return true
     }
 }
